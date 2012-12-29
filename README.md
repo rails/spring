@@ -36,6 +36,10 @@ won't be as feature complete as a real shell. Using a real shell also
 prevents the user having to constantly jump between a terminal with a
 real shell and a terminal running the rails "commands console".
 
+## Compatibility
+
+At the moment only MRI 1.9.3 / Rails 3.2 is supported.
+
 ## Usage
 
 Add `spring` to your gemfile and do a `bundle`.
