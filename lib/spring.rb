@@ -12,7 +12,8 @@ class Spring
   SERVER_COMMAND = [
     File.join(*RbConfig::CONFIG.values_at('bindir', 'RUBY_INSTALL_NAME')),
     "-r", "bundler/setup",
-    File.expand_path("../spring/server.rb", __FILE__)
+    "-r", "spring/server",
+    "-e", "Spring::Server.boot"
   ]
 
   def self.run(args)

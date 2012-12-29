@@ -55,5 +55,3 @@ class Spring
     end
   end
 end
-
-Spring::Server.boot if __FILE__ == $0
