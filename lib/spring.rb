@@ -63,7 +63,7 @@ class Spring
   rescue Errno::ECONNRESET
     false
   ensure
-    socket.close
+    socket.close if socket
   end
 
   private
