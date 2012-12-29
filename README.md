@@ -32,7 +32,9 @@ commands) take the approach of using a special console to run commands
 from. This means we will have to re-implement shell features such as
 history, completion, etc. Whilst it's not impossible to re-implement
 those features, it's unnecessary work and our re-implementation
-won't be as feature complete as a real shell.
+won't be as feature complete as a real shell. Using a real shell also
+prevents the user having to constantly jump between a terminal with a
+real shell and a terminal running the rails "commands console".
 
 ## Usage
 
@@ -102,9 +104,8 @@ sys	0m0.063s
 
 If we edit any of the application files, or test files, the change will
 be picked up on the next run, without having the background process
-having to be restarted. This is because spring makes use of Rails' class
-reloading, just like when you make changes in development and see them
-when you reload your browser.
+having to be restarted. This works even if you e.g. referenced your
+`Post` model in an initializer and then edited it.
 
 If we edit any of the preloaded files, the application needs to restart
 automatically. Note that the application process id is 8698 above. Let's
@@ -117,8 +118,8 @@ $ ps ax | grep spring
  8876 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -r bundler/setup /home/turnip/.rbenv/versions/1.9.3-p194/lib/ruby/gems/1.9.1/gems/spring-0.0.1/lib/spring/server.rb
 ```
 
-The application process detect the change and exited. The server process
-then detected that the application process exited, so it restarted it.
+The application process detected the change and exited. The server process
+then detected that the application process exited, so it started a new application.
 All of this happens automatically in the background. Next time we run a
 command we'll be running against a fresh application.
 
