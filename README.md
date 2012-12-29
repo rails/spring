@@ -171,9 +171,11 @@ sys	0m0.070s
 
 ## Commands
 
-The following commands are shipped by default. There is a
-straightforward API for defining your own commands, but currently no way of
-hooking in to do so. This is on the TODO list.
+The following commands are shipped by default.
+
+Custom commands can be specified in `config/initializers/spring.rb`. See
+[`lib/spring/commands.rb`](https://github.com/jonleighton/spring/blob/master/lib/spring/commands.rb)
+for examples.
 
 ### `test`
 

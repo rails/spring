@@ -195,4 +195,8 @@ class AppTest < ActiveSupport::TestCase
       File.write(application, application_contents)
     end
   end
+
+  test "custom commands" do
+    assert_stdout "#{BINFILE} custom", "omg"
+  end
 end

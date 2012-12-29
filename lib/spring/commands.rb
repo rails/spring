@@ -1,5 +1,3 @@
-# TODO: Need a way for applications to add their own commands.
-
 class Spring
   @commands = {}
 
@@ -13,6 +11,12 @@ class Spring
 
   def self.command(name)
     commands.fetch name
+  end
+
+  # Load custom commands, if any
+  begin
+    require "./config/initializers/spring"
+  rescue LoadError
   end
 
   module Commands
