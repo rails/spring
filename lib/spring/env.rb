@@ -1,5 +1,6 @@
 require "pathname"
 require "spring/sid"
+require "fileutils"
 
 class Spring
   class Env
@@ -11,7 +12,7 @@ class Spring
 
     def tmp_path
       path = root.join('tmp/spring')
-      path.mkdir unless path.exist?
+      FileUtils.mkdir_p(path) unless path.exist?
       path
     end
 
