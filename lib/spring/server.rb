@@ -25,7 +25,14 @@ class Spring
       write_pidfile
 
       server = UNIXServer.open(env.socket_name)
-      loop { @applications[server.accept.read].run server.accept }
+      loop { serve server.accept }
+    end
+
+    def serve(client)
+      app_client = client.recv_io
+      rails_env  = client.read
+
+      @applications[rails_env].run app_client
     end
 
     def set_exit_hook

@@ -52,30 +52,33 @@ class Spring
   def run(args)
     boot_server unless server_running?
 
-    socket = UNIXSocket.open(env.socket_name)
-    socket.write rails_env_for(args.first)
-    socket.close
+    application, client = UNIXSocket.pair
 
-    socket = UNIXSocket.open(env.socket_name)
+    server = UNIXSocket.open(env.socket_name)
+    server.send_io client
+    server.write rails_env_for(args.first)
+    server.close
 
-    socket.send_io STDOUT
-    socket.send_io STDERR
-    socket.send_io stdin_slave
+    client.close
 
-    socket.puts args.length
+    application.send_io STDOUT
+    application.send_io STDERR
+    application.send_io stdin_slave
+
+    application.puts args.length
 
     args.each do |arg|
-      socket.puts  arg.length
-      socket.write arg
+      application.puts  arg.length
+      application.write arg
     end
 
     # FIXME: receive exit status from server
-    socket.read
+    application.read
     true
   rescue Errno::ECONNRESET
     false
   ensure
-    socket.close if socket
+    application.close if application
   end
 
   private
