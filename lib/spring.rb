@@ -27,15 +27,26 @@ class Spring
   end
 
   def server_running?
-    env.socket_path.exist?
+    if env.pidfile_path.exist?
+      pidfile = env.pidfile_path.open('r')
+      !pidfile.flock(File::LOCK_EX | File::LOCK_NB)
+    else
+      false
+    end
+  ensure
+    if pidfile
+      pidfile.flock(File::LOCK_UN)
+      pidfile.close
+    end
   end
 
+  # Boot the server into the process group of the current session.
+  # This will cause it to be automatically killed once the session
+  # ends (i.e. when the user closes their terminal).
   def boot_server
-    # Boot the server into the process group of the current session.
-    # This will cause it to be automatically killed once the session
-    # ends (i.e. when the user closes their terminal).
+    env.socket_path.unlink if env.socket_path.exist?
     Process.spawn(*SERVER_COMMAND, pgroup: SID.pgid)
-    sleep 0.1 until server_running?
+    sleep 0.1 until env.socket_path.exist?
   end
 
   def run(args)
