@@ -46,11 +46,7 @@ class Spring
     def run
       loop do
         watch_application
-
-        client = manager.recv_io
-        client.autoclose = false # prevent GC closing the FD
-
-        serve UNIXSocket.for_fd(client.fileno)
+        serve manager.recv_io(UNIXSocket)
       end
     end
 
