@@ -58,17 +58,17 @@ class AppTest < ActiveSupport::TestCase
 
   def assert_successful_run(*args)
     status, _, _ = app_run(*args)
-    assert status.success?
+    assert status.success?, 'The run should be successful but it was '
   end
 
   def assert_unsuccessful_run(*args)
     status, _, _ = app_run(*args)
-    assert !status.success?
+    assert !status.success?, 'The run should not be successful but it was'
   end
 
   def assert_stdout(command, expected)
     _, stdout, _ = app_run(command)
-    assert stdout.include?(expected)
+    assert stdout.include?(expected), "expected '#{expected}' to be printed to stdout. But it wasn't, the stdout is:\n#{stdout}"
   end
 
   def assert_speedup(opts = {})
