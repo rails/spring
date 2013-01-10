@@ -39,8 +39,6 @@ class Spring
       watcher.add_files $LOADED_FEATURES
       watcher.add_files ["Gemfile", "Gemfile.lock"].map { |f| "#{Rails.root}/#{f}" }
       watcher.add_globs Rails.application.paths["config/initializers"].map { |p| "#{Rails.root}/#{p}/*.rb" }
-
-      run
     end
 
     def run
@@ -57,6 +55,7 @@ class Spring
     end
 
     def serve(client)
+      client.puts
       redirect_output(client) do
         args_length = client.gets.to_i
         args        = args_length.times.map { client.read(client.gets.to_i) }

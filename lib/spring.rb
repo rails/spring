@@ -59,6 +59,7 @@ class Spring
     server.write rails_env_for(args.first)
     server.close
 
+    application.gets
     client.close
 
     application.send_io STDOUT
