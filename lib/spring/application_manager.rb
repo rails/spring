@@ -57,9 +57,17 @@ class Spring
       @child, child_socket = UNIXSocket.pair
       @pid = fork {
         [STDOUT, STDERR].each { |s| s.reopen('/dev/null', 'w') } if silence
-        @client.close if @client
         ENV['RAILS_ENV'] = ENV['RACK_ENV'] = env
-        Application.new(child_socket).start
+        application = Application.new(child_socket)
+        begin
+          application.start
+        rescue => e
+          @client.puts
+          raise e
+        ensure
+          @client.close if @client
+        end
+        application.run
       }
       child_socket.close
     end
