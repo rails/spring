@@ -33,12 +33,15 @@ class Spring
       @client = client
 
       synchronize do
-        start unless alive?
-
-        begin
-          child.send_io @client
-        rescue Errno::EPIPE
-          # EPIPE indicates child has died but has not been collected by the wait thread yet
+        if alive?
+          begin
+            child.send_io @client
+          rescue Errno::EPIPE
+            # EPIPE indicates child has died but has not been collected by the wait thread yet
+            start
+            child.send_io @client
+          end
+        else
           start
           child.send_io @client
         end
