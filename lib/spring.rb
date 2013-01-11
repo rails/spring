@@ -56,11 +56,14 @@ class Spring
 
     server = UNIXSocket.open(env.socket_name)
     server.send_io client
-    server.write rails_env_for(args.first)
-    server.close
+    server.puts rails_env_for(args.first)
 
-    application.gets
+    status = server.read(1)
+
+    server.close
     client.close
+
+    return false unless status == "0"
 
     application.send_io STDOUT
     application.send_io STDERR

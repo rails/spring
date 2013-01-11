@@ -30,9 +30,13 @@ class Spring
 
     def serve(client)
       app_client = client.recv_io
-      rails_env  = client.read
+      rails_env  = client.gets.chomp
 
-      @applications[rails_env].run app_client
+      if @applications[rails_env].run(app_client)
+        client.write "0"
+      else
+        client.write "1"
+      end
     end
 
     def set_exit_hook

@@ -39,12 +39,24 @@ class Spring
       watcher.add_files $LOADED_FEATURES
       watcher.add_files ["Gemfile", "Gemfile.lock"].map { |f| "#{Rails.root}/#{f}" }
       watcher.add_globs Rails.application.paths["config/initializers"].map { |p| "#{Rails.root}/#{p}/*.rb" }
+
+      run
     end
 
     def run
       loop do
         watch_application
-        serve manager.recv_io(UNIXSocket)
+
+        client = manager.recv_io(UNIXSocket)
+
+        # Confirm that we have received the client socket. This is necessary on OS X
+        # to prevent a timing error. The client needs to keep the FD that we are receiving
+        # open until it has been received here. Unlike on Linux, it's not sufficient for
+        # the FD to just be in the socket buffer, it has to actually get received at this
+        # end before it can be closed by the client.
+        manager.puts
+
+        serve client
       end
     end
 
@@ -55,7 +67,6 @@ class Spring
     end
 
     def serve(client)
-      client.puts
       redirect_output(client) do
         args_length = client.gets.to_i
         args        = args_length.times.map { client.read(client.gets.to_i) }

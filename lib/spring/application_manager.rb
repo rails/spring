@@ -29,6 +29,10 @@ class Spring
       @pid
     end
 
+    # The return value of this method indicates whether or not the application
+    # successfully received the client. It might not successfully receive the
+    # client if e.g. the application has an exception during initialization, causing
+    # the application process to die.
     def run(client)
       @client = client
 
@@ -45,7 +49,11 @@ class Spring
           start
           child.send_io @client
         end
+
+        child.gets
       end
+    rescue Errno::ECONNRESET, Errno::EPIPE
+      false
     ensure
       @client.close
       @client = nil
@@ -57,17 +65,9 @@ class Spring
       @child, child_socket = UNIXSocket.pair
       @pid = fork {
         [STDOUT, STDERR].each { |s| s.reopen('/dev/null', 'w') } if silence
+        @client.close if @client
         ENV['RAILS_ENV'] = ENV['RACK_ENV'] = env
-        application = Application.new(child_socket)
-        begin
-          application.start
-        rescue => e
-          @client.puts
-          raise e
-        ensure
-          @client.close if @client
-        end
-        application.run
+        Application.new(child_socket).start
       }
       child_socket.close
     end
