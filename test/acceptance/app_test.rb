@@ -1,5 +1,6 @@
 require 'helper'
 require 'io/wait'
+require "timeout"
 
 class AppTest < ActiveSupport::TestCase
   BINFILE = File.expand_path('../bin/spring', TEST_ROOT)
@@ -36,20 +37,28 @@ class AppTest < ActiveSupport::TestCase
       )
     end
 
-    _, status = Process.wait2
+    _, status = Timeout.timeout(5) { Process.wait2 }
 
-    out, err = [stdout, stderr].map(&:first).map { |s| s.ready? ? s.readpartial(10240) : "" }
+    out, err = read_streams
 
     @times << (Time.now - start_time) if opts.fetch(:timer, true)
 
-    # p status
-    # puts "---"
-    # puts out
-    # puts "***"
-    # puts err
-    # puts "---"
-
     [status, out, err]
+  rescue Timeout::Error
+    print_streams *read_streams
+    raise
+  end
+
+  def print_streams(out, err)
+    puts "---"
+    puts out
+    puts "***"
+    puts err
+    puts "---"
+  end
+
+  def read_streams
+    [stdout, stderr].map(&:first).map { |s| s.ready? ? s.readpartial(10240) : "" }
   end
 
   def await_reload
