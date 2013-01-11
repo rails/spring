@@ -37,7 +37,7 @@ class AppTest < ActiveSupport::TestCase
       )
     end
 
-    _, status = Timeout.timeout(5) { Process.wait2 }
+    _, status = Timeout.timeout(opts.fetch(:timeout, 5)) { Process.wait2 }
 
     out, err = read_streams
 
@@ -101,7 +101,7 @@ class AppTest < ActiveSupport::TestCase
 
     @times = []
 
-    app_run "bundle check || bundle update", timer: false
+    app_run "bundle check || bundle update", timer: false, timeout: nil
     app_run "bundle exec rake db:migrate",   timer: false
   end
 
