@@ -14,6 +14,7 @@ class Spring
     def initialize(env = Env.new)
       @env          = env
       @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(k) }
+      @pidfile      = env.pidfile_path.open('a')
     end
 
     def boot
@@ -53,12 +54,10 @@ class Spring
     end
 
     def write_pidfile
-      file = env.pidfile_path.open('a')
-
-      if file.flock(File::LOCK_EX | File::LOCK_NB)
-        file.truncate(0)
-        file.write("#{Process.pid}\n")
-        file.fsync
+      if @pidfile.flock(File::LOCK_EX | File::LOCK_NB)
+        @pidfile.truncate(0)
+        @pidfile.write("#{Process.pid}\n")
+        @pidfile.fsync
       else
         STDERR.puts "#{file.path} is locked; it looks like a server is already running"
         exit(1)
