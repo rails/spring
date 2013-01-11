@@ -177,7 +177,7 @@ sys	0m0.070s
 
 The following commands are shipped by default.
 
-Custom commands can be specified in `config/initializers/spring.rb`. See
+Custom commands can be specified in `config/spring.rb`. See
 [`lib/spring/commands.rb`](https://github.com/jonleighton/spring/blob/master/lib/spring/commands.rb)
 for examples.
 

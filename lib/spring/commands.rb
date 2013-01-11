@@ -15,7 +15,7 @@ class Spring
 
   # Load custom commands, if any
   begin
-    require "./config/initializers/spring"
+    require "./config/spring"
   rescue LoadError
   end
 
