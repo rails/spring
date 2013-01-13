@@ -51,6 +51,32 @@ class Spring
   end
 
   def run(args)
+    if self.class.command_registered?(args.first)
+      run_command(args)
+    else
+      print_help
+    end
+  end
+
+  private
+
+  def print_help
+    puts <<-EOT
+Usage: spring COMMAND [ARGS]
+
+The most common spring commands are:
+ rake        Run a rake task
+ console     Start the Rails console
+ runner      Execute a command with the Rails runner
+ generate    Trigger a Rails generator
+
+ test        Execute a Test::Unit test
+ rspec       Execute an RSpec spec
+EOT
+    false
+  end
+
+  def run_command(args)
     boot_server unless server_running?
 
     application, client = UNIXSocket.pair
@@ -90,8 +116,6 @@ class Spring
     application.close if application
     server.close if server
   end
-
-  private
 
   def rails_env_for(command_name)
     command = Spring.command(command_name)

@@ -122,6 +122,10 @@ class AppTest < ActiveSupport::TestCase
     assert_speedup
   end
 
+  test "help message when called without arguments" do
+    assert_stdout BINFILE, 'Usage: spring COMMAND [ARGS]'
+  end
+
   test "test changes are picked up" do
     assert_successful_run test_command
 

@@ -9,6 +9,10 @@ class Spring
     commands[name] = klass.new
   end
 
+  def self.command_registered?(name)
+    commands.has_key?(name)
+  end
+
   def self.command(name)
     commands.fetch name
   end
