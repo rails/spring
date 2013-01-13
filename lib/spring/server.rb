@@ -18,9 +18,9 @@ class Spring
     end
 
     def boot
-      # Ignore SIGINT, otherwise the user typing ^C on the command line
-      # will kill the background server.
-      trap("INT", "IGNORE")
+      # Ignore SIGINT and SIGQUIT otherwise the user typing ^C or ^\ on the command line
+      # will kill the server/application.
+      IGNORE_SIGNALS.each { |sig| trap(sig,  "IGNORE") }
 
       set_exit_hook
       write_pidfile
@@ -33,11 +33,7 @@ class Spring
       app_client = client.recv_io
       rails_env  = client.gets.chomp
 
-      if @applications[rails_env].run(app_client)
-        client.write "0"
-      else
-        client.write "1"
-      end
+      client.puts @applications[rails_env].run(app_client)
     end
 
     def set_exit_hook

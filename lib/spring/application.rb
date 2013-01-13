@@ -21,7 +21,9 @@ class Spring
 
       @stdout = IO.new(STDOUT.fileno)
       @stderr = IO.new(STDERR.fileno)
-      @stdin  = IO.new(STDIN.fileno)
+      @stdin  = File.open('/dev/null', 'r')
+
+      STDIN.reopen(@stdin)
     end
 
     def start
@@ -46,17 +48,7 @@ class Spring
     def run
       loop do
         watch_application
-
-        client = manager.recv_io(UNIXSocket)
-
-        # Confirm that we have received the client socket. This is necessary on OS X
-        # to prevent a timing error. The client needs to keep the FD that we are receiving
-        # open until it has been received here. Unlike on Linux, it's not sufficient for
-        # the FD to just be in the socket buffer, it has to actually get received at this
-        # end before it can be closed by the client.
-        manager.puts
-
-        serve client
+        serve manager.recv_io(UNIXSocket)
       end
     end
 
@@ -77,7 +69,13 @@ class Spring
         ActionDispatch::Reloader.cleanup!
         ActionDispatch::Reloader.prepare!
 
-        Process.wait(fork { command.call(args) })
+        pid = fork {
+          IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
+          command.call(args)
+        }
+
+        manager.puts pid
+        Process.wait pid
       end
     ensure
       client.puts

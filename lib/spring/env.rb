@@ -3,6 +3,8 @@ require "spring/sid"
 require "fileutils"
 
 class Spring
+  IGNORE_SIGNALS = %w(INT QUIT)
+
   class Env
     attr_reader :root
 

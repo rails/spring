@@ -29,10 +29,7 @@ class Spring
       @pid
     end
 
-    # The return value of this method indicates whether or not the application
-    # successfully received the client. It might not successfully receive the
-    # client if e.g. the application has an exception during initialization, causing
-    # the application process to die.
+    # Returns the pid of the process running the command, or nil if the application process died.
     def run(client)
       @client = client
 
@@ -49,11 +46,11 @@ class Spring
           start
           child.send_io @client
         end
-
-        child.gets
       end
+
+      child.gets.chomp.to_i # get the pid
     rescue Errno::ECONNRESET, Errno::EPIPE
-      false
+      nil
     ensure
       @client.close
       @client = nil

@@ -1,7 +1,6 @@
 require "rbconfig"
 require "socket"
 require "pty"
-require "io/console"
 
 require "spring/version"
 require "spring/sid"
@@ -15,6 +14,8 @@ class Spring
     "-r", "spring/server",
     "-e", "Spring::Server.boot"
   ]
+
+  FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO)
 
   def self.run(args)
     exit new.run(args)
@@ -58,13 +59,6 @@ class Spring
     server.send_io client
     server.puts rails_env_for(args.first)
 
-    status = server.read(1)
-
-    server.close
-    client.close
-
-    return false unless status == "0"
-
     application.send_io STDOUT
     application.send_io STDERR
     application.send_io stdin_slave
@@ -76,13 +70,25 @@ class Spring
       application.write arg
     end
 
-    # FIXME: receive exit status from server
-    application.read
-    true
+    pid = server.gets.chomp
+
+    # We must not close the client socket until we are sure that the application has
+    # received the FD. Otherwise the FD can end up getting closed while it's in the server
+    # socket buffer on OS X. This doesn't happen on Linux.
+    client.close
+
+    if pid.empty?
+      false
+    else
+      forward_signals(pid.to_i)
+      application.read # FIXME: receive exit status from server
+      true
+    end
   rescue Errno::ECONNRESET
     false
   ensure
     application.close if application
+    server.close if server
   end
 
   private
@@ -97,21 +103,24 @@ class Spring
     end
   end
 
-  # FIXME: need to make special chars (e.g. arrow keys) work
   def stdin_slave
     master, slave = PTY.open
-    master.raw!
 
-    Thread.new {
-      until STDIN.closed?
-        # This makes special chars work, but has some weird side-effects that
-        # I need to figure out.
-        # master.write STDIN.getch
+    # Sadly I cannot find a way to achieve this without shelling out to stty, or
+    # using a C extension library. [Ruby does not have direct support for calling
+    # tcsetattr().] We don't want to use a C extension library so
+    # that spring can be used by Rails in the future.
+    system "stty -icanon -echo"
+    at_exit { system "stty sane" }
 
-        master.write STDIN.read(1)
-      end
-    }
+    Thread.new { master.write STDIN.read(1) until STDIN.closed? }
 
     slave
+  end
+
+  def forward_signals(pid)
+    (FORWARDED_SIGNALS & Signal.list.keys).each do |sig|
+      trap(sig) { Process.kill(sig, pid) }
+    end
   end
 end
