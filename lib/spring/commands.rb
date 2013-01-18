@@ -6,7 +6,7 @@ class Spring
   end
 
   def self.register_command(name, klass)
-    commands[name] = klass.new
+    commands[name] = klass
   end
 
   def self.command(name)
@@ -35,7 +35,7 @@ class Spring
         require File.expand_path(args.first)
       end
     end
-    Spring.register_command "test", Test
+    Spring.register_command "test", Test.new
 
     class RSpec
       def env
@@ -51,7 +51,7 @@ class Spring
         ::RSpec::Core::Runner.run(args)
       end
     end
-    Spring.register_command "rspec", RSpec
+    Spring.register_command "rspec", RSpec.new
 
     class Rake
       def setup
@@ -63,7 +63,7 @@ class Spring
         ::Rake.application.run
       end
     end
-    Spring.register_command "rake", Rake
+    Spring.register_command "rake", Rake.new
 
     class Console
       def setup
@@ -75,7 +75,7 @@ class Spring
         ::Rails::Console.start(::Rails.application)
       end
     end
-    Spring.register_command "console", Console
+    Spring.register_command "console", Console.new
 
     class Generate
       def setup
@@ -87,7 +87,7 @@ class Spring
         require "rails/commands/generate"
       end
     end
-    Spring.register_command "generate", Generate
+    Spring.register_command "generate", Generate.new
 
     class Runner
       def call(args)
@@ -96,6 +96,6 @@ class Spring
         require "rails/commands/runner"
       end
     end
-    Spring.register_command "runner", Runner
+    Spring.register_command "runner", Runner.new
   end
 end

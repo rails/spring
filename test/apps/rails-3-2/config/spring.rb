@@ -4,4 +4,4 @@ class CustomCommand
   end
 end
 
-Spring.register_command "custom", CustomCommand
+Spring.register_command "custom", CustomCommand.new
