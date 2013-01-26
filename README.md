@@ -79,8 +79,8 @@ That booted our app in the background:
 
 ```
 $ ps ax | grep spring
- 8692 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -r bundler/setup -r spring/server -e Spring::Server.boot
- 8698 pts/6    Sl     0:02 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -r bundler/setup -r spring/server -e Spring::Server.boot
+ 8692 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
+ 8698 pts/6    Sl     0:02 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
 ```
 
 We can see two processes, one is the Spring server, the other is the
@@ -118,8 +118,8 @@ automatically. Note that the application process id is 8698 above. Let's
 ```
 $ touch config/application.rb
 $ ps ax | grep spring
- 8692 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -r bundler/setup -r spring/server -e Spring::Server.boot
- 8876 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -r bundler/setup -r spring/server -e Spring::Server.boot
+ 8692 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
+ 8876 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
 ```
 
 The application process detected the change and exited. The server process
@@ -151,9 +151,9 @@ the application in development mode.
 
 ```
 $ ps ax | grep spring
- 8692 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -r bundler/setup -r spring/server -e Spring::Server.boot
- 8876 pts/6    Sl     0:15 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -r bundler/setup -r spring/server -e Spring::Server.boot
- 9088 pts/6    Sl     0:01 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -r bundler/setup -r spring/server -e Spring::Server.boot
+ 8692 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
+ 8876 pts/6    Sl     0:15 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
+ 9088 pts/6    Sl     0:01 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
 ```
 
 Running rake is faster the second time:
