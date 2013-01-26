@@ -5,8 +5,12 @@ class Spring
     attr_reader :commands
   end
 
-  def self.register_command(name, klass)
+  def self.register_command(name, klass, options = {})
     commands[name] = klass
+
+    if options[:alias]
+      commands[options[:alias]] = klass
+    end
   end
 
   def self.command_registered?(name)
@@ -79,7 +83,7 @@ class Spring
         ::Rails::Console.start(::Rails.application)
       end
     end
-    Spring.register_command "console", Console.new
+    Spring.register_command "console", Console.new, alias: "c"
 
     class Generate
       def setup
@@ -91,7 +95,7 @@ class Spring
         require "rails/commands/generate"
       end
     end
-    Spring.register_command "generate", Generate.new
+    Spring.register_command "generate", Generate.new, alias: "g"
 
     class Runner
       def call(args)
@@ -100,6 +104,6 @@ class Spring
         require "rails/commands/runner"
       end
     end
-    Spring.register_command "runner", Runner.new
+    Spring.register_command "runner", Runner.new, alias: "r"
   end
 end
