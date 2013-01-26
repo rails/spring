@@ -212,4 +212,8 @@ class AppTest < ActiveSupport::TestCase
   test "custom commands" do
     assert_stdout "#{BINFILE} custom", "omg"
   end
+
+  test "runner alias" do
+    assert_stdout "#{BINFILE} r 'puts 1'", "1"
+  end
 end
