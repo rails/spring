@@ -42,7 +42,10 @@ At the moment only MRI 1.9.3 / Rails 3.2 is supported.
 
 ## Usage
 
-Add `spring` to your gemfile and do a `bundle`.
+Install the `spring` gem. You may wish to add it to your bundle, but
+it's not necessary. If you do, I don't recommend invoking `spring`
+via `bundle exec` as that will make it slow. Just call `spring`
+on its own.
 
 You now have a `spring` command. Do a `rbenv rehash` if necessary. Note
 that on my machine I had over 700 gems installed, and activating the gem
