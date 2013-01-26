@@ -10,8 +10,9 @@ require "spring/commands"
 class Spring
   SERVER_COMMAND = [
     File.join(*RbConfig::CONFIG.values_at('bindir', 'RUBY_INSTALL_NAME')),
-    "-r", "bundler/setup",
+    "-I", File.expand_path("../", __FILE__),
     "-r", "spring/server",
+    "-r", "bundler/setup",
     "-e", "Spring::Server.boot"
   ]
 
