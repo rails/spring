@@ -12,6 +12,10 @@ class Spring
       @root = Pathname.new(File.expand_path('.'))
     end
 
+    def version
+      Spring::VERSION
+    end
+
     def tmp_path
       path = root.join('tmp/spring')
       FileUtils.mkdir_p(path) unless path.exist?

@@ -30,10 +30,13 @@ class Spring
     end
 
     def serve(client)
+      client.puts env.version
       app_client = client.recv_io
       rails_env  = client.gets.chomp
 
       client.puts @applications[rails_env].run(app_client)
+    rescue SocketError => e
+      raise e unless client.eof?
     end
 
     def set_exit_hook
