@@ -83,6 +83,8 @@ EOT
     application, client = UNIXSocket.pair
 
     server = UNIXSocket.open(env.socket_name)
+
+    verify_server_version(server)
     server.send_io client
     server.puts rails_env_for(args.first)
 
@@ -116,6 +118,19 @@ EOT
   ensure
     application.close if application
     server.close if server
+  end
+
+  def verify_server_version(server)
+    server_version = server.gets.chomp
+    if server_version != env.version
+      STDERR.puts <<-ERROR
+There is a version mismatch beween the spring client and the server.
+You should restart the server and make sure to use the same version.
+
+CLIENT: #{env.version}, SERVER: #{server_version}
+ERROR
+      exit(1)
+    end
   end
 
   def rails_env_for(command_name)
