@@ -17,7 +17,7 @@ class Spring
     end
 
     def tmp_path
-      path = root.join('tmp/spring')
+      path = default_tmp_path
       FileUtils.mkdir_p(path) unless path.exist?
       path
     end
@@ -32,6 +32,16 @@ class Spring
 
     def pidfile_path
       tmp_path.join("#{SID.sid}.pid")
+    end
+
+    private
+
+    def default_tmp_path
+      if ENV['SPRING_TMP_PATH']
+        Pathname.new(ENV['SPRING_TMP_PATH'])
+      else
+        root.join('tmp/spring')
+      end
     end
   end
 end

@@ -210,3 +210,10 @@ Runs a Rails generator.
 ### `runner`
 
 The Rails runner.
+
+## Configuration
+
+### tmp directory
+
+Spring needs a tmp directory. This will default to `Rails.root + 'tmp' + 'spring'`.
+You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
