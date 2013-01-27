@@ -61,6 +61,21 @@ class Spring
     end
     Spring.register_command "rspec", RSpec.new
 
+    class Cucumber
+      def env
+        "test"
+      end
+
+      def setup
+        require 'cucumber'
+      end
+
+      def call(args)
+        ::Cucumber::Cli::Main.execute(args)
+      end
+    end
+    Spring.register_command "cucumber", Cucumber.new
+
     class Rake
       def setup
         require "rake"
