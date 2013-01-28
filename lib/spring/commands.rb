@@ -57,7 +57,7 @@ class Spring
 
       def call(args)
         if args.length == 0
-          ::RSpec::Core::Runner.run(["."])
+          ::RSpec::Core::Runner.run(["spec"])
         else
           ::RSpec::Core::Runner.run(args)
         end
