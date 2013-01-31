@@ -184,6 +184,11 @@ Custom commands can be specified in `config/spring.rb`. See
 [`lib/spring/commands.rb`](https://github.com/jonleighton/spring/blob/master/lib/spring/commands.rb)
 for examples.
 
+A bunch of different test frameworks are supported at the moment in
+order to make it easy for people to try spring. However in the future
+the code to use a specific test framework should not be contained in the
+spring repository.
+
 ### `test`
 
 Runs a test (e.g. Test::Unit, MiniTest::Unit, etc.) Preloads the `test_helper` file.
