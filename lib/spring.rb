@@ -73,6 +73,7 @@ The most common spring commands are:
 
  test        Execute a Test::Unit test
  rspec       Execute an RSpec spec
+ cucumber    Execute a Cucumber feature
 EOT
     false
   end
