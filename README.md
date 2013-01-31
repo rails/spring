@@ -193,6 +193,10 @@ Runs a test (e.g. Test::Unit, MiniTest::Unit, etc.) Preloads the `test_helper` f
 Runs an rspec spec, exactly the same as the `rspec` executable. Preloads
 the `spec_helper` file.
 
+### `cucumber`
+
+Runs a cucumber feature.
+
 ### `rake`
 
 Runs a rake task.
