@@ -58,6 +58,10 @@ module Spring
       @client = nil
     end
 
+    def stop
+      Process.kill('TERM', pid)
+    end
+
     private
 
     def start_child(silence = false)

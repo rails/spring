@@ -50,6 +50,8 @@ module Spring
           [env.socket_path, env.pidfile_path].each do |path|
             path.unlink if path.exist?
           end
+
+          @applications.values.each(&:stop)
         end
       end
     end
