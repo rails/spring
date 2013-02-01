@@ -36,6 +36,10 @@ module Spring
       tmp_path.join("#{SID.sid}.pid")
     end
 
+    def app_name
+      root.basename
+    end
+
     private
 
     def default_tmp_path

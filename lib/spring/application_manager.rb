@@ -6,11 +6,13 @@ module Spring
   class ApplicationManager
     include Mutex_m
 
-    attr_reader :pid, :child, :env
+    attr_reader :pid, :child, :app_env, :spring_env
 
-    def initialize(env)
+    def initialize(app_env)
       super()
-      @env = env
+
+      @app_env    = app_env
+      @spring_env = Env.new
     end
 
     def start
@@ -63,7 +65,8 @@ module Spring
       @pid = fork {
         [STDOUT, STDERR].each { |s| s.reopen('/dev/null', 'w') } if silence
         @client.close if @client
-        ENV['RAILS_ENV'] = ENV['RACK_ENV'] = env
+        ENV['RAILS_ENV'] = ENV['RACK_ENV'] = app_env
+        $0 = "spring app    | #{spring_env.app_name} | started #{Time.now} | #{app_env} mode"
         Application.new(child_socket).start
       }
       child_socket.close

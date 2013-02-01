@@ -25,6 +25,8 @@ module Spring
       set_exit_hook
       write_pidfile
 
+      $0 = "spring server | #{env.app_name} | started #{Time.now}"
+
       server = UNIXServer.open(env.socket_name)
       loop { serve server.accept }
     end
