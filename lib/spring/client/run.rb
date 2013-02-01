@@ -1,3 +1,7 @@
+require "rbconfig"
+require "socket"
+require "pty"
+
 require "spring/commands"
 
 class Spring

@@ -1,7 +1,3 @@
-require "rbconfig"
-require "socket"
-require "pty"
-
 require "spring/client"
 
 class Spring
