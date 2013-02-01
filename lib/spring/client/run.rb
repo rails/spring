@@ -86,11 +86,11 @@ module Spring
         server_version = server.gets.chomp
         if server_version != env.version
           STDERR.puts <<-ERROR
-    There is a version mismatch beween the spring client and the server.
-    You should restart the server and make sure to use the same version.
+There is a version mismatch beween the spring client and the server.
+You should restart the server and make sure to use the same version.
 
-    CLIENT: #{env.version}, SERVER: #{server_version}
-    ERROR
+CLIENT: #{env.version}, SERVER: #{server_version}
+ERROR
           exit(1)
         end
       end
