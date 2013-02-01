@@ -56,34 +56,35 @@ We can run a test:
 
 ```
 $ time spring test test/functional/posts_controller_test.rb
+Rack::File headers parameter replaces cache_control after Rack 1.5.
 Run options:
 
 # Running tests:
 
 .......
 
-Finished tests in 0.169882s, 41.2051 tests/s, 58.8644 assertions/s.
+Finished tests in 0.127245s, 55.0121 tests/s, 78.5887 assertions/s.
 
 7 tests, 10 assertions, 0 failures, 0 errors, 0 skips
 
-real	0m1.858s
-user	0m0.184s
-sys	0m0.067s
+real	0m2.165s
+user	0m0.281s
+sys	0m0.066s
 ```
 
 That booted our app in the background:
 
 ```
 $ ps ax | grep spring
- 8692 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
- 8698 pts/6    Sl     0:02 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
+26150 pts/3    Sl     0:00 spring server | rails-3-2 | started 2013-02-01 20:16:40 +0000
+26155 pts/3    Sl     0:02 spring app    | rails-3-2 | started 2013-02-01 20:16:40 +0000 | test mode
 ```
 
 We can see two processes, one is the Spring server, the other is the
 application running in the test environment. When we close the terminal,
 the processes will be killed automatically.
 
-Running the tests is faster next time:
+Running the test is faster next time:
 
 ```
 $ time spring test test/functional/posts_controller_test.rb
@@ -93,13 +94,13 @@ Run options:
 
 .......
 
-Finished tests in 0.162963s, 42.9546 tests/s, 61.3637 assertions/s.
+Finished tests in 0.176896s, 39.5714 tests/s, 56.5305 assertions/s.
 
 7 tests, 10 assertions, 0 failures, 0 errors, 0 skips
 
-real	0m0.492s
-user	0m0.179s
-sys	0m0.063s
+real	0m0.610s
+user	0m0.276s
+sys	0m0.059s
 ```
 
 Running `spring test`, `spring rake`, `spring console`, etc gets a bit
@@ -120,8 +121,20 @@ This generates a `bin/spring` and a `bin/test`, which allows you to run
 performance bug:
 
 ```
-$ bin/spring help
-$ bin/test test/functional/posts_controller_test.rb
+$ time bin/test test/functional/posts_controller_test.rb
+Run options:
+
+# Running tests:
+
+.......
+
+Finished tests in 0.166585s, 42.0207 tests/s, 60.0296 assertions/s.
+
+7 tests, 10 assertions, 0 failures, 0 errors, 0 skips
+
+real	0m0.407s
+user	0m0.077s
+sys	0m0.059s
 ```
 
 If we edit any of the application files, or test files, the change will
@@ -136,21 +149,23 @@ automatically. Note that the application process id is 8698 above. Let's
 ```
 $ touch config/application.rb
 $ ps ax | grep spring
- 8692 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
- 8876 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
+26150 pts/3    Sl     0:00 spring server | rails-3-2 | started 2013-02-01 20:16:40 +0000
+26556 pts/3    Sl     0:00 spring app    | rails-3-2 | started 2013-02-01 20:20:07 +0000 | test mode
 ```
 
 The application process detected the change and exited. The server process
 then detected that the application process exited, so it started a new application.
 All of this happens automatically in the background. Next time we run a
-command we'll be running against a fresh application.
+command we'll be running against a fresh application. We can see that
+the start time and PID of the app process has now changed.
 
 If we run a command that uses a different environment, then it gets
 booted up. For example, the `rake` command uses the `development`
 environment by default:
 
 ```
-$ time spring rake routes
+$ spring binstub rake
+$ bin/rake routes
     posts GET    /posts(.:format)          posts#index
           POST   /posts(.:format)          posts#create
  new_post GET    /posts/new(.:format)      posts#new
@@ -158,10 +173,6 @@ edit_post GET    /posts/:id/edit(.:format) posts#edit
      post GET    /posts/:id(.:format)      posts#show
           PUT    /posts/:id(.:format)      posts#update
           DELETE /posts/:id(.:format)      posts#destroy
-
-real	0m0.763s
-user	0m0.185s
-sys	0m0.063s
 ```
 
 We now have 3 processes: the server, and application in test mode and
@@ -169,26 +180,9 @@ the application in development mode.
 
 ```
 $ ps ax | grep spring
- 8692 pts/6    Sl     0:00 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
- 8876 pts/6    Sl     0:15 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
- 9088 pts/6    Sl     0:01 /home/turnip/.rbenv/versions/1.9.3-p194/bin/ruby -I ... -r spring/server -r bundler/setup -e Spring::Server.boot
-```
-
-Running rake is faster the second time:
-
-```
-$ time spring rake routes
-    posts GET    /posts(.:format)          posts#index
-          POST   /posts(.:format)          posts#create
- new_post GET    /posts/new(.:format)      posts#new
-edit_post GET    /posts/:id/edit(.:format) posts#edit
-     post GET    /posts/:id(.:format)      posts#show
-          PUT    /posts/:id(.:format)      posts#update
-          DELETE /posts/:id(.:format)      posts#destroy
-
-real	0m0.341s
-user	0m0.177s
-sys	0m0.070s
+26150 pts/3    Sl     0:00 spring server | rails-3-2 | started 2013-02-01 20:16:40 +0000
+26556 pts/3    Sl     0:08 spring app    | rails-3-2 | started 2013-02-01 20:20:07 +0000 | test mode
+26707 pts/3    Sl     0:00 spring app    | rails-3-2 | started 2013-02-01 20:22:41 +0000 | development mode
 ```
 
 ## Commands
