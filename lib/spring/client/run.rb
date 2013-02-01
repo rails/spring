@@ -122,7 +122,7 @@ module Spring
 
       def forward_signals(pid)
         (FORWARDED_SIGNALS & Signal.list.keys).each do |sig|
-          trap(sig) { Process.kill(sig, pid) }
+          trap(sig) { Process.kill(sig, -Process.getpgid(pid)) }
         end
       end
     end
