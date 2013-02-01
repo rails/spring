@@ -38,7 +38,13 @@ module Spring
 
       def call(args)
         ARGV.replace args
-        require File.expand_path(args.first)
+        path = File.expand_path(args.first)
+
+        if File.directory?(path)
+          Dir[File.join path, "**", "*_test.rb"].each { |f| require f }
+        else
+          require path
+        end
       end
     end
     Spring.register_command "test", Test.new

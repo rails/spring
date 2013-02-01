@@ -202,6 +202,9 @@ spring repository.
 
 Runs a test (e.g. Test::Unit, MiniTest::Unit, etc.) Preloads the `test_helper` file.
 
+This command can also recursively run a directory of tests. For example,
+`spring test test/functional` will run `test/functional/**/*_test.rb`.
+
 ### `rspec`
 
 Runs an rspec spec, exactly the same as the `rspec` executable. Preloads
