@@ -4,8 +4,6 @@ require "timeout"
 require "spring/sid"
 
 class AppTest < ActiveSupport::TestCase
-  BINFILE = File.expand_path('../bin/spring', TEST_ROOT)
-
   def app_root
     "#{TEST_ROOT}/apps/rails-3-2"
   end
@@ -31,6 +29,11 @@ class AppTest < ActiveSupport::TestCase
 
     Bundler.with_clean_env do
       Process.spawn(
+        {
+          "GEM_HOME" => "#{app_root}/vendor/gems",
+          "GEM_PATH" => "",
+          "PATH"     => "#{app_root}/vendor/gems/bin:#{ENV["PATH"]}"
+        },
         command,
         out:   stdout.last,
         err:   stderr.last,
@@ -42,7 +45,9 @@ class AppTest < ActiveSupport::TestCase
 
     out, err = read_streams
 
-    @times << (Time.now - start_time) if opts.fetch(:timer, true)
+    @times << (Time.now - start_time) if @times
+
+    print_streams(out, err) if ENV["SPRING_DEBUG"]
 
     [status, out, err]
   rescue Timeout::Error
@@ -63,17 +68,17 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def await_reload
-    sleep 0.2
+    sleep 0.4
   end
 
   def assert_successful_run(*args)
     status, _, _ = app_run(*args)
-    assert status.success?, 'The run should be successful but it was '
+    assert status.success?, "The run should be successful but it wasn't"
   end
 
   def assert_unsuccessful_run(*args)
     status, _, _ = app_run(*args)
-    assert !status.success?, 'The run should not be successful but it was'
+    assert !status.success?, "The run should not be successful but it was"
   end
 
   def assert_stdout(command, expected)
@@ -91,8 +96,10 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def test_command
-    "#{BINFILE} test #{@test}"
+    "spring test #{@test}"
   end
+
+  @@installed_spring = false
 
   setup do
     @test                = "#{app_root}/test/functional/posts_controller_test.rb"
@@ -100,10 +107,18 @@ class AppTest < ActiveSupport::TestCase
     @controller          = "#{app_root}/app/controllers/posts_controller.rb"
     @controller_contents = File.read(@controller)
 
-    @times = []
+    unless @@installed_spring
+      system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
+      app_run "gem install ../../../spring-*.gem"
+      @@installed_spring = true
+    end
 
-    app_run "bundle check || bundle update", timer: false, timeout: nil
-    app_run "bundle exec rake db:migrate",   timer: false
+    FileUtils.rm_rf "#{app_root}/bin"
+    app_run "(gem list bundler | grep bundler) || gem install bundler", timeout: nil
+    app_run "bundle check || bundle update", timeout: nil
+    app_run "bundle exec rake db:migrate"
+
+    @times = []
   end
 
   teardown do
@@ -124,7 +139,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "help message when called without arguments" do
-    assert_stdout BINFILE, 'Usage: spring COMMAND [ARGS]'
+    assert_stdout "spring", 'Usage: spring COMMAND [ARGS]'
   end
 
   test "test changes are picked up" do
@@ -178,7 +193,7 @@ class AppTest < ActiveSupport::TestCase
       File.write(@test, @test_contents.sub("get :index", "Foo.omg"))
 
       # Wait twice to give plenty of time for the wait thread to kick in
-      2.times { await_reload }
+      await_reload
 
       assert_stdout test_command, "RuntimeError: omg"
       assert_stdout test_command, "RuntimeError: omg"
@@ -211,10 +226,16 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "custom commands" do
-    assert_stdout "#{BINFILE} custom", "omg"
+    assert_stdout "spring custom", "omg"
   end
 
   test "runner alias" do
-    assert_stdout "#{BINFILE} r 'puts 1'", "1"
+    assert_stdout "spring r 'puts 1'", "1"
+  end
+
+  test "binstubs" do
+    app_run "spring binstub rake"
+    assert_successful_run "bin/spring help"
+    assert_stdout "bin/rake -T", "rake db:migrate"
   end
 end

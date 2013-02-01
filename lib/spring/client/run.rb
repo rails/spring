@@ -61,14 +61,13 @@ module Spring
         client.close
 
         if pid.empty?
-          false
+          exit 1
         else
           forward_signals(pid.to_i)
           application.read # FIXME: receive exit status from server
-          true
         end
       rescue Errno::ECONNRESET
-        false
+        exit 1
       ensure
         application.close if application
         server.close if server

@@ -13,8 +13,8 @@ module Spring
     end
   end
 
-  def self.command_registered?(name)
-    commands.has_key?(name)
+  def self.command?(name)
+    commands.include? name
   end
 
   def self.command(name)

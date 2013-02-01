@@ -42,16 +42,9 @@ At the moment only MRI 1.9.3 / Rails 3.2 is supported.
 
 ## Usage
 
-Install the `spring` gem. You may wish to add it to your bundle, but
-it's not necessary. If you do, I don't recommend invoking `spring`
-via `bundle exec` as that will make it slow. Just call `spring`
-on its own.
-
-You now have a `spring` command. Do a `rbenv rehash` if necessary. Note
-that on my machine I had over 700 gems installed, and activating the gem
-to run the `spring` command added over 0.5s to the runtime. Clearing out
-my gems solved the problem, but I'd like to figure out a way to speed
-this up.
+Install the `spring` gem. You can add it to your Gemfile if you like but
+it's optional. You now have a `spring` command. Don't use it with
+`bundle exec` or it will be extremely slow.
 
 For this walkthrough, I'm using the test app in the Spring repository:
 
@@ -107,6 +100,28 @@ Finished tests in 0.162963s, 42.9546 tests/s, 61.3637 assertions/s.
 real	0m0.492s
 user	0m0.179s
 sys	0m0.063s
+```
+
+Running `spring test`, `spring rake`, `spring console`, etc gets a bit
+tedious. It also suffers from a performance issue in Rubygems ([which I
+am actively working on](https://github.com/rubygems/rubygems/pull/435))
+which means the `spring` command takes a while to start up. The more
+gems you have, the longer it takes.
+
+Spring binstubs solve both of these problems. If you will be running the
+`test` command regularly, run:
+
+```
+$ spring binstub test
+```
+
+This generates a `bin/spring` and a `bin/test`, which allows you to run
+`spring` and `spring test` in a way that doesn't trigger the Rubygems
+performance bug:
+
+```
+$ bin/spring help
+$ bin/test test/functional/posts_controller_test.rb
 ```
 
 If we edit any of the application files, or test files, the change will

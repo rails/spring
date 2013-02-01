@@ -17,7 +17,6 @@ The most common spring commands are:
  rspec       Execute an RSpec spec
  cucumber    Execute a Cucumber feature
 EOT
-        false
       end
     end
   end
