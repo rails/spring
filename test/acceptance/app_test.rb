@@ -192,7 +192,6 @@ class AppTest < ActiveSupport::TestCase
       CODE
       File.write(@test, @test_contents.sub("get :index", "Foo.omg"))
 
-      # Wait twice to give plenty of time for the wait thread to kick in
       await_reload
 
       assert_stdout test_command, "RuntimeError: omg"
