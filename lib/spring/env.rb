@@ -1,6 +1,8 @@
 require "pathname"
-require "spring/sid"
 require "fileutils"
+
+require "spring/version"
+require "spring/sid"
 
 module Spring
   IGNORE_SIGNALS = %w(INT QUIT)
