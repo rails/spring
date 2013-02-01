@@ -59,7 +59,7 @@ module Spring
     end
 
     def stop
-      Process.kill('TERM', pid)
+      Process.kill('TERM', pid) if pid
     end
 
     private
