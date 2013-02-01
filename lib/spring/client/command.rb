@@ -1,6 +1,6 @@
 require "spring/env"
 
-class Spring
+module Spring
   module Client
     class Command
       def self.call(args)

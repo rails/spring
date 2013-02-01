@@ -4,7 +4,7 @@ require "pty"
 
 require "spring/commands"
 
-class Spring
+module Spring
   module Client
     class Run < Command
       SERVER_COMMAND = [

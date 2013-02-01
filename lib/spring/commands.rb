@@ -1,4 +1,4 @@
-class Spring
+module Spring
   @commands = {}
 
   class << self

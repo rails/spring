@@ -2,7 +2,7 @@ require "socket"
 require "spring/application"
 require "mutex_m"
 
-class Spring
+module Spring
   class ApplicationManager
     include Mutex_m
 

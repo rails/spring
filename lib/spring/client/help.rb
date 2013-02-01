@@ -1,6 +1,6 @@
 require "spring/version"
 
-class Spring
+module Spring
   module Client
     class Help < Command
       def call

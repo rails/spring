@@ -1,6 +1,6 @@
 require 'fiddle'
 
-class Spring
+module Spring
   module SID
     FUNC = Fiddle::Function.new(
       DL::Handle::DEFAULT['getsid'],

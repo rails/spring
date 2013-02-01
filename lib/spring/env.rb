@@ -2,7 +2,7 @@ require "pathname"
 require "spring/sid"
 require "fileutils"
 
-class Spring
+module Spring
   IGNORE_SIGNALS = %w(INT QUIT)
 
   class Env

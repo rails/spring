@@ -2,7 +2,7 @@ require "spring/application_watcher"
 require "spring/commands"
 require "set"
 
-class Spring
+module Spring
   class << self
     attr_accessor :application_watcher
   end

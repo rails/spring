@@ -1,6 +1,7 @@
 require 'helper'
 require 'io/wait'
 require "timeout"
+require "spring/sid"
 
 class AppTest < ActiveSupport::TestCase
   BINFILE = File.expand_path('../bin/spring', TEST_ROOT)

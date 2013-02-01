@@ -1,4 +1,4 @@
-class Spring
+module Spring
   class ApplicationWatcher
     attr_reader :mtime, :files, :globs
 

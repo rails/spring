@@ -3,7 +3,7 @@ require "socket"
 require "spring/env"
 require "spring/application_manager"
 
-class Spring
+module Spring
   class Server
     def self.boot
       new.boot
