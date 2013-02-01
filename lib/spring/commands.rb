@@ -22,10 +22,8 @@ class Spring
   end
 
   # Load custom commands, if any
-  begin
-    require "./config/spring"
-  rescue LoadError
-  end
+  config = File.expand_path("./config/spring.rb")
+  require config if File.exist?(config)
 
   module Commands
     class Test
