@@ -137,13 +137,11 @@ sys	0m0.059s
 ```
 
 If we edit any of the application files, or test files, the change will
-be picked up on the next run, without having the background process
-having to be restarted. This works even if you e.g. referenced your
-`Post` model in an initializer and then edited it.
+be picked up on the next run, without the background process
+having to be restarted.
 
 If we edit any of the preloaded files, the application needs to restart
-automatically. Note that the application process id is 8698 above. Let's
-"edit" the `config/application.rb`:
+automatically. Let's "edit" `config/application.rb`:
 
 ```
 $ touch config/application.rb
@@ -154,9 +152,9 @@ $ ps ax | grep spring
 
 The application process detected the change and exited. The server process
 then detected that the application process exited, so it started a new application.
-All of this happens automatically in the background. Next time we run a
+All of this happened automatically. Next time we run a
 command we'll be running against a fresh application. We can see that
-the start time and PID of the app process has now changed.
+the start time and PID of the app process has changed.
 
 If we run a command that uses a different environment, then it gets
 booted up. For example, the `rake` command uses the `development`
