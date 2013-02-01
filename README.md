@@ -56,7 +56,6 @@ We can run a test:
 
 ```
 $ time spring test test/functional/posts_controller_test.rb
-Rack::File headers parameter replaces cache_control after Rack 1.5.
 Run options:
 
 # Running tests:
