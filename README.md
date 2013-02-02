@@ -235,5 +235,5 @@ The Rails runner.
 
 ### tmp directory
 
-Spring needs a tmp directory. This will default to `Rails.root + 'tmp' + 'spring'`.
+Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
 You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
