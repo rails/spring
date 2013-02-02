@@ -1,5 +1,7 @@
 # Spring
 
+[![Build Status](https://travis-ci.org/jonleighton/spring.png?branch=master)](https://travis-ci.org/jonleighton/spring)
+
 Spring is a Rails application preloader. It's trying to solve the same
 problem as [spork](https://github.com/sporkrb/spork),
 [zeus](https://github.com/burke/zeus) and
