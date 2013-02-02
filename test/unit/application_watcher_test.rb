@@ -31,6 +31,18 @@ class ApplicationWatcherTest < Test::Unit::TestCase
     assert watcher.stale?
   end
 
+  def test_tolerates_enoent
+    file = "#{@dir}/omg"
+    touch file
+
+    watcher = Spring::ApplicationWatcher.new
+    watcher.add_files [file]
+
+    assert !watcher.stale?
+    FileUtils.rm(file)
+    assert watcher.stale?
+  end
+
   def test_glob
     FileUtils.mkdir("#{@dir}/1")
     FileUtils.mkdir("#{@dir}/2")
