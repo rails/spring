@@ -10,8 +10,8 @@ module Spring
   class Env
     attr_reader :root
 
-    def initialize
-      @root = Pathname.new(File.expand_path('.'))
+    def initialize(root = nil)
+      @root = root || Pathname.new(File.expand_path('.'))
     end
 
     def version
@@ -36,8 +36,26 @@ module Spring
       tmp_path.join("#{SID.sid}.pid")
     end
 
+    def pid
+      pidfile_path.exist? ? pidfile_path.read.to_i : nil
+    end
+
     def app_name
       root.basename
+    end
+
+    def server_running?
+      if pidfile_path.exist?
+        pidfile = pidfile_path.open('r')
+        !pidfile.flock(File::LOCK_EX | File::LOCK_NB)
+      else
+        false
+      end
+    ensure
+      if pidfile
+        pidfile.flock(File::LOCK_UN)
+        pidfile.close
+      end
     end
 
     private

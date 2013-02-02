@@ -3,12 +3,14 @@ require "spring/client/command"
 require "spring/client/run"
 require "spring/client/help"
 require "spring/client/binstub"
+require "spring/client/stop"
 
 module Spring
   module Client
     COMMANDS = {
       "help"    => Client::Help,
-      "binstub" => Client::Binstub
+      "binstub" => Client::Binstub,
+      "stop"    => Client::Stop
     }
 
     def self.run(args)
