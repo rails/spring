@@ -231,6 +231,19 @@ The Rails runner.
 
 ## Configuration
 
+### application_root
+
+Spring must know how to find your rails application. If you have a
+normal app everything works out of the box. If you are working on a
+project with a special setup (an engine for example), you must tell
+Spring where your app is located:
+
+**config/spring.rb**
+
+```ruby
+Spring.application_root = './test/dummy'
+```
+
 ### tmp directory
 
 Spring needs a tmp directory. This will default to `Rails.root + 'tmp' + 'spring'`.
