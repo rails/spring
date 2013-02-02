@@ -31,6 +31,9 @@ module Spring
 
     def compute_mtime
       expanded_files.map { |f| File.mtime(f).to_f }.max || 0
+    rescue Errno::ENOENT
+      # if a file does no longer exist, the watcher is always stale.
+      Float::MAX
     end
 
     def expanded_files
