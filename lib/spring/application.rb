@@ -1,3 +1,4 @@
+require "spring/configuration"
 require "spring/application_watcher"
 require "spring/commands"
 require "set"
@@ -27,7 +28,8 @@ module Spring
     end
 
     def start
-      require "./config/application"
+
+      require Spring.application_root_path.join("config", "application")
 
       # The test environment has config.cache_classes = true set by default.
       # However, we don't want this to prevent us from performing class reloading,
@@ -36,7 +38,7 @@ module Spring
         ActiveSupport::Dependencies.mechanism = :load
       end
 
-      require "./config/environment"
+      require Spring.application_root_path.join("config", "environment")
 
       watcher.add_files $LOADED_FEATURES
       watcher.add_files ["Gemfile", "Gemfile.lock"].map { |f| "#{Rails.root}/#{f}" }
