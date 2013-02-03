@@ -12,7 +12,11 @@ module Spring
     }
 
     def self.run(args)
+      Spring.verify_environment!
       command_for(args.first).call(args)
+    rescue InvalidEnvironmentError => e
+      STDERR.puts e
+      exit 1
     end
 
     def self.command_for(name)
