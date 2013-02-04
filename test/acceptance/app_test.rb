@@ -2,18 +2,27 @@ require 'helper'
 require 'io/wait'
 require "timeout"
 require "spring/sid"
+require "spring/env"
 
 class AppTest < ActiveSupport::TestCase
   def app_root
-    "#{TEST_ROOT}/apps/rails-3-2"
+    Pathname.new("#{TEST_ROOT}/apps/rails-3-2")
   end
 
   def server_pidfile
     "#{app_root}/tmp/spring/#{Spring::SID.sid}.pid"
   end
 
+  def spring_env
+    @spring_env ||= Spring::Env.new(app_root)
+  end
+
   def server_pid
-    File.exist?(server_pidfile) ? File.read(server_pidfile).to_i : nil
+    spring_env.pid
+  end
+
+  def server_running?
+    spring_env.server_running?
   end
 
   def stdout
@@ -37,7 +46,7 @@ class AppTest < ActiveSupport::TestCase
         command,
         out:   stdout.last,
         err:   stderr.last,
-        chdir: app_root,
+        chdir: app_root.to_s,
       )
     end
 
@@ -95,6 +104,14 @@ class AppTest < ActiveSupport::TestCase
     assert (second / first) < ratio, "#{second} was not less than #{ratio} of #{first}"
   end
 
+  def assert_server_running(*args)
+    assert server_running?, "The server should be running but it isn't"
+  end
+
+  def assert_server_not_running(*args)
+    assert !server_running?, "The server should not be running but it is"
+  end
+
   def test_command
     "spring test #{@test}"
   end
@@ -106,6 +123,8 @@ class AppTest < ActiveSupport::TestCase
     @test_contents       = File.read(@test)
     @controller          = "#{app_root}/app/controllers/posts_controller.rb"
     @controller_contents = File.read(@controller)
+
+    @spring_env          = Spring::Env.new(app_root)
 
     unless @@installed_spring
       system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
@@ -222,6 +241,14 @@ class AppTest < ActiveSupport::TestCase
     ensure
       File.write(application, application_contents)
     end
+  end
+
+  test "stop command kills server" do
+    assert_successful_run test_command
+    assert_server_running
+
+    assert_successful_run 'spring stop'
+    assert_server_not_running
   end
 
   test "custom commands" do

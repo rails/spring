@@ -17,22 +17,8 @@ module Spring
 
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO)
 
-      def server_running?
-        if env.pidfile_path.exist?
-          pidfile = env.pidfile_path.open('r')
-          !pidfile.flock(File::LOCK_EX | File::LOCK_NB)
-        else
-          false
-        end
-      ensure
-        if pidfile
-          pidfile.flock(File::LOCK_UN)
-          pidfile.close
-        end
-      end
-
       def call
-        boot_server unless server_running?
+        boot_server unless env.server_running?
 
         application, client = UNIXSocket.pair
 
