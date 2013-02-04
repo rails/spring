@@ -60,6 +60,7 @@ module Spring
       end
 
       def call(args)
+        $0 = "rspec"
         ::RSpec::Core::Runner.run(args)
       end
     end
