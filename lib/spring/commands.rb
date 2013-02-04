@@ -60,7 +60,11 @@ module Spring
       end
 
       def call(args)
-        ::RSpec::Core::Runner.run(args)
+        if args.length == 0
+          ::RSpec::Core::Runner.run(["spec"])
+        else
+          ::RSpec::Core::Runner.run(args)
+        end
       end
     end
     Spring.register_command "rspec", RSpec.new
