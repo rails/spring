@@ -25,7 +25,6 @@ module Spring
     end
 
     def start
-
       require Spring.application_root_path.join("config", "application")
 
       # The test environment has config.cache_classes = true set by default.
