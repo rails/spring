@@ -37,13 +37,17 @@ module Spring
       end
 
       def call(args)
-        ARGV.replace args
-        path = File.expand_path(args.first)
+        if args.size > 0
+          ARGV.replace args
+          path = File.expand_path(args.first)
 
-        if File.directory?(path)
-          Dir[File.join path, "**", "*_test.rb"].each { |f| require f }
+          if File.directory?(path)
+            Dir[File.join path, "**", "*_test.rb"].each { |f| require f }
+          else
+            require path
+          end
         else
-          require path
+          $stderr.puts "you need to specify what test to run: spring test TEST_NAME"
         end
       end
     end
