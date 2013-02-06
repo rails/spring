@@ -95,6 +95,11 @@ class AppTest < ActiveSupport::TestCase
     assert stdout.include?(expected), "expected '#{expected}' to be printed to stdout. But it wasn't, the stdout is:\n#{stdout}"
   end
 
+  def assert_stderr(command, expected)
+    _, _, stderr = app_run(command)
+    assert stderr.include?(expected), "expected '#{expected}' to be printed to stderr. But it wasn't, the stderr is:\n#{stderr}"
+  end
+
   def assert_speedup(opts = {})
     ratio  = opts.fetch(:ratio, 0.5)
     from   = opts.fetch(:from, 0)
@@ -263,5 +268,14 @@ class AppTest < ActiveSupport::TestCase
     app_run "spring binstub rake"
     assert_successful_run "bin/spring help"
     assert_stdout "bin/rake -T", "rake db:migrate"
+  end
+
+  test "missing config/application.rb" do
+    begin
+      FileUtils.mv app_root.join("config/application.rb"), app_root.join("config/application.rb.bak")
+      assert_stderr "spring rake -T", "unable to find your config/application.rb"
+    ensure
+      FileUtils.mv app_root.join("config/application.rb.bak"), app_root.join("config/application.rb")
+    end
   end
 end

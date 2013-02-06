@@ -9,31 +9,23 @@ module Spring
     end
 
     def application_root_path
-      return @application_root_path if defined?(@application_root_path)
-      path = application_root || detect_application_root
-      @application_root_path = Pathname.new(File.expand_path(path))
+      @application_root_path ||= begin
+        path = Pathname.new(File.expand_path(application_root || find_project_root))
+        raise MissingApplication.new(path) unless path.join("config/application.rb").exist?
+        path
+      end
     end
 
     private
 
-    def detect_application_root
-      project_root = detect_project_root
-      if File.exist?(project_root.join "config", "application.rb")
-        project_root
-      else
-        raise MissingApplicationRoot.new(Dir.pwd, project_root)
-      end
-    end
-
-    def detect_project_root(current_dir = Pathname.new(Dir.pwd))
-      if File.exist?(current_dir.join "Gemfile")
+    def find_project_root(current_dir = Pathname.new(Dir.pwd))
+      if current_dir.join("Gemfile").exist?
         current_dir
       elsif current_dir.root?
-        raise MissingProjectRootError.new(Dir.pwd)
+        raise UnknownProject.new(Dir.pwd)
       else
-        detect_project_root(current_dir.parent)
+        find_project_root(current_dir.parent)
       end
     end
   end
-
 end

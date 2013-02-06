@@ -17,6 +17,7 @@ module Spring
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO)
 
       def call
+        Spring.verify_environment!
         boot_server unless env.server_running?
 
         application, client = UNIXSocket.pair

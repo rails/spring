@@ -1,31 +1,33 @@
 module Spring
-  class InvalidEnvironmentError < StandardError; end
+  class ClientError < StandardError; end
 
-  class MissingProjectRootError < InvalidEnvironmentError
+  class UnknownProject < ClientError
+    attr_reader :current_dir
+
     def initialize(current_dir)
-      super <<-MSG
-Spring was not able to locate the root of your project.
-You should:
-  - make sure that you are inside a rails application.
+      @current_dir = current_dir
+    end
 
-Spring used the following paths to detect the project root (`Gemfile`):
-  pwd: #{current_dir}
-MSG
+    def message
+      "Spring was unable to locate the root of your project. There was no Gemfile " \
+        "present in the current directory (#{current_dir}) or any of the parent " \
+        "directories."
     end
   end
 
-  class MissingApplicationRoot < InvalidEnvironmentError
-    def initialize(current_dir, project_root)
-      super <<-MSG
-Spring was not able to locate the rails root of your project.
-You should:
-  - change your working directory.
-  - configure the location of your rails application using `config/spring.rb`.
+  class MissingApplication < ClientError
+    attr_reader :project_root
 
-Spring used the following paths to detect the Rails root (`config/application.rb`):
-  pwd: #{current_dir}
-  project root: #{project_root}
-MSG
+    def initialize(project_root)
+      @project_root = project_root
+    end
+
+    def message
+      "Spring was unable to find your config/application.rb file. " \
+        "Your project root was detected at #{project_root}, so spring " \
+        "looked for #{project_root}/config/application.rb but it doesn't exist. You can " \
+        "configure the root of your application by setting Spring.application_root in " \
+        "config/spring.rb."
     end
   end
 end
