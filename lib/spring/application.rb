@@ -22,9 +22,6 @@ module Spring
 
       @stdout = IO.new(STDOUT.fileno)
       @stderr = IO.new(STDERR.fileno)
-      @stdin  = File.open('/dev/null', 'r')
-
-      STDIN.reopen(@stdin)
     end
 
     def start
@@ -62,6 +59,7 @@ module Spring
 
     def serve(client)
       redirect_output(client) do
+        stdin       = client.recv_io
         args_length = client.gets.to_i
         args        = args_length.times.map { client.read(client.gets.to_i) }
         command     = Spring.command(args.shift)
@@ -72,6 +70,8 @@ module Spring
         ActionDispatch::Reloader.prepare!
 
         pid = fork {
+          Process.setsid
+          STDIN.reopen(stdin)
           IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
           command.call(args)
         }
@@ -103,13 +103,11 @@ module Spring
     def redirect_output(socket)
       STDOUT.reopen socket.recv_io
       STDERR.reopen socket.recv_io
-      STDIN.reopen  socket.recv_io
 
       yield
     ensure
       STDOUT.reopen @stdout
       STDERR.reopen @stderr
-      STDIN.reopen  @stdin
     end
   end
 end

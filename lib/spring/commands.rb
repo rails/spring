@@ -94,11 +94,11 @@ module Spring
     Spring.register_command "rake", Rake.new
 
     class Console
-      def setup
-        require "rails/commands/console"
-      end
-
       def call(args)
+        # This cannot be preloaded as it messes up the IRB prompt on OS X
+        # for unknown reasons. See discussion in issue #34.
+        require "rails/commands/console"
+
         ARGV.replace args
         ::Rails::Console.start(::Rails.application)
       end

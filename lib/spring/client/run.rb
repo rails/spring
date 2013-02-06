@@ -1,6 +1,5 @@
 require "rbconfig"
 require "socket"
-require "pty"
 
 require "spring/commands"
 
@@ -30,7 +29,7 @@ module Spring
 
         application.send_io STDOUT
         application.send_io STDERR
-        application.send_io stdin_slave
+        application.send_io STDIN
 
         application.puts args.length
 
@@ -89,21 +88,6 @@ ERROR
         else
           ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
         end
-      end
-
-      def stdin_slave
-        master, slave = PTY.open
-
-        # Sadly I cannot find a way to achieve this without shelling out to stty, or
-        # using a C extension library. [Ruby does not have direct support for calling
-        # tcsetattr().] We don't want to use a C extension library so
-        # that spring can be used by Rails in the future.
-        system "stty -icanon -echo"
-        at_exit { system "stty sane" }
-
-        Thread.new { master.write STDIN.read(1) until STDIN.closed? }
-
-        slave
       end
 
       def forward_signals(pid)
