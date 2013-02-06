@@ -2,7 +2,7 @@ module Spring
   class InvalidEnvironmentError < StandardError; end
 
   class MissingProjectRootError < InvalidEnvironmentError
-    def initialize(curent_dir)
+    def initialize(current_dir)
       super <<-MSG
 Spring was not able to locate the root of your project.
 You should:
@@ -19,7 +19,7 @@ MSG
       super <<-MSG
 Spring was not able to locate the rails root of your project.
 You should:
-  - change your woring directory.
+  - change your working directory.
   - configure the location of your rails application using `config/spring.rb`.
 
 Spring used the following paths to detect the Rails root (`config/application.rb`):
