@@ -77,7 +77,7 @@ You should restart the server and make sure to use the same version.
 
 CLIENT: #{env.version}, SERVER: #{server_version}
 ERROR
-          exit(1)
+          exit 1
         end
       end
 

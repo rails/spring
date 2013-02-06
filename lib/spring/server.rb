@@ -63,7 +63,7 @@ module Spring
         @pidfile.fsync
       else
         STDERR.puts "#{file.path} is locked; it looks like a server is already running"
-        exit(1)
+        exit 1
       end
     end
   end
