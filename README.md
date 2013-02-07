@@ -246,6 +246,24 @@ Spring where your app is located:
 Spring.application_root = './test/dummy'
 ```
 
+### preload files
+
+Every Spring command has the ability to preload a set of files. The
+`test` command for example preloads the `test/test_helper`. If the
+default's don't work for your application you can configure the
+preloads for every command:
+
+```ruby
+# if your test helper is called "helper"
+Commands::Command::Test.preloads = %w(helper)
+
+# if you don't want to preload spec_helper.rb
+Commands::Command::RSpec.preloads = []
+
+# if you want to preload additional files for the console
+Commands::Command::Console.preloads << 'extenstions/console_helper'
+```
+
 ### tmp directory
 
 Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
