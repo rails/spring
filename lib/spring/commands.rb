@@ -84,6 +84,10 @@ MESSAGE
           $stderr.puts "you need to specify what test to run: spring test TEST_NAME"
         end
       end
+
+      def description
+        "Execute a Test::Unit test."
+      end
     end
     Spring.register_command "test", Test.new
 
@@ -104,6 +108,10 @@ MESSAGE
         $0 = "rspec"
         ::RSpec::Core::Runner.run(args)
       end
+
+      def description
+        "Execute an RSpec spec."
+      end
     end
     Spring.register_command "rspec", RSpec.new
 
@@ -120,6 +128,10 @@ MESSAGE
       def call(args)
         ::Cucumber::Cli::Main.execute(args)
       end
+
+      def description
+        "Execute a Cucumber feature."
+      end
     end
     Spring.register_command "cucumber", Cucumber.new
 
@@ -132,6 +144,10 @@ MESSAGE
       def call(args)
         ARGV.replace args
         ::Rake.application.run
+      end
+
+      def description
+        "Run a rake task."
       end
     end
     Spring.register_command "rake", Rake.new
@@ -146,6 +162,10 @@ MESSAGE
         ARGV.replace args
         ::Rails::Console.start(::Rails.application)
       end
+
+      def description
+        "Start the Rails console."
+      end
     end
     Spring.register_command "console", Console.new, alias: "c"
 
@@ -159,6 +179,10 @@ MESSAGE
         ARGV.replace args
         require "rails/commands/generate"
       end
+
+      def description
+        "Trigger a Rails generator."
+      end
     end
     Spring.register_command "generate", Generate.new, alias: "g"
 
@@ -167,6 +191,10 @@ MESSAGE
         Object.const_set(:APP_PATH, Rails.root.join('config/application'))
         ARGV.replace args
         require "rails/commands/runner"
+      end
+
+      def description
+        "Execute a command with the Rails runner."
       end
     end
     Spring.register_command "runner", Runner.new, alias: "r"

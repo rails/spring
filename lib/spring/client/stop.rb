@@ -5,6 +5,10 @@ module Spring
     class Stop < Command
       TIMEOUT = 2 # seconds
 
+      def self.description
+        "Stop all spring processes for this project."
+      end
+
       def call
         if env.server_running?
           timeout = Time.now + TIMEOUT

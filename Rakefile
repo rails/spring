@@ -4,7 +4,7 @@ require "rake/testtask"
 namespace :test do
   Rake::TestTask.new(:unit) do |t|
     t.libs << "test"
-    t.test_files = FileList["test/unit/*_test.rb"]
+    t.test_files = FileList["test/unit/**/*_test.rb"]
     t.verbose = true
   end
 
