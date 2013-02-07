@@ -19,7 +19,7 @@ class ApplicationWatcherTest < ActiveSupport::TestCase
     FileUtils.touch(file, options)
   end
 
-  def test_file_mtime
+  test "file mtime" do
     file = "#{@dir}/omg"
     touch file, Time.now - 2.seconds
 
@@ -31,7 +31,7 @@ class ApplicationWatcherTest < ActiveSupport::TestCase
     assert watcher.stale?
   end
 
-  def test_tolerates_enoent
+  test "tolerates enoent" do
     file = "#{@dir}/omg"
     touch file
 
@@ -43,7 +43,7 @@ class ApplicationWatcherTest < ActiveSupport::TestCase
     assert watcher.stale?
   end
 
-  def test_glob
+  test "accepts glob patterns" do
     FileUtils.mkdir("#{@dir}/1")
     FileUtils.mkdir("#{@dir}/2")
 
