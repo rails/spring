@@ -1,3 +1,5 @@
+require 'active_support/core_ext/class/attribute'
+
 module Spring
   @commands = {}
 
@@ -21,19 +23,42 @@ module Spring
     commands.fetch name
   end
 
-  # Load custom commands, if any
-  config = File.expand_path("./config/spring.rb")
-  require config if File.exist?(config)
-
   module Commands
-    class Test
+    class Command
+      class_attribute :preloads
+      self.preloads = []
+
+      def setup
+        preload_files
+      end
+
+      private
+
+      def preload_files
+        preloads.each do |file|
+          begin
+            require file
+          rescue LoadError => e
+            $stderr.puts <<-MESSAGE
+The #{self.class} command tried to preload #{file} but could not find it.
+You can configure what to preload in your `config/spring.rb` with:
+  #{self.class}.preloads = %w(files to preload)
+MESSAGE
+          end
+        end
+      end
+    end
+
+    class Test < Command
+      self.preloads += %w(test_helper)
+
       def env
         "test"
       end
 
       def setup
         $LOAD_PATH.unshift "test"
-        require "test_helper"
+        super
       end
 
       def call(args)
@@ -53,14 +78,17 @@ module Spring
     end
     Spring.register_command "test", Test.new
 
-    class RSpec
+    class RSpec < Command
+      self.preloads += %w(spec_helper)
+
       def env
         "test"
       end
 
       def setup
         $LOAD_PATH.unshift "spec"
-        require "spec_helper"
+        super
+        require 'rspec/core'
       end
 
       def call(args)
@@ -70,12 +98,13 @@ module Spring
     end
     Spring.register_command "rspec", RSpec.new
 
-    class Cucumber
+    class Cucumber < Command
       def env
         "test"
       end
 
       def setup
+        super
         require 'cucumber'
       end
 
@@ -85,8 +114,9 @@ module Spring
     end
     Spring.register_command "cucumber", Cucumber.new
 
-    class Rake
+    class Rake < Command
       def setup
+        super
         require "rake"
       end
 
@@ -97,7 +127,8 @@ module Spring
     end
     Spring.register_command "rake", Rake.new
 
-    class Console
+
+    class Console < Command
       def call(args)
         # This cannot be preloaded as it messes up the IRB prompt on OS X
         # for unknown reasons. See discussion in issue #34.
@@ -109,8 +140,9 @@ module Spring
     end
     Spring.register_command "console", Console.new, alias: "c"
 
-    class Generate
+    class Generate < Command
       def setup
+        super
         Rails.application.load_generators
       end
 
@@ -121,7 +153,7 @@ module Spring
     end
     Spring.register_command "generate", Generate.new, alias: "g"
 
-    class Runner
+    class Runner < Command
       def call(args)
         Object.const_set(:APP_PATH, Rails.root.join('config/application'))
         ARGV.replace args
@@ -130,4 +162,10 @@ module Spring
     end
     Spring.register_command "runner", Runner.new, alias: "r"
   end
+
+  # Load custom commands, if any.
+  # needs to be at the end to allow modification of existing commands.
+  config = File.expand_path("./config/spring.rb")
+  require config if File.exist?(config)
+
 end
