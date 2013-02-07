@@ -1,7 +1,7 @@
 require "helper"
 require "spring/commands"
 
-class CommandsTest < Test::Unit::TestCase
+class CommandsTest < ActiveSupport::TestCase
 
   def test_test_command_needs_a_test_name
     real_stderr = $stderr

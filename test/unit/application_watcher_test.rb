@@ -3,7 +3,7 @@ require "fileutils"
 require "active_support/core_ext/numeric/time"
 require "spring/application_watcher"
 
-class ApplicationWatcherTest < Test::Unit::TestCase
+class ApplicationWatcherTest < ActiveSupport::TestCase
   def setup
     @dir = "/tmp/spring"
     FileUtils.mkdir(@dir)
