@@ -68,6 +68,7 @@ module Spring
         Process.setsid
         [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
+        invoke_after_fork_callbacks
         command.call(args)
       }
 
@@ -92,6 +93,12 @@ module Spring
       if command.respond_to?(:setup)
         command.setup
         watcher.add_files $LOADED_FEATURES # loaded features may have changed
+      end
+    end
+
+    def invoke_after_fork_callbacks
+      Spring.after_fork_callbacks.each do |callback|
+        callback.call
       end
     end
   end

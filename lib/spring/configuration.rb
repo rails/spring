@@ -4,6 +4,14 @@ module Spring
   class << self
     attr_accessor :application_root
 
+    def after_fork_callbacks
+      @after_fork_callbacks ||= []
+    end
+
+    def after_fork(&block)
+      after_fork_callbacks << block
+    end
+
     def verify_environment!
       application_root_path
     end
