@@ -249,8 +249,9 @@ Spring.application_root = './test/dummy'
 ### preload files
 
 Every Spring command has the ability to preload a set of files. The
-`test` command for example preloads the `test/test_helper`. If the
-default's don't work for your application you can configure the
+`test` command for example preloads `test_helper` (it also adds the
+`test/` directory to your load path). If the
+defaults don't work for your application you can configure the
 preloads for every command:
 
 ```ruby
