@@ -2,7 +2,6 @@ require "helper"
 require "spring/commands"
 
 class CommandsTest < ActiveSupport::TestCase
-
   test "test command needs a test name" do
     begin
       real_stderr = $stderr
@@ -15,6 +14,19 @@ class CommandsTest < ActiveSupport::TestCase
     ensure
       $stderr = real_stderr
     end
+  end
+
+  test 'children of Command have inheritable accessor named "preload"' do
+    assert_equal [], Spring::Commands::Command.preloads
+
+    my_command_class = Class.new(Spring::Commands::Command)
+    my_command_class.preloads += %w(baz)
+    assert_equal [], Spring::Commands::Command.preloads
+    assert_equal %w(baz), my_command_class.preloads
+
+    Spring::Commands::Command.preloads = %w(foo bar)
+    assert_equal %w(foo bar), Spring::Commands::Command.preloads
+    assert_equal %w(foo bar baz), my_command_class.preloads
   end
 
   test "prints error message when preloaded file does not exist" do
@@ -30,5 +42,4 @@ class CommandsTest < ActiveSupport::TestCase
       $stderr = original_stderr
     end
   end
-
 end
