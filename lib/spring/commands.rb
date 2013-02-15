@@ -1,5 +1,3 @@
-require 'active_support/core_ext/class/attribute'
-
 module Spring
   @commands = {}
 
@@ -25,8 +23,32 @@ module Spring
 
   module Commands
     class Command
-      class_attribute :preloads
-      self.preloads = []
+      @preloads = []
+
+      class << self
+        attr_accessor :preloads
+
+        def inherited(c)
+          c.class_eval do
+            @preloads = []
+
+            class << self
+              def preloads
+                Command.preloads + @preloads
+              end
+
+              def preloads=(files)
+                @preloads = files
+              end
+            end
+
+            def preloads
+              self.class.preloads
+            end
+          end
+        end
+      end
+
 
       def setup
         preload_files
@@ -167,5 +189,4 @@ MESSAGE
   # needs to be at the end to allow modification of existing commands.
   config = File.expand_path("./config/spring.rb")
   require config if File.exist?(config)
-
 end
