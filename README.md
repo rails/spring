@@ -40,7 +40,17 @@ real shell and a terminal running the rails "commands console".
 
 ## Compatibility
 
-At the moment only MRI 1.9.3 / Rails 3.2 is supported.
+Ruby versions supported:
+
+* MRI 1.9.3
+* MRI 2.0.0
+
+Rails versions supported:
+
+* 3.2
+
+Spring makes extensive use of `Process#fork`, so won't be able to run on
+any platform which doesn't support that (Windows, JRuby).
 
 ## Usage
 
