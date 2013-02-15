@@ -38,6 +38,9 @@ module Spring
 
     def pid
       pidfile_path.exist? ? pidfile_path.read.to_i : nil
+    rescue Errno::ENOENT
+      # This can happen if the pidfile is removed after we check it
+      # exists
     end
 
     def app_name
