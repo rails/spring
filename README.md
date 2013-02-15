@@ -42,14 +42,6 @@ real shell and a terminal running the rails "commands console".
 
 At the moment only MRI 1.9.3 / Rails 3.2 is supported.
 
-Your Ruby must be built with libffi support. If you get an error like
-this when using spring:
-```
-cannot load such file -- fiddle
-```
-then you probably don't have libffi support.
-For Debian/Ubuntu with RVM, install `libffi-dev` and then run `rvm reinstall ruby`.
-
 ## Usage
 
 Install the `spring` gem. You can add it to your Gemfile if you like but
