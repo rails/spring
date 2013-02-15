@@ -9,6 +9,14 @@ class AppTest < ActiveSupport::TestCase
     Pathname.new("#{TEST_ROOT}/apps/rails-3-2")
   end
 
+  def gem_home
+    app_root.join "vendor/gems/#{RUBY_VERSION}"
+  end
+
+  def spring
+    gem_home.join "bin/spring"
+  end
+
   def server_pidfile
     "#{app_root}/tmp/spring/#{Spring::SID.sid}.pid"
   end
@@ -38,12 +46,8 @@ class AppTest < ActiveSupport::TestCase
 
     Bundler.with_clean_env do
       Process.spawn(
-        {
-          "GEM_HOME" => "#{app_root}/vendor/gems",
-          "GEM_PATH" => "",
-          "PATH"     => "#{app_root}/vendor/gems/bin:#{ENV["PATH"]}"
-        },
-        command,
+        { "GEM_HOME" => gem_home.to_s, "GEM_PATH" => "" },
+        command.to_s,
         out:   stdout.last,
         err:   stderr.last,
         chdir: app_root.to_s,
@@ -118,10 +122,10 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def test_command
-    "spring test #{@test}"
+    "#{spring} test #{@test}"
   end
 
-  @@installed_spring = false
+  @@installed = false
 
   setup do
     @test                = "#{app_root}/test/functional/posts_controller_test.rb"
@@ -131,17 +135,17 @@ class AppTest < ActiveSupport::TestCase
 
     @spring_env          = Spring::Env.new(app_root)
 
-    unless @@installed_spring
+    unless @@installed
+      FileUtils.mkdir_p(gem_home)
       system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
-      app_run "gem install ../../../spring-*.gem"
-      @@installed_spring = true
+      app_run "gem install ../../../spring-#{Spring::VERSION}.gem"
+      app_run "(gem list bundler | grep bundler) || gem install bundler #{'--pre' if RUBY_VERSION >= "2.0"}", timeout: nil
+      app_run "bundle check || bundle update", timeout: nil
+      app_run "bundle exec rake db:migrate"
+      @@installed = true
     end
 
     FileUtils.rm_rf "#{app_root}/bin"
-    app_run "(gem list bundler | grep bundler) || gem install bundler", timeout: nil
-    app_run "bundle check || bundle update", timeout: nil
-    app_run "bundle exec rake db:migrate"
-
     @times = []
   end
 
@@ -163,7 +167,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "help message when called without arguments" do
-    assert_stdout "spring", 'Usage: spring COMMAND [ARGS]'
+    assert_stdout spring, 'Usage: spring COMMAND [ARGS]'
   end
 
   test "test changes are picked up" do
@@ -252,20 +256,20 @@ class AppTest < ActiveSupport::TestCase
     assert_successful_run test_command
     assert_server_running
 
-    assert_successful_run 'spring stop'
+    assert_successful_run "#{spring} stop"
     assert_server_not_running
   end
 
   test "custom commands" do
-    assert_stdout "spring custom", "omg"
+    assert_stdout "#{spring} custom", "omg"
   end
 
   test "runner alias" do
-    assert_stdout "spring r 'puts 1'", "1"
+    assert_stdout "#{spring} r 'puts 1'", "1"
   end
 
   test "binstubs" do
-    app_run "spring binstub rake"
+    app_run "#{spring} binstub rake"
     assert_successful_run "bin/spring help"
     assert_stdout "bin/rake -T", "rake db:migrate"
   end
@@ -273,7 +277,7 @@ class AppTest < ActiveSupport::TestCase
   test "missing config/application.rb" do
     begin
       FileUtils.mv app_root.join("config/application.rb"), app_root.join("config/application.rb.bak")
-      assert_stderr "spring rake -T", "unable to find your config/application.rb"
+      assert_stderr "#{spring} rake -T", "unable to find your config/application.rb"
     ensure
       FileUtils.mv app_root.join("config/application.rb.bak"), app_root.join("config/application.rb")
     end
