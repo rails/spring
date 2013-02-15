@@ -17,16 +17,24 @@ class CommandsTest < ActiveSupport::TestCase
   end
 
   test 'children of Command have inheritable accessor named "preload"' do
-    assert_equal [], Spring::Commands::Command.preloads
+    command1, command2 = 2.times.map { Class.new(Spring::Commands::Command) }
 
-    my_command_class = Class.new(Spring::Commands::Command)
-    my_command_class.preloads += %w(baz)
-    assert_equal [], Spring::Commands::Command.preloads
-    assert_equal %w(baz), my_command_class.preloads
+    command1.preloads << "foo"
+    assert_equal ["foo"], command1.preloads
+    assert_equal [], command2.preloads
 
-    Spring::Commands::Command.preloads = %w(foo bar)
-    assert_equal %w(foo bar), Spring::Commands::Command.preloads
-    assert_equal %w(foo bar baz), my_command_class.preloads
+    command2.preloads << "bar"
+    assert_equal ["foo"], command1.preloads
+    assert_equal ["bar"], command2.preloads
+
+    command1.preloads = ["omg"]
+    assert_equal ["omg"], command1.preloads
+    assert_equal ["bar"], command2.preloads
+
+    command3 = Class.new(command1)
+    command3.preloads << "foo"
+    assert_equal ["omg", "foo"], command3.preloads
+    assert_equal ["omg"], command1.preloads
   end
 
   test "prints error message when preloaded file does not exist" do

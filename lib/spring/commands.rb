@@ -25,30 +25,17 @@ module Spring
     class Command
       @preloads = []
 
-      class << self
-        attr_accessor :preloads
-
-        def inherited(c)
-          c.class_eval do
-            @preloads = []
-
-            class << self
-              def preloads
-                Command.preloads + @preloads
-              end
-
-              def preloads=(files)
-                @preloads = files
-              end
-            end
-
-            def preloads
-              self.class.preloads
-            end
-          end
-        end
+      def self.preloads
+        @preloads ||= superclass.preloads.dup
       end
 
+      def self.preloads=(val)
+        @preloads = val
+      end
+
+      def preloads
+        self.class.preloads
+      end
 
       def setup
         preload_files
@@ -72,7 +59,7 @@ MESSAGE
     end
 
     class Test < Command
-      self.preloads += %w(test_helper)
+      preloads << "test_helper"
 
       def env
         "test"
@@ -101,7 +88,7 @@ MESSAGE
     Spring.register_command "test", Test.new
 
     class RSpec < Command
-      self.preloads += %w(spec_helper)
+      preloads << "spec_helper"
 
       def env
         "test"
