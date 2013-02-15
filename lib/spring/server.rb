@@ -2,6 +2,7 @@ require "socket"
 
 require "spring/env"
 require "spring/application_manager"
+require "io/console"
 
 module Spring
   class Server
@@ -24,6 +25,7 @@ module Spring
 
       set_exit_hook
       write_pidfile
+      redirect_output
 
       $0 = "spring server | #{env.app_name} | started #{Time.now}"
 
@@ -65,6 +67,20 @@ module Spring
         STDERR.puts "#{file.path} is locked; it looks like a server is already running"
         exit 1
       end
+    end
+
+    # We can't leave STDOUT, STDERR as they as because then they will
+    # never get closed for the lifetime of the server. This means that
+    # piping, e.g. "spring rake -T | grep db" won't work correctly
+    # because grep will hang while waiting for its stdin to reach EOF.
+    #
+    # However we do want server output to go to the terminal in case
+    # there are exceptions etc, so we just open the current terminal
+    # device directly.
+    def redirect_output
+      tty = open(`tty`.chomp, "a") # ruby doesn't expose ttyname()
+      STDOUT.reopen(tty)
+      STDERR.reopen(tty)
     end
   end
 end

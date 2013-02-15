@@ -3,6 +3,7 @@ require 'io/wait'
 require "timeout"
 require "spring/sid"
 require "spring/env"
+require "pty"
 
 class AppTest < ActiveSupport::TestCase
   def app_root
@@ -33,12 +34,12 @@ class AppTest < ActiveSupport::TestCase
     spring_env.server_running?
   end
 
-  def stdout
-    @stdout ||= IO.pipe
+  def pty
+    @pty ||= PTY.open
   end
 
-  def stderr
-    @stderr ||= IO.pipe
+  def output
+    pty.first
   end
 
   def app_run(command, opts = {})
@@ -48,36 +49,28 @@ class AppTest < ActiveSupport::TestCase
       Process.spawn(
         { "GEM_HOME" => gem_home.to_s, "GEM_PATH" => "" },
         command.to_s,
-        out:   stdout.last,
-        err:   stderr.last,
+        out:   pty.last,
+        err:   pty.last,
+        in:    pty.last,
         chdir: app_root.to_s,
       )
     end
 
     _, status = Timeout.timeout(opts.fetch(:timeout, 5)) { Process.wait2 }
 
-    out, err = read_streams
+    output = read_output
+    puts output if ENV["SPRING_DEBUG"]
 
     @times << (Time.now - start_time) if @times
 
-    print_streams(out, err) if ENV["SPRING_DEBUG"]
-
-    [status, out, err]
+    [status, output]
   rescue Timeout::Error
-    print_streams *read_streams
+    puts read_output
     raise
   end
 
-  def print_streams(out, err)
-    puts "---"
-    puts out
-    puts "***"
-    puts err
-    puts "---"
-  end
-
-  def read_streams
-    [stdout, stderr].map(&:first).map { |s| s.ready? ? s.readpartial(10240) : "" }
+  def read_output
+    output.ready? ? output.readpartial(10240) : ""
   end
 
   def await_reload
@@ -85,23 +78,18 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def assert_successful_run(*args)
-    status, _, _ = app_run(*args)
+    status, _ = app_run(*args)
     assert status.success?, "The run should be successful but it wasn't"
   end
 
   def assert_unsuccessful_run(*args)
-    status, _, _ = app_run(*args)
+    status, _ = app_run(*args)
     assert !status.success?, "The run should not be successful but it was"
   end
 
-  def assert_stdout(command, expected)
-    _, stdout, _ = app_run(command)
-    assert stdout.include?(expected), "expected '#{expected}' to be printed to stdout. But it wasn't, the stdout is:\n#{stdout}"
-  end
-
-  def assert_stderr(command, expected)
-    _, _, stderr = app_run(command)
-    assert stderr.include?(expected), "expected '#{expected}' to be printed to stderr. But it wasn't, the stderr is:\n#{stderr}"
+  def assert_output(command, expected)
+    _, output = app_run(command)
+    assert output.include?(expected), "expected '#{expected}' to be output. But it wasn't, the output is:\n#{output}"
   end
 
   def assert_speedup(opts = {})
@@ -159,31 +147,31 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "basic" do
-    assert_successful_run test_command
+    assert_output test_command, "0 failures"
     assert File.exist?(server_pidfile)
 
-    assert_successful_run test_command
+    assert_output test_command, "0 failures"
     assert_speedup
   end
 
   test "help message when called without arguments" do
-    assert_stdout spring, 'Usage: spring COMMAND [ARGS]'
+    assert_output spring, 'Usage: spring COMMAND [ARGS]'
   end
 
   test "test changes are picked up" do
-    assert_successful_run test_command
+    assert_output test_command, "0 failures"
 
     File.write(@test, @test_contents.sub("get :index", "raise 'omg'"))
-    assert_stdout test_command, "RuntimeError: omg"
+    assert_output test_command, "RuntimeError: omg"
 
     assert_speedup
   end
 
   test "code changes are picked up" do
-    assert_successful_run test_command
+    assert_output test_command, "0 failures"
 
     File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
-    assert_stdout test_command, "RuntimeError: omg"
+    assert_output test_command, "RuntimeError: omg"
 
     assert_speedup
   end
@@ -193,10 +181,10 @@ class AppTest < ActiveSupport::TestCase
       initializer = "#{app_root}/config/initializers/load_posts_controller.rb"
       File.write(initializer, "PostsController\n")
 
-      assert_successful_run test_command
+      assert_output test_command, "0 failures"
 
       File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
-      assert_stdout test_command, "RuntimeError: omg"
+      assert_output test_command, "RuntimeError: omg"
 
       assert_speedup
     ensure
@@ -209,7 +197,7 @@ class AppTest < ActiveSupport::TestCase
       application = "#{app_root}/config/application.rb"
       application_contents = File.read(application)
 
-      assert_successful_run test_command
+      assert_output test_command, "0 failures"
 
       File.write(application, application_contents + <<-CODE)
         class Foo
@@ -222,8 +210,8 @@ class AppTest < ActiveSupport::TestCase
 
       await_reload
 
-      assert_stdout test_command, "RuntimeError: omg"
-      assert_stdout test_command, "RuntimeError: omg"
+      assert_output test_command, "RuntimeError: omg"
+      assert_output test_command, "RuntimeError: omg"
 
       assert_speedup from: 1
     ensure
@@ -236,7 +224,7 @@ class AppTest < ActiveSupport::TestCase
       application = "#{app_root}/config/application.rb"
       application_contents = File.read(application)
 
-      assert_successful_run test_command
+      assert_output test_command, "0 failures"
 
       File.write(application, application_contents + "\nomg")
       await_reload
@@ -246,14 +234,14 @@ class AppTest < ActiveSupport::TestCase
       File.write(application, application_contents)
       await_reload
 
-      assert_successful_run test_command
+      assert_output test_command, "0 failures"
     ensure
       File.write(application, application_contents)
     end
   end
 
   test "stop command kills server" do
-    assert_successful_run test_command
+    app_run test_command
     assert_server_running
 
     assert_successful_run "#{spring} stop"
@@ -261,25 +249,29 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "custom commands" do
-    assert_stdout "#{spring} custom", "omg"
+    assert_output "#{spring} custom", "omg"
   end
 
   test "runner alias" do
-    assert_stdout "#{spring} r 'puts 1'", "1"
+    assert_output "#{spring} r 'puts 1'", "1"
   end
 
   test "binstubs" do
     app_run "#{spring} binstub rake"
     assert_successful_run "bin/spring help"
-    assert_stdout "bin/rake -T", "rake db:migrate"
+    assert_output "bin/rake -T", "rake db:migrate"
   end
 
   test "missing config/application.rb" do
     begin
       FileUtils.mv app_root.join("config/application.rb"), app_root.join("config/application.rb.bak")
-      assert_stderr "#{spring} rake -T", "unable to find your config/application.rb"
+      assert_output "#{spring} rake -T", "unable to find your config/application.rb"
     ensure
       FileUtils.mv app_root.join("config/application.rb.bak"), app_root.join("config/application.rb")
     end
+  end
+
+  test "piping" do
+    assert_output "spring rake -T | grep db", "rake db:migrate"
   end
 end

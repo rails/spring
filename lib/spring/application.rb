@@ -19,9 +19,6 @@ module Spring
       @manager = manager
       @watcher = watcher
       @setup   = Set.new
-
-      @stdout = IO.new(STDOUT.fileno)
-      @stderr = IO.new(STDERR.fileno)
     end
 
     def start
@@ -57,28 +54,27 @@ module Spring
     end
 
     def serve(client)
-      redirect_output(client) do
-        stdin       = client.recv_io
-        args_length = client.gets.to_i
-        args        = args_length.times.map { client.read(client.gets.to_i) }
-        command     = Spring.command(args.shift)
+      streams     = 3.times.map { client.recv_io }
+      args_length = client.gets.to_i
+      args        = args_length.times.map { client.read(client.gets.to_i) }
+      command     = Spring.command(args.shift)
 
-        setup command
+      setup command
 
-        ActionDispatch::Reloader.cleanup!
-        ActionDispatch::Reloader.prepare!
+      ActionDispatch::Reloader.cleanup!
+      ActionDispatch::Reloader.prepare!
 
-        pid = fork {
-          Process.setsid
-          STDIN.reopen(stdin)
-          IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
-          command.call(args)
-        }
+      pid = fork {
+        Process.setsid
+        [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
+        IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
+        command.call(args)
+      }
 
-        manager.puts pid
-        Process.wait pid
-      end
+      manager.puts pid
+      Process.wait pid
     ensure
+      streams.each(&:close) if streams
       client.puts
       client.close
     end
@@ -97,16 +93,6 @@ module Spring
         command.setup
         watcher.add_files $LOADED_FEATURES # loaded features may have changed
       end
-    end
-
-    def redirect_output(socket)
-      STDOUT.reopen socket.recv_io
-      STDERR.reopen socket.recv_io
-
-      yield
-    ensure
-      STDOUT.reopen @stdout
-      STDERR.reopen @stderr
     end
   end
 end
