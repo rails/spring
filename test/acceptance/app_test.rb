@@ -272,6 +272,6 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "piping" do
-    assert_output "spring rake -T | grep db", "rake db:migrate"
+    assert_output "#{spring} rake -T | grep db", "rake db:migrate"
   end
 end
