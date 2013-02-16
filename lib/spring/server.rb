@@ -2,7 +2,6 @@ require "socket"
 
 require "spring/env"
 require "spring/application_manager"
-require "io/console"
 
 module Spring
   class Server
