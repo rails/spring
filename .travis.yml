@@ -2,5 +2,6 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
-allowed_failures:
-  - 2.0.0
+matrix:
+  allow_failures:
+    - rvm: 2.0.0
