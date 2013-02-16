@@ -65,8 +65,7 @@ class AppTest < ActiveSupport::TestCase
 
     [status, output]
   rescue Timeout::Error
-    puts read_output
-    raise
+    raise "timed out. output was:\n\n#{read_output}"
   end
 
   def read_output
@@ -120,7 +119,6 @@ class AppTest < ActiveSupport::TestCase
     @test_contents       = File.read(@test)
     @controller          = "#{app_root}/app/controllers/posts_controller.rb"
     @controller_contents = File.read(@controller)
-
     @spring_env          = Spring::Env.new(app_root)
 
     unless @@installed
@@ -129,7 +127,7 @@ class AppTest < ActiveSupport::TestCase
       app_run "gem install ../../../spring-#{Spring::VERSION}.gem"
       app_run "(gem list bundler | grep bundler) || gem install bundler #{'--pre' if RUBY_VERSION >= "2.0"}", timeout: nil
       app_run "bundle check || bundle update", timeout: nil
-      app_run "bundle exec rake db:migrate"
+      app_run "bundle exec rake db:migrate db:test:clone"
       @@installed = true
     end
 
