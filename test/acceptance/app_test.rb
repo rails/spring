@@ -56,7 +56,7 @@ class AppTest < ActiveSupport::TestCase
       )
     end
 
-    _, status = Timeout.timeout(opts.fetch(:timeout, 10)) { Process.wait2 }
+    _, status = Timeout.timeout(opts.fetch(:timeout, 5)) { Process.wait2 }
 
     output = read_output
     puts output if ENV["SPRING_DEBUG"]
