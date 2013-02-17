@@ -18,20 +18,8 @@ class AppTest < ActiveSupport::TestCase
     gem_home.join "bin/spring"
   end
 
-  def server_pidfile
-    "#{app_root}/tmp/spring/#{Spring::SID.sid}.pid"
-  end
-
   def spring_env
     @spring_env ||= Spring::Env.new(app_root)
-  end
-
-  def server_pid
-    spring_env.pid
-  end
-
-  def server_running?
-    spring_env.server_running?
   end
 
   def pty
@@ -100,14 +88,6 @@ class AppTest < ActiveSupport::TestCase
     assert (second / first) < ratio, "#{second} was not less than #{ratio} of #{first}"
   end
 
-  def assert_server_running(*args)
-    assert server_running?, "The server should be running but it isn't"
-  end
-
-  def assert_server_not_running(*args)
-    assert !server_running?, "The server should not be running but it is"
-  end
-
   def test_command
     "#{spring} test #{@test}"
   end
@@ -119,7 +99,6 @@ class AppTest < ActiveSupport::TestCase
     @test_contents       = File.read(@test)
     @controller          = "#{app_root}/app/controllers/posts_controller.rb"
     @controller_contents = File.read(@controller)
-    @spring_env          = Spring::Env.new(app_root)
 
     unless @@installed
       FileUtils.mkdir_p(gem_home)
@@ -136,24 +115,13 @@ class AppTest < ActiveSupport::TestCase
   end
 
   teardown do
-    if pid = server_pid
-      begin
-        Process.kill('TERM', pid)
-        Timeout.timeout(2) { sleep 0.1 while server_running? }
-      rescue Timeout::Error
-        STDERR.puts "Sending SIGKILL to spring server."
-        Process.kill('KILL', pid)
-      end
-    end
-
+    app_run "#{spring} stop"
     File.write(@test,       @test_contents)
     File.write(@controller, @controller_contents)
   end
 
   test "basic" do
     assert_output test_command, "0 failures"
-    assert File.exist?(server_pidfile)
-
     assert_output test_command, "0 failures"
     assert_speedup
   end
@@ -246,10 +214,10 @@ class AppTest < ActiveSupport::TestCase
 
   test "stop command kills server" do
     app_run test_command
-    assert_server_running
+    assert spring_env.server_running?, "The server should be running but it isn't"
 
     assert_successful_run "#{spring} stop"
-    assert_server_not_running
+    assert !spring_env.server_running?, "The server should not be running but it is"
   end
 
   test "custom commands" do
