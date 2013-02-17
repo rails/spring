@@ -137,7 +137,13 @@ class AppTest < ActiveSupport::TestCase
 
   teardown do
     if pid = server_pid
-      Process.kill('TERM', pid)
+      begin
+        Process.kill('TERM', pid)
+        Timeout.timeout(2) { sleep 0.1 while server_running? }
+      rescue Timeout::Error
+        STDERR.puts "Sending SIGKILL to spring server."
+        Process.kill('KILL', pid)
+      end
     end
 
     File.write(@test,       @test_contents)
