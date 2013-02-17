@@ -88,7 +88,7 @@ class AppTest < ActiveSupport::TestCase
     assert (second / first) < ratio, "#{second} was not less than #{ratio} of #{first}"
   end
 
-  def test_command
+  def spring_test_command
     "#{spring} test #{@test}"
   end
 
@@ -121,8 +121,8 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "basic" do
-    assert_output test_command, "0 failures"
-    assert_output test_command, "0 failures"
+    assert_output spring_test_command, "0 failures"
+    assert_output spring_test_command, "0 failures"
     assert_speedup
   end
 
@@ -131,19 +131,19 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "test changes are picked up" do
-    assert_output test_command, "0 failures"
+    assert_output spring_test_command, "0 failures"
 
     File.write(@test, @test_contents.sub("get :index", "raise 'omg'"))
-    assert_output test_command, "RuntimeError: omg"
+    assert_output spring_test_command, "RuntimeError: omg"
 
     assert_speedup
   end
 
   test "code changes are picked up" do
-    assert_output test_command, "0 failures"
+    assert_output spring_test_command, "0 failures"
 
     File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
-    assert_output test_command, "RuntimeError: omg"
+    assert_output spring_test_command, "RuntimeError: omg"
 
     assert_speedup
   end
@@ -153,10 +153,10 @@ class AppTest < ActiveSupport::TestCase
       initializer = "#{app_root}/config/initializers/load_posts_controller.rb"
       File.write(initializer, "PostsController\n")
 
-      assert_output test_command, "0 failures"
+      assert_output spring_test_command, "0 failures"
 
       File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
-      assert_output test_command, "RuntimeError: omg"
+      assert_output spring_test_command, "RuntimeError: omg"
 
       assert_speedup
     ensure
@@ -169,7 +169,7 @@ class AppTest < ActiveSupport::TestCase
       application = "#{app_root}/config/application.rb"
       application_contents = File.read(application)
 
-      assert_output test_command, "0 failures"
+      assert_output spring_test_command, "0 failures"
 
       File.write(application, application_contents + <<-CODE)
         class Foo
@@ -182,8 +182,8 @@ class AppTest < ActiveSupport::TestCase
 
       await_reload
 
-      assert_output test_command, "RuntimeError: omg"
-      assert_output test_command, "RuntimeError: omg"
+      assert_output spring_test_command, "RuntimeError: omg"
+      assert_output spring_test_command, "RuntimeError: omg"
 
       assert_speedup from: 1
     ensure
@@ -196,24 +196,24 @@ class AppTest < ActiveSupport::TestCase
       application = "#{app_root}/config/application.rb"
       application_contents = File.read(application)
 
-      assert_output test_command, "0 failures"
+      assert_output spring_test_command, "0 failures"
 
       File.write(application, application_contents + "\nomg")
       await_reload
 
-      assert_unsuccessful_run test_command
+      assert_unsuccessful_run spring_test_command
 
       File.write(application, application_contents)
       await_reload
 
-      assert_output test_command, "0 failures"
+      assert_output spring_test_command, "0 failures"
     ensure
       File.write(application, application_contents)
     end
   end
 
   test "stop command kills server" do
-    app_run test_command
+    app_run spring_test_command
     assert spring_env.server_running?, "The server should be running but it isn't"
 
     assert_successful_run "#{spring} stop"
