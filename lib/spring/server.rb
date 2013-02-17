@@ -63,7 +63,7 @@ module Spring
         @pidfile.write("#{Process.pid}\n")
         @pidfile.fsync
       else
-        STDERR.puts "#{@pidfile.path} is locked; it looks like a server is already running"
+        $stderr.puts "#{@pidfile.path} is locked; it looks like a server is already running"
         exit 1
       end
     end
@@ -77,9 +77,14 @@ module Spring
     # there are exceptions etc, so we just open the current terminal
     # device directly.
     def redirect_output
-      tty = open(`tty`.chomp, "a") # ruby doesn't expose ttyname()
-      STDOUT.reopen(tty)
-      STDERR.reopen(tty)
+      if STDIN.tty?
+        tty = open(`tty`.chomp, "a") # ruby doesn't expose ttyname()
+        STDOUT.reopen(tty)
+        STDERR.reopen(tty)
+      else
+        $stderr.puts "Spring must be run in a terminal (stdin is not a tty)"
+        exit 1
+      end
     end
   end
 end
