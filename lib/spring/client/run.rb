@@ -39,18 +39,19 @@ module Spring
           application.write arg
         end
 
-        pid = server.gets.chomp
+        pid = server.gets
+        pid = pid.chomp if pid
 
         # We must not close the client socket until we are sure that the application has
         # received the FD. Otherwise the FD can end up getting closed while it's in the server
         # socket buffer on OS X. This doesn't happen on Linux.
         client.close
 
-        if pid.empty?
-          exit 1
-        else
+        if pid && !pid.empty?
           forward_signals(pid.to_i)
           application.read # FIXME: receive exit status from server
+        else
+          exit 1
         end
       rescue Errno::ECONNRESET
         exit 1
