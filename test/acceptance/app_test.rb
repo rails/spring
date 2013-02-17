@@ -57,7 +57,9 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def read_output
-    output.ready? ? output.readpartial(10240) : ""
+    out = ""
+    out << output.readpartial(10240) while IO.select([output], [], [], 0.1)
+    out
   end
 
   def await_reload
