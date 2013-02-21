@@ -8,14 +8,17 @@ module Spring
 Usage: spring COMMAND [ARGS]
 
 The most common spring commands are:
- rake        Run a rake task
- console     Start the Rails console
- runner      Execute a command with the Rails runner
- generate    Trigger a Rails generator
+ rake                 Run a rake task
+ console              Start the Rails console
+ runner               Execute a command with the Rails runner
+ generate             Trigger a Rails generator
 
- test        Execute a Test::Unit test
- rspec       Execute an RSpec spec
- cucumber    Execute a Cucumber feature
+ test                 Execute a Test::Unit test
+ rspec                Execute an RSpec spec
+ cucumber             Execute a Cucumber feature
+ 
+ binstub [command]    Create a binstub for the given command
+ stop                 Stop Spring server
 EOT
       end
     end
