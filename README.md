@@ -275,6 +275,22 @@ Commands::Command::RSpec.preloads = []
 Commands::Command::Console.preloads << 'extenstions/console_helper'
 ```
 
+### after fork callbacks
+
+You might want to run code after Spring forked off the process but
+before the actual command is run. You might want to use an
+`after_fork` callback if you have to connect to an external service,
+do some general cleanup or set up dynamic configuration.
+
+```ruby
+Spring.after_fork do
+  # run arbitrary code
+end
+```
+
+If you want to register multiple callbacks you can simply call
+`Spring.after_fork` multiple times with different blocks.
+
 ### tmp directory
 
 Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.

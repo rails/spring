@@ -264,6 +264,18 @@ class AppTest < ActiveSupport::TestCase
     assert_stdout "bin/rake -T", "rake db:migrate"
   end
 
+  test "after fork callback" do
+    begin
+      config_path = "#{app_root}/config/spring.rb"
+      config_contents = File.read(config_path)
+
+      File.write(config_path, config_contents + "\nSpring.after_fork { puts '!callback!' }")
+      assert_stdout "spring r 'puts 2'", "!callback!\n2"
+    ensure
+      File.write(config_path, config_contents)
+    end
+  end
+
   test "missing config/application.rb" do
     begin
       FileUtils.mv app_root.join("config/application.rb"), app_root.join("config/application.rb.bak")
