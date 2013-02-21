@@ -3,6 +3,10 @@ module Spring
     class Binstub < Command
       attr_reader :bindir, :name
 
+      def self.description
+        "Generate spring based binstubs."
+      end
+
       def initialize(args)
         super
 
