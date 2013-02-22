@@ -103,7 +103,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def assert_speedup(opts = {})
-    ratio  = opts.fetch(:ratio, 0.5)
+    ratio  = opts.fetch(:ratio, 0.6)
     from   = opts.fetch(:from, 0)
     first  = @times[from]
     second = @times[from + 1]
