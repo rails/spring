@@ -281,4 +281,10 @@ class AppTest < ActiveSupport::TestCase
     app_run "#{spring} runner ''"
     assert_success "#{spring} status", stdout: "Spring is running"
   end
+
+  test "runner command sets Rails environment from command-line options" do
+    # Not using "test" environment here to avoid false positives on Travis (where "test" is default)
+    assert_success "#{spring} runner -e staging 'puts Rails.env'", stdout: "staging"
+    assert_success "#{spring} runner --environment=staging 'puts Rails.env'", stdout: "staging"
+  end
 end
