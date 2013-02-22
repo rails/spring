@@ -30,10 +30,6 @@ class AppTest < ActiveSupport::TestCase
     @stderr ||= IO.pipe
   end
 
-  def terminal
-    @terminal ||= PTY.open
-  end
-
   def app_run(command, opts = {})
     start_time = Time.now
 
@@ -43,43 +39,40 @@ class AppTest < ActiveSupport::TestCase
         command.to_s,
         out:   stdout.last,
         err:   stderr.last,
-        in:    terminal.last,
+        in:    :close,
         chdir: app_root.to_s,
       )
     end
 
     _, status = Timeout.timeout(opts.fetch(:timeout, 5)) { Process.wait2 }
 
-    stdout, stderr, terminal = read_streams
-    puts dump_streams(stdout, stderr, terminal) if ENV["SPRING_DEBUG"]
+    stdout, stderr = read_streams
+    puts dump_streams(stdout, stderr) if ENV["SPRING_DEBUG"]
 
     @times << (Time.now - start_time) if @times
 
     {
-      status:   status,
-      stdout:   stdout,
-      stderr:   stderr,
-      terminal: terminal
+      status: status,
+      stdout: stdout,
+      stderr: stderr,
     }
   rescue Timeout::Error => e
     raise e, "Output:\n\n#{dump_streams(*read_streams)}"
   end
 
   def read_streams
-    [stdout, stderr, terminal].map(&:first).map do |stream|
+    [stdout, stderr].map(&:first).map do |stream|
       output = ""
       output << stream.readpartial(10240) while IO.select([stream], [], [], 0.1)
       output
     end
   end
 
-  def dump_streams(stdout, stderr, terminal)
+  def dump_streams(stdout, stderr)
     output = "--- stdout ---\n"
     output << "#{stdout.chomp}\n"
     output << "--- stderr ---\n"
     output << "#{stderr.chomp}\n"
-    output << "--- terminal ---\n"
-    output << "#{terminal.chomp}\n"
     output << "\n"
     output
   end
@@ -98,7 +91,7 @@ class AppTest < ActiveSupport::TestCase
     assert !artifacts[:status].success?, "The run should not be successful but it was"
   end
 
-  %w(stdout stderr terminal).each do |stream|
+  %w(stdout stderr).each do |stream|
     class_eval <<-CODE, __FILE__, __LINE__ + 1
       def assert_#{stream}(command, expected)
         artifacts = app_run(command)

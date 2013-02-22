@@ -77,14 +77,10 @@ module Spring
     # there are exceptions etc, so we just open the current terminal
     # device directly.
     def redirect_output
-      if STDIN.tty?
-        tty = open(`tty`.chomp, "a") # ruby doesn't expose ttyname()
-        STDOUT.reopen(tty)
-        STDERR.reopen(tty)
-      else
-        $stderr.puts "Spring must be run in a terminal (stdin is not a tty)"
-        exit 1
-      end
+      # ruby doesn't expose ttyname()
+      file = open(STDIN.tty? ? `tty`.chomp : "/dev/null", "a")
+      STDOUT.reopen(file)
+      STDERR.reopen(file)
     end
   end
 end
