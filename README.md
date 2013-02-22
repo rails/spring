@@ -86,9 +86,11 @@ sys	0m0.066s
 That booted our app in the background:
 
 ```
-$ ps ax | grep spring
-26150 pts/3    Sl     0:00 spring server | rails-3-2 | started 2013-02-01 20:16:40 +0000
-26155 pts/3    Sl     0:02 spring app    | rails-3-2 | started 2013-02-01 20:16:40 +0000 | test mode
+$ spring status
+Spring is running:
+
+26150 spring server | rails-3-2 | started 3 secs ago
+26155 spring app    | rails-3-2 | started 3 secs ago | test mode
 ```
 
 We can see two processes, one is the Spring server, the other is the
@@ -157,9 +159,11 @@ automatically. Let's "edit" `config/application.rb`:
 
 ```
 $ touch config/application.rb
-$ ps ax | grep spring
-26150 pts/3    Sl     0:00 spring server | rails-3-2 | started 2013-02-01 20:16:40 +0000
-26556 pts/3    Sl     0:00 spring app    | rails-3-2 | started 2013-02-01 20:20:07 +0000 | test mode
+$ spring status
+Spring is running:
+
+26150 spring server | rails-3-2 | started 36 secs ago
+26556 spring app    | rails-3-2 | started 1 sec ago | test mode
 ```
 
 The application process detected the change and exited. The server process
@@ -188,10 +192,19 @@ We now have 3 processes: the server, and application in test mode and
 the application in development mode.
 
 ```
-$ ps ax | grep spring
-26150 pts/3    Sl     0:00 spring server | rails-3-2 | started 2013-02-01 20:16:40 +0000
-26556 pts/3    Sl     0:08 spring app    | rails-3-2 | started 2013-02-01 20:20:07 +0000 | test mode
-26707 pts/3    Sl     0:00 spring app    | rails-3-2 | started 2013-02-01 20:22:41 +0000 | development mode
+$ bin/spring status
+Spring is running:
+
+26150 spring server | rails-3-2 | started 1 min ago
+26556 spring app    | rails-3-2 | started 42 secs ago | test mode
+26707 spring app    | rails-3-2 | started 2 secs ago | development mode
+```
+
+To stop the background processes:
+
+```
+$ bin/spring stop
+Spring stopped.
 ```
 
 ## Commands
