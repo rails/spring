@@ -154,7 +154,7 @@ class AppTest < ActiveSupport::TestCase
     assert_success spring_test_command, stdout: "0 failures"
 
     File.write(@test, @test_contents.sub("get :index", "raise 'omg'"))
-    assert_success spring_test_command, stdout: "RuntimeError: omg"
+    assert_failure spring_test_command, stdout: "RuntimeError: omg"
 
     assert_speedup
   end
@@ -163,7 +163,7 @@ class AppTest < ActiveSupport::TestCase
     assert_success spring_test_command, stdout: "0 failures"
 
     File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
-    assert_success spring_test_command, stdout: "RuntimeError: omg"
+    assert_failure spring_test_command, stdout: "RuntimeError: omg"
 
     assert_speedup
   end
@@ -176,7 +176,7 @@ class AppTest < ActiveSupport::TestCase
       assert_success spring_test_command, stdout: "0 failures"
 
       File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
-      assert_success spring_test_command, stdout: "RuntimeError: omg"
+      assert_failure spring_test_command, stdout: "RuntimeError: omg"
 
       assert_speedup
     ensure
@@ -202,7 +202,7 @@ class AppTest < ActiveSupport::TestCase
 
       await_reload
 
-      2.times { assert_success spring_test_command, stdout: "RuntimeError: omg" }
+      2.times { assert_failure spring_test_command, stdout: "RuntimeError: omg" }
       assert_speedup from: 1
     ensure
       File.write(application, application_contents)

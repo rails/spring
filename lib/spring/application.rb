@@ -73,10 +73,10 @@ module Spring
       }
 
       manager.puts pid
-      Process.wait pid
+      _, status = Process.wait2 pid
     ensure
       streams.each(&:close) if streams
-      client.puts
+      client.puts(status ? status.exitstatus : 1)
       client.close
     end
 

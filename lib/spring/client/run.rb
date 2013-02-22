@@ -49,7 +49,7 @@ module Spring
 
         if pid && !pid.empty?
           forward_signals(pid.to_i)
-          application.read # FIXME: receive exit status from server
+          exit application.read.to_i
         else
           exit 1
         end
