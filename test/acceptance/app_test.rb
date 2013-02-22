@@ -100,13 +100,11 @@ class AppTest < ActiveSupport::TestCase
     assert_output artifacts, expected_output if expected_output
   end
 
-  def assert_speedup(opts = {})
-    ratio  = opts.fetch(:ratio, 0.6)
-    from   = opts.fetch(:from, 0)
-    first  = @times[from]
-    second = @times[from + 1]
-
-    assert (second / first) < ratio, "#{second} was not less than #{ratio} of #{first}"
+  def assert_speedup(ratio = 0.6)
+    @times = []
+    yield
+    assert (@times.last / @times.first) < ratio, "#{@times.last} was not less than #{ratio} of #{@times.first}"
+    @times = nil
   end
 
   def spring_test_command
@@ -132,7 +130,6 @@ class AppTest < ActiveSupport::TestCase
     end
 
     FileUtils.rm_rf "#{app_root}/bin"
-    @times = []
   end
 
   teardown do
@@ -142,8 +139,9 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "basic" do
-    2.times { app_run spring_test_command }
-    assert_speedup
+    assert_speedup do
+      2.times { app_run spring_test_command }
+    end
   end
 
   test "help message when called without arguments" do
@@ -151,21 +149,21 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "test changes are picked up" do
-    assert_success spring_test_command, stdout: "0 failures"
+    assert_speedup do
+      assert_success spring_test_command, stdout: "0 failures"
 
-    File.write(@test, @test_contents.sub("get :index", "raise 'omg'"))
-    assert_failure spring_test_command, stdout: "RuntimeError: omg"
-
-    assert_speedup
+      File.write(@test, @test_contents.sub("get :index", "raise 'omg'"))
+      assert_failure spring_test_command, stdout: "RuntimeError: omg"
+    end
   end
 
   test "code changes are picked up" do
-    assert_success spring_test_command, stdout: "0 failures"
+    assert_speedup do
+      assert_success spring_test_command, stdout: "0 failures"
 
-    File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
-    assert_failure spring_test_command, stdout: "RuntimeError: omg"
-
-    assert_speedup
+      File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
+      assert_failure spring_test_command, stdout: "RuntimeError: omg"
+    end
   end
 
   test "code changes in pre-referenced app files are picked up" do
@@ -173,12 +171,12 @@ class AppTest < ActiveSupport::TestCase
       initializer = "#{app_root}/config/initializers/load_posts_controller.rb"
       File.write(initializer, "PostsController\n")
 
-      assert_success spring_test_command, stdout: "0 failures"
+      assert_speedup do
+        assert_success spring_test_command, stdout: "0 failures"
 
-      File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
-      assert_failure spring_test_command, stdout: "RuntimeError: omg"
-
-      assert_speedup
+        File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
+        assert_failure spring_test_command, stdout: "RuntimeError: omg"
+      end
     ensure
       FileUtils.rm_f(initializer)
     end
@@ -202,8 +200,9 @@ class AppTest < ActiveSupport::TestCase
 
       await_reload
 
-      2.times { assert_failure spring_test_command, stdout: "RuntimeError: omg" }
-      assert_speedup from: 1
+      assert_speedup do
+        2.times { assert_failure spring_test_command, stdout: "RuntimeError: omg" }
+      end
     ensure
       File.write(application, application_contents)
     end
