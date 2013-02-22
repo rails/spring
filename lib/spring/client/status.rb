@@ -9,10 +9,21 @@ module Spring
         if env.server_running?
           puts "Spring is running:"
           puts
-          puts `ps -p #{env.pid} --ppid #{env.pid} -o pid= -o cmd=`
+          print_process env.pid
+          application_pids.each { |pid| print_process pid }
         else
           puts "Spring is not running."
         end
+      end
+
+      def print_process(pid)
+        puts `ps -p #{pid} -o pid= -o args=`
+      end
+
+      def application_pids
+        candidates = `ps -o ppid= -o pid=`.lines
+        candidates.select { |l| l =~ /^#{env.pid} / }
+                  .map    { |l| l.split(" ").last   }
       end
     end
   end
