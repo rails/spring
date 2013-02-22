@@ -70,7 +70,9 @@ module Spring
         [STDOUT, STDERR].each { |s| s.reopen('/dev/null', 'w') } if silence
         @client.close if @client
         ENV['RAILS_ENV'] = ENV['RACK_ENV'] = app_env
-        $0 = "spring app    | #{spring_env.app_name} | started #{Time.now} | #{app_env} mode"
+        ProcessTitleUpdater.run { |distance|
+          "spring app    | #{spring_env.app_name} | started #{distance} ago | #{app_env} mode"
+        }
         Application.new(child_socket).start
       }
       child_socket.close

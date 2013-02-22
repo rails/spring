@@ -2,6 +2,7 @@ require "socket"
 
 require "spring/env"
 require "spring/application_manager"
+require "spring/process_title_updater"
 
 module Spring
   class Server
@@ -25,8 +26,7 @@ module Spring
       set_exit_hook
       write_pidfile
       redirect_output
-
-      $0 = "spring server | #{env.app_name} | started #{Time.now}"
+      set_process_title
 
       server = UNIXServer.open(env.socket_name)
       loop { serve server.accept }
@@ -81,6 +81,12 @@ module Spring
       file = open(STDIN.tty? ? `tty`.chomp : "/dev/null", "a")
       STDOUT.reopen(file)
       STDERR.reopen(file)
+    end
+
+    def set_process_title
+      ProcessTitleUpdater.run { |distance|
+        "spring server | #{env.app_name} | started #{distance} ago"
+      }
     end
   end
 end
