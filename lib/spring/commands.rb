@@ -152,7 +152,6 @@ MESSAGE
     end
     Spring.register_command "rake", Rake.new
 
-
     class Console < Command
       def call(args)
         # This cannot be preloaded as it messes up the IRB prompt on OS X
@@ -168,6 +167,23 @@ MESSAGE
       end
     end
     Spring.register_command "console", Console.new, alias: "c"
+
+    class Server < Command
+      def setup
+        super
+        require "rails/commands/server"
+      end
+
+      def call(args)
+        ARGV.replace(args)
+        ::Rails::Server.new.start
+      end
+
+      def description
+        "Start the Rails server."
+      end
+    end
+    Spring.register_command "server", Server.new, alias: "s"
 
     class Generate < Command
       def setup
