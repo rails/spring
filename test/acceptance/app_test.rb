@@ -275,4 +275,10 @@ class AppTest < ActiveSupport::TestCase
   test "piping" do
     assert_success "#{spring} rake -T | grep db", stdout: "rake db:migrate"
   end
+
+  test "status" do
+    assert_success "#{spring} status", stdout: "Spring is not running"
+    app_run "#{spring} runner ''"
+    assert_success "#{spring} status", stdout: "Spring is running"
+  end
 end
