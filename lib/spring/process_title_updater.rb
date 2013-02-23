@@ -59,7 +59,7 @@ module Spring
     private
 
     def pluralize(amount, unit)
-      "#{amount.to_i} #{amount == 1 ? unit : "#{unit}s"}"
+      "#{amount.to_i} #{amount.to_i == 1 ? unit : "#{unit}s"}"
     end
   end
 end

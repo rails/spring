@@ -14,7 +14,8 @@ class ProcessTitleUpdaterTest < ActiveSupport::TestCase
   end
 
   test "minutes" do
-    assert_equal "5 mins",  @updater.distance_in_words(@start + 5.minutes + 10.seconds)
+    assert_equal "1 min",  @updater.distance_in_words(@start + 1.minute + 10.seconds)
+    assert_equal "5 mins", @updater.distance_in_words(@start + 5.minutes + 10.seconds)
   end
 
   test "hours" do
