@@ -25,7 +25,7 @@ module Spring
     end
 
     def socket_path
-      tmp_path.join(SID.sid.to_s)
+      tmp_path.join("spring")
     end
 
     def socket_name
@@ -33,7 +33,7 @@ module Spring
     end
 
     def pidfile_path
-      tmp_path.join("#{SID.sid}.pid")
+      tmp_path.join("spring.pid")
     end
 
     def pid
