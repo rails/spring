@@ -73,11 +73,20 @@ module Spring
       }
 
       manager.puts pid
-      _, status = Process.wait2 pid
-    ensure
+
+      # Wait in a separate thread so we can run multiple commands at once
+      Thread.new {
+        _, status = Process.wait2 pid
+        streams.each(&:close)
+        client.puts(status.exitstatus)
+        client.close
+      }
+
+    rescue => e
       streams.each(&:close) if streams
-      client.puts(status ? status.exitstatus : 1)
+      client.puts(1)
       client.close
+      raise
     end
 
     # The command might need to require some files in the
