@@ -257,7 +257,7 @@ class AppTest < ActiveSupport::TestCase
       config_contents = File.read(config_path)
 
       File.write(config_path, config_contents + "\nSpring.after_fork { puts '!callback!' }")
-      assert_success "spring r 'puts 2'", stdout: "!callback!\n2"
+      assert_success "#{spring} r 'puts 2'", stdout: "!callback!\n2"
     ensure
       File.write(config_path, config_contents)
     end
