@@ -60,12 +60,9 @@ module Spring
         server.close if server
       end
 
-      # Boot the server into the process group of the current session.
-      # This will cause it to be automatically killed once the session
-      # ends (i.e. when the user closes their terminal).
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
-        Process.spawn(*SERVER_COMMAND, pgroup: SID.pgid)
+        Process.spawn(*SERVER_COMMAND)
         sleep 0.1 until env.socket_path.exist?
       end
 

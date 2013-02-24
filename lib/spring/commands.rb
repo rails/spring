@@ -154,11 +154,11 @@ MESSAGE
 
 
     class Console < Command
-      def call(args)
-        # This cannot be preloaded as it messes up the IRB prompt on OS X
-        # for unknown reasons. See discussion in issue #34.
+      def setup
         require "rails/commands/console"
+      end
 
+      def call(args)
         ARGV.replace args
         ::Rails::Console.start(::Rails.application)
       end

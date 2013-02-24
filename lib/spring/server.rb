@@ -4,6 +4,10 @@ require "spring/env"
 require "spring/application_manager"
 require "spring/process_title_updater"
 
+# readline must be required before we setpgid, otherwise the require may hang,
+# if readline has been built against libedit. See issue #70.
+require "readline"
+
 module Spring
   class Server
     def self.boot
@@ -19,6 +23,11 @@ module Spring
     end
 
     def boot
+      # Boot the server into the process group of the current session.
+      # This will cause it to be automatically killed once the session
+      # ends (i.e. when the user closes their terminal).
+      Process.setpgid(0, SID.pgid)
+
       # Ignore SIGINT and SIGQUIT otherwise the user typing ^C or ^\ on the command line
       # will kill the server/application.
       IGNORE_SIGNALS.each { |sig| trap(sig,  "IGNORE") }
