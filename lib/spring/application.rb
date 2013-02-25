@@ -1,5 +1,6 @@
 require "spring/configuration"
-require "spring/application_watcher"
+require "spring/listen_watcher"
+require "spring/polling_watcher"
 require "spring/commands"
 require "set"
 
@@ -8,7 +9,15 @@ module Spring
     attr_accessor :application_watcher
   end
 
-  self.application_watcher = ApplicationWatcher.new
+  self.application_watcher = begin
+                               watcher_class = if ListenWatcher.available? && 0 > 1
+                                                 ListenWatcher
+                                               else
+                                                 PollingWatcher
+                                               end
+
+                               watcher_class.new(Spring.application_root_path)
+                             end
 
   class Application
     WATCH_INTERVAL = 0.2
@@ -35,12 +44,14 @@ module Spring
 
       watcher.add_files $LOADED_FEATURES
       watcher.add_files ["Gemfile", "Gemfile.lock"].map { |f| "#{Rails.root}/#{f}" }
-      watcher.add_globs Rails.application.paths["config/initializers"].map { |p| "#{Rails.root}/#{p}/*.rb" }
+      watcher.add_directories Rails.application.paths["config/initializers"].map { |p| "#{Rails.root}/#{p}/" }
 
       run
     end
 
     def run
+      watcher.start
+
       loop do
         watch_application
         serve manager.recv_io(UNIXSocket)
@@ -49,7 +60,10 @@ module Spring
 
     def watch_application
       until IO.select([manager], [], [], WATCH_INTERVAL)
-        exit if watcher.stale?
+        next unless watcher.stale?
+
+        watcher.stop
+        exit
       end
     end
 
