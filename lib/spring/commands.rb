@@ -61,7 +61,7 @@ MESSAGE
     class Test < Command
       preloads << "test_helper"
 
-      def env
+      def env(*)
         "test"
       end
 
@@ -94,7 +94,7 @@ MESSAGE
     class RSpec < Command
       preloads << "spec_helper"
 
-      def env
+      def env(*)
         "test"
       end
 
@@ -116,7 +116,7 @@ MESSAGE
     Spring.register_command "rspec", RSpec.new
 
     class Cucumber < Command
-      def env
+      def env(*)
         "test"
       end
 
@@ -154,6 +154,10 @@ MESSAGE
 
 
     class Console < Command
+      def env(tail)
+        tail.first if tail.first && !tail.first.index("-")
+      end
+
       def setup
         require "rails/commands/console"
       end
@@ -187,6 +191,18 @@ MESSAGE
     Spring.register_command "generate", Generate.new, alias: "g"
 
     class Runner < Command
+      def env(tail)
+        previous_option = nil
+        tail.reverse.each do |option|
+          case option
+          when /--environment=(\w+)/ then return $1
+          when '-e' then return previous_option
+          end
+          previous_option = option
+        end
+        nil
+      end
+
       def call(args)
         Object.const_set(:APP_PATH, Rails.root.join('config/application'))
         ARGV.replace args

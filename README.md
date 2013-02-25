@@ -246,6 +246,13 @@ Boots into the Rails console. Currently this is usable but not perfect,
 for example you can't scroll back through command history. (That will be
 fixed.)
 
+You can pass the Rails env as argument, just like you would to `rails console`,
+e.g.:
+
+```
+$ spring console test
+```
+
 ### `generate`
 
 Runs a Rails generator.
@@ -253,6 +260,13 @@ Runs a Rails generator.
 ### `runner`
 
 The Rails runner.
+
+You can pass the Rails env as argument, just like you would to `rails runner`
+using the `-e` or `--environment` options, e.g.:
+
+```
+$ spring runner -e test 'puts Rails.env'
+```
 
 ## Configuration
 
