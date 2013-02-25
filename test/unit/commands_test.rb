@@ -50,4 +50,29 @@ class CommandsTest < ActiveSupport::TestCase
       $stderr = original_stderr
     end
   end
+
+  test 'console command sets rails environment from command-line option' do
+    command = Spring::Commands::Console.new
+    assert_equal 'test', command.env(['test'])
+  end
+
+  test 'console command ignores first argument if it is a flag' do
+    command = Spring::Commands::Console.new
+    assert_nil command.env(['--sandbox'])
+  end
+
+  test 'Runner#env sets rails environment from command-line option' do
+    command = Spring::Commands::Runner.new
+    assert_equal 'test', command.env(['-e', 'test', 'puts 1+1'])
+  end
+
+  test 'Runner#env sets rails environment from long form of command-line option' do
+    command = Spring::Commands::Runner.new
+    assert_equal 'test', command.env(['--environment=test', 'puts 1+1'])
+  end
+
+  test 'Runner#env ignores insignificant arguments' do
+    command = Spring::Commands::Runner.new
+    assert_nil command.env(['puts 1+1'])
+  end
 end

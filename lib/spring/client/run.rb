@@ -26,7 +26,7 @@ module Spring
 
         verify_server_version(server)
         server.send_io client
-        server.puts rails_env_for(args.first)
+        server.puts rails_env_for(*args)
 
         application.send_io STDOUT
         application.send_io STDERR
@@ -79,14 +79,14 @@ ERROR
         end
       end
 
-      def rails_env_for(command_name)
+      def rails_env_for(command_name, *tail)
         command = Spring.command(command_name)
 
         if command.respond_to?(:env)
-          command.env
-        else
-          ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+          env = command.env(tail)
         end
+
+        env || ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
       end
 
       def forward_signals(pid)
