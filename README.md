@@ -322,3 +322,12 @@ If you want to register multiple callbacks you can simply call
 
 Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
 You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
+
+## Troubleshooting
+
+### RSpec
+
+1. Remove the `require 'rspec/autorun'` line.
+2. Force `RAILS_ENV` to be set to `test` (`ENV['RAILS_ENV'] = 'test'`)
+   instead of `||=`; `RAILS_ENV` will already be assigned to
+   `development`, meaning the proper gems will not be loaded.
