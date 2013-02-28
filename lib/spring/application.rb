@@ -1,24 +1,11 @@
 require "spring/configuration"
 require "spring/listen_watcher"
 require "spring/polling_watcher"
+require "spring/application_watcher"
 require "spring/commands"
 require "set"
 
 module Spring
-  class << self
-    attr_accessor :application_watcher
-  end
-
-  self.application_watcher = begin
-                               watcher_class = if ListenWatcher.available? && 0 > 1
-                                                 ListenWatcher
-                                               else
-                                                 PollingWatcher
-                                               end
-
-                               watcher_class.new(Spring.application_root_path)
-                             end
-
   class Application
     WATCH_INTERVAL = 0.2
 
