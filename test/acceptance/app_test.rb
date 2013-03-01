@@ -47,7 +47,7 @@ class AppTest < ActiveSupport::TestCase
     _, status = Timeout.timeout(opts.fetch(:timeout, 5)) { Process.wait2 }
 
     stdout, stderr = read_streams
-    puts dump_streams(stdout, stderr) if ENV["SPRING_DEBUG"]
+    puts dump_streams(command, stdout, stderr) if ENV["SPRING_DEBUG"]
 
     @times << (Time.now - start_time) if @times
 
@@ -57,7 +57,7 @@ class AppTest < ActiveSupport::TestCase
       stderr: stderr,
     }
   rescue Timeout::Error => e
-    raise e, "Output:\n\n#{dump_streams(*read_streams)}"
+    raise e, "Output:\n\n#{dump_streams(command, *read_streams)}"
   end
 
   def read_streams
@@ -68,11 +68,19 @@ class AppTest < ActiveSupport::TestCase
     end
   end
 
-  def dump_streams(stdout, stderr)
-    output = "--- stdout ---\n"
-    output << "#{stdout.chomp}\n"
-    output << "--- stderr ---\n"
-    output << "#{stderr.chomp}\n"
+  def dump_streams(command, stdout, stderr)
+    output = "$ #{command}\n"
+
+    unless stdout.chomp.empty?
+      output << "--- stdout ---\n"
+      output << "#{stdout.chomp}\n"
+    end
+
+    unless stderr.chomp.empty?
+      output << "--- stderr ---\n"
+      output << "#{stderr.chomp}\n"
+    end
+
     output << "\n"
     output
   end
