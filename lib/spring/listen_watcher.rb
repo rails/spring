@@ -72,10 +72,7 @@ module Spring
 
     def setup
       require 'listen'
-
-      @listener = Listen.to(root_path, listener_options)
-                        .change(&method(:changed))
-                        .polling_fallback_message(false)
+      @listener = Listen.to(root_path, listener_options).change(&method(:changed))
     end
   end
 end
