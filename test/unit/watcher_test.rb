@@ -75,6 +75,19 @@ module WatcherTests
     assert_stale
   end
 
+  def test_is_stale_when_a_file_is_changed_in_a_watched_directory
+    subdir = "#{@dir}/subdir"
+    FileUtils.mkdir(subdir)
+    touch "#{subdir}/foo", Time.now - 1.minute
+
+    watcher.add subdir
+    watcher.start
+
+    assert_not_stale
+    touch "#{subdir}/foo", Time.now
+    assert_stale
+  end
+
   def test_can_io_select
     file = "#{@dir}/omg"
     touch file, Time.now - 2.seconds
