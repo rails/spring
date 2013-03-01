@@ -1,5 +1,10 @@
 module Spring
   module Watcher
+    # A user of a watcher can use IO.select to wait for changes:
+    #
+    #   watcher = MyWatcher.new(root, latency)
+    #   IO.select([watcher]) # watcher is running in background
+    #   watcher.stale? # => true
     class Abstract
       attr_reader :files, :directories, :root, :latency
 
@@ -8,6 +13,8 @@ module Spring
         @latency     = latency
         @files       = []
         @directories = []
+        @stale       = false
+        @io_listener = nil
       end
 
       def add_files(new_files)
@@ -24,15 +31,31 @@ module Spring
         restart if running?
       end
 
+      def stale?
+        @stale
+      end
+
+      def mark_stale
+        @stale = true
+        @io_listener.write "." if @io_listener
+      end
+
+      def to_io
+        read, write = IO.pipe
+        @io_listener = write
+        read
+      end
+
+      def restart
+        stop
+        start
+      end
+
       def start
         raise NotImplementedError
       end
 
-      def restart
-        raise NotImplementedError
-      end
-
-      def stale?
+      def stop
         raise NotImplementedError
       end
 

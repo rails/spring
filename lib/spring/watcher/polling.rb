@@ -5,20 +5,31 @@ module Spring
 
       def initialize(root, latency)
         super
-        @mtime = nil
+        @mtime  = nil
+        @poller = nil
       end
 
-      def restart
-        @mtime = compute_mtime
+      def start
+        unless @poller
+          @mtime  = compute_mtime
+          @poller = Thread.new {
+            loop do
+              sleep latency
+              mark_stale if mtime < compute_mtime
+            end
+          }
+        end
       end
-      alias start restart
 
-      def stale?
-        mtime < compute_mtime
+      def stop
+        if @poller
+          @poller.kill
+          @poller = nil
+        end
       end
 
       def running?
-        true
+        @poller
       end
 
       private

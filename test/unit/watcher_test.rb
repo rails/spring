@@ -19,6 +19,7 @@ module WatcherTests
 
   def teardown
     FileUtils.remove_entry_secure @dir
+    watcher.stop
   end
 
   def touch(file, mtime = nil)
@@ -72,6 +73,22 @@ module WatcherTests
     touch "#{subdir}/foo", Time.now - 1.minute
     assert_stale
   end
+
+  def test_can_io_select
+    file = "#{@dir}/omg"
+    touch file, Time.now - 2.seconds
+
+    watcher.add_files [file]
+    watcher.start
+
+    Thread.new {
+      sleep LATENCY * 3
+      touch file, Time.now
+    }
+
+    assert IO.select([watcher], [], [], 1), "IO.select timed out before watcher was readable"
+    assert watcher.stale?
+  end
 end
 
 if Spring::Watcher::Listen.available?
@@ -80,11 +97,6 @@ if Spring::Watcher::Listen.available?
 
     def watcher_class
       Spring::Watcher::Listen
-    end
-
-    def teardown
-      super
-      watcher.stop
     end
   end
 end

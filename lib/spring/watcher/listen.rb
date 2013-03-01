@@ -10,15 +10,6 @@ module Spring
         false
       end
 
-      def initialize(root, latency)
-        super
-        @stale = false
-      end
-
-      def stale?
-        @stale
-      end
-
       def running?
         @listener
       end
@@ -37,18 +28,13 @@ module Spring
         end
       end
 
-      def restart
-        stop
-        start
-      end
-
       def watching?(file)
         files.include?(file) || file.start_with?(*directories)
       end
 
       def changed(modified, added, removed)
         if (modified + added + removed).any? { |f| watching? f }
-          @stale = true
+          mark_stale
         end
       end
     end

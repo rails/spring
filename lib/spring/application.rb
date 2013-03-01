@@ -5,8 +5,6 @@ require "set"
 
 module Spring
   class Application
-    WATCH_INTERVAL = 0.2
-
     attr_reader :manager, :watcher
 
     def initialize(manager, watcher = Spring.watcher)
@@ -38,14 +36,13 @@ module Spring
       watcher.start
 
       loop do
-        watch_application
-        serve manager.recv_io(UNIXSocket)
-      end
-    end
+        IO.select([manager, watcher])
 
-    def watch_application
-      until IO.select([manager], [], [], WATCH_INTERVAL)
-        exit if watcher.stale?
+        if watcher.stale?
+          exit
+        else
+          serve manager.recv_io(UNIXSocket)
+        end
       end
     end
 
