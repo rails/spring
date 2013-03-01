@@ -323,30 +323,22 @@ If you want to register multiple callbacks you can simply call
 Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
 You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
 
-### watcher
+### Watching files and directories
 
 As mentioned above, Spring will automatically detect file changes to any file loaded when the server
-boots. If you would like to add additional files or directories to watch you can easily do that by
-adding a few lines to your `config/spring.rb` file.
-
-A few examples:
+boots. If you would like to watch additional files or directories, use
+`Spring.watch`:
 
 ```ruby
-# to watch for changes in your factories
-Spring.watcher.add_directories "#{Rails.root}/spec/factories"
+Spring.watch "#{Rails.root}/spec/factories"
 ```
 
 ### Filesystem polling
 
-By default Spring will check the filesystem for changes once every 0.2 seconds. This type of polling
-is the best way to ensure that Spring functions properly in the vast majority of environments.
-Unfortunately, this type of polling uses more I/O and CPU resources than the operating system specific
-event based file system notification systems built into Mac OS X, Linux, or BSD.
-
-Spring will automatically take advantage of these OS specific features if certain gems are available on
-your system.
-
-Add the following to your `Gemfile`:
+By default Spring will check the filesystem for changes once every 0.2 seconds. This
+method requires zero configuration, but if you find that it's using too
+much CPU, then you can turn on event-based file system listening by
+adding the following to to your `Gemfile`:
 
 ```ruby
 group :development, :test do
@@ -356,3 +348,5 @@ group :development, :test do
   gem 'rb-kqueue',  :require => false  # bsd
 end
 ```
+
+Note that this make the initial application startup slightly slower.
