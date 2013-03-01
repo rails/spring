@@ -182,29 +182,47 @@ class AppTest < ActiveSupport::TestCase
     end
   end
 
-  test "app gets reloaded when preloaded files change" do
-    begin
-      application = "#{app_root}/config/application.rb"
-      application_contents = File.read(application)
+  def assert_app_reloaded
+    application = "#{app_root}/config/application.rb"
+    application_contents = File.read(application)
 
-      assert_success spring_test_command
+    assert_success spring_test_command
 
-      File.write(application, application_contents + <<-CODE)
-        class Foo
-          def self.omg
-            raise "omg"
-          end
+    File.write(application, application_contents + <<-CODE)
+      class Foo
+        def self.omg
+          raise "omg"
         end
-      CODE
-      File.write(@test, @test_contents.sub("get :index", "Foo.omg"))
-
-      await_reload
-
-      assert_speedup do
-        2.times { assert_failure spring_test_command, stdout: "RuntimeError: omg" }
       end
+    CODE
+    File.write(@test, @test_contents.sub("get :index", "Foo.omg"))
+
+    await_reload
+
+    assert_speedup do
+      2.times { assert_failure spring_test_command, stdout: "RuntimeError: omg" }
+    end
+  ensure
+    File.write(application, application_contents)
+  end
+
+  test "app gets reloaded when preloaded files change (listen watcher)" do
+    assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "ListenWatcher"
+    assert_app_reloaded
+  end
+
+  test "app gets reloaded when preloaded files change (polling watcher)" do
+    begin
+      gemfile = app_root.join("Gemfile")
+      gemfile_contents = gemfile.read
+      File.write(gemfile, gemfile_contents.sub(%{gem 'listen'}, %{# gem 'listen'}))
+      assert_success "bundle check"
+
+      assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "PollingWatcher"
+      assert_app_reloaded
     ensure
-      File.write(application, application_contents)
+      File.write(gemfile, gemfile_contents)
+      assert_success "bundle check"
     end
   end
 
