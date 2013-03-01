@@ -28,11 +28,6 @@ module Spring
       directories.concat Array(new_directories).map { |d| File.realpath(d) }
     end
 
-    def reset
-      @stale = false
-      restart
-    end
-
     def stale?
       @stale
     end
