@@ -25,9 +25,9 @@ module Spring
 
       require Spring.application_root_path.join("config", "environment")
 
-      watcher.add_files loaded_application_features
-      watcher.add_files ["Gemfile", "Gemfile.lock"].map { |f| "#{Rails.root}/#{f}" }
-      watcher.add_directories Rails.application.paths["config/initializers"].map { |p| "#{Rails.root}/#{p}/" }
+      watcher.add loaded_application_features
+      watcher.add ["Gemfile", "Gemfile.lock"].map { |f| "#{Rails.root}/#{f}" }
+      watcher.add Rails.application.paths["config/initializers"].map { |p| "#{Rails.root}/#{p}/" }
 
       run
     end
@@ -94,7 +94,7 @@ module Spring
 
       if command.respond_to?(:setup)
         command.setup
-        watcher.add_files loaded_application_features # loaded features may have changed
+        watcher.add loaded_application_features # loaded features may have changed
       end
     end
 

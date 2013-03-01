@@ -43,7 +43,7 @@ module WatcherTests
     file = "#{@dir}/omg"
     touch file, Time.now - 2.seconds
 
-    watcher.add_files [file]
+    watcher.add file
     watcher.start
 
     assert_not_stale
@@ -55,7 +55,7 @@ module WatcherTests
     file = "#{@dir}/omg"
     touch file, Time.now
 
-    watcher.add_files [file]
+    watcher.add file
     watcher.start
 
     assert_not_stale
@@ -67,7 +67,7 @@ module WatcherTests
     subdir = "#{@dir}/subdir"
     FileUtils.mkdir(subdir)
 
-    watcher.add_directories(subdir)
+    watcher.add subdir
     watcher.start
 
     assert_not_stale
@@ -79,7 +79,7 @@ module WatcherTests
     file = "#{@dir}/omg"
     touch file, Time.now - 2.seconds
 
-    watcher.add_files [file]
+    watcher.add file
     watcher.start
 
     Thread.new {
@@ -106,9 +106,9 @@ class ListenWatcherTest < ActiveSupport::TestCase
       File.write("#{other_dir_1}/foo", "foo")
       File.write("#{dir}/foo", "foo")
 
-      watcher.add_files ["#{other_dir_1}/foo"]
-      watcher.add_directories [other_dir_2]
-      watcher.add_files ["#{dir}/foo"]
+      watcher.add "#{other_dir_1}/foo"
+      watcher.add other_dir_2
+      watcher.add "#{dir}/foo"
 
       assert_equal [dir, other_dir_1, other_dir_2].sort, watcher.base_directories.sort
     ensure

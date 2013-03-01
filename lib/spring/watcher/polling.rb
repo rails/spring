@@ -43,7 +43,7 @@ module Spring
       end
 
       def expanded_files
-        files + Dir["{#{directories.join(",")}}"]
+        files + Dir["{#{directories.to_a.join(",")}}"]
       end
     end
   end

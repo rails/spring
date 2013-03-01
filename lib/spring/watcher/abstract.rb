@@ -1,3 +1,5 @@
+require "set"
+
 module Spring
   module Watcher
     # A user of a watcher can use IO.select to wait for changes:
@@ -11,20 +13,24 @@ module Spring
       def initialize(root, latency)
         @root        = File.realpath(root)
         @latency     = latency
-        @files       = []
-        @directories = []
+        @files       = Set.new
+        @directories = Set.new
         @stale       = false
         @io_listener = nil
       end
 
-      def add_files(new_files)
-        files.concat Array(new_files).select { |f| File.exist? f }.map { |f| File.realpath f }
-        files.uniq!
-        subjects_changed
-      end
+      def add(*items)
+        items.flatten.each do |item|
+          next unless File.exist? item
+          item = File.realpath item
 
-      def add_directories(new_directories)
-        directories.concat Array(new_directories).map { |d| File.realpath d }
+          if File.directory?(item)
+            directories << item
+          else
+            files << item
+          end
+        end
+
         subjects_changed
       end
 
