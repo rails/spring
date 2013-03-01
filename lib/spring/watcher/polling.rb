@@ -9,6 +9,15 @@ module Spring
         @poller = nil
       end
 
+      def check_stale
+        mark_stale if mtime < compute_mtime
+      end
+
+      def add(*)
+        check_stale if @poller
+        super
+      end
+
       def start
         unless @poller
           @poller = Thread.new {
@@ -16,7 +25,7 @@ module Spring
 
             loop do
               sleep latency
-              mark_stale if mtime < compute_mtime
+              check_stale
             end
           }
         end

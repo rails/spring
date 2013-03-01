@@ -85,9 +85,6 @@ module Spring
     # The command might need to require some files in the
     # main process so that they are cached. For example a test command wants to
     # load the helper file once and have it cached.
-    #
-    # FIXME: The watcher.add_files will reset the watcher, which may mean that
-    #        previous changes to already-loaded files are missed.
     def setup(command)
       return if @setup.include?(command.class)
       @setup << command.class

@@ -88,6 +88,23 @@ module WatcherTests
     assert_stale
   end
 
+  def test_adding_doesnt_wipe_stale_state
+    file = "#{@dir}/omg"
+    file2 = "#{@dir}/foo"
+    touch file, Time.now - 2.seconds
+    touch file2, Time.now - 2.seconds
+
+    watcher.add file
+    watcher.start
+
+    assert_not_stale
+
+    touch file, Time.now
+    watcher.add file2
+
+    assert_stale
+  end
+
   def test_can_io_select
     file = "#{@dir}/omg"
     touch file, Time.now - 2.seconds
