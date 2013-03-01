@@ -5,7 +5,7 @@ module Spring
     def watcher
       @watcher ||= begin
         if ListenWatcher.available?
-          ListenWatcher.new(Spring.application_root_path, :latency => 0.2)
+          ListenWatcher.new(Spring.application_root_path, latency: 0.2)
         else
           PollingWatcher.new
         end
