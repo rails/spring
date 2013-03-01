@@ -51,10 +51,10 @@ module Spring
 
     def watch_application
       until IO.select([manager], [], [], WATCH_INTERVAL)
-        next unless watcher.stale?
-
-        watcher.stop
-        exit
+        if watcher.stale?
+          watcher.stop
+          exit
+        end
       end
     end
 
