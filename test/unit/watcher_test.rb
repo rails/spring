@@ -6,7 +6,7 @@ require "spring/listen_watcher"
 require "spring/polling_watcher"
 
 module WatcherTests
-  LATENCY = 0.1
+  LATENCY = 0.01
 
   attr_accessor :watcher, :dir
 
