@@ -207,7 +207,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "app gets reloaded when preloaded files change (listen watcher)" do
-    assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "ListenWatcher"
+    assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "Listen"
     assert_app_reloaded
   end
 
@@ -218,7 +218,7 @@ class AppTest < ActiveSupport::TestCase
       File.write(gemfile, gemfile_contents.sub(%{gem 'listen'}, %{# gem 'listen'}))
       assert_success "bundle check"
 
-      assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "PollingWatcher"
+      assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "Polling"
       assert_app_reloaded
     ensure
       File.write(gemfile, gemfile_contents)

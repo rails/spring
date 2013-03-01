@@ -2,13 +2,16 @@ require "helper"
 require "tmpdir"
 require "fileutils"
 require "active_support/core_ext/numeric/time"
-require "spring/listen_watcher"
-require "spring/polling_watcher"
+require "spring/watcher"
 
 module WatcherTests
   LATENCY = 0.01
 
-  attr_accessor :watcher, :dir
+  attr_accessor :dir
+
+  def watcher
+    @watcher ||= watcher_class.new(dir, LATENCY)
+  end
 
   def setup
     @dir = Dir.mktmpdir
@@ -71,12 +74,12 @@ module WatcherTests
   end
 end
 
-if Spring::ListenWatcher.available?
+if Spring::Watcher::Listen.available?
   class ListenWatcherTest < ActiveSupport::TestCase
     include WatcherTests
 
-    def watcher
-      @watcher ||= Spring::ListenWatcher.new(@dir, :latency => LATENCY)
+    def watcher_class
+      Spring::Watcher::Listen
     end
 
     def teardown
@@ -89,7 +92,7 @@ end
 class PollingWatcherTest < ActiveSupport::TestCase
   include WatcherTests
 
-  def watcher
-    @watcher ||= Spring::PollingWatcher.new
+  def watcher_class
+    Spring::Watcher::Polling
   end
 end

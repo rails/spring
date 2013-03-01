@@ -1,6 +1,4 @@
 require "spring/configuration"
-require "spring/listen_watcher"
-require "spring/polling_watcher"
 require "spring/watcher"
 require "spring/commands"
 require "set"
@@ -29,7 +27,7 @@ module Spring
 
       require Spring.application_root_path.join("config", "environment")
 
-      watch_loaded_features
+      watcher.add_files loaded_application_features
       watcher.add_files ["Gemfile", "Gemfile.lock"].map { |f| "#{Rails.root}/#{f}" }
       watcher.add_directories Rails.application.paths["config/initializers"].map { |p| "#{Rails.root}/#{p}/" }
 
@@ -99,8 +97,7 @@ module Spring
 
       if command.respond_to?(:setup)
         command.setup
-        watch_loaded_features # loaded features may have changed
-        watcher.restart
+        watcher.add_files loaded_application_features # loaded features may have changed
       end
     end
 
@@ -110,8 +107,8 @@ module Spring
       end
     end
 
-    def watch_loaded_features
-      watcher.add_files $LOADED_FEATURES.select { |f| f.start_with?(File.realpath(Rails.root)) }
+    def loaded_application_features
+      $LOADED_FEATURES.select { |f| f.start_with?(File.realpath(Rails.root)) }
     end
   end
 end
