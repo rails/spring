@@ -9,16 +9,12 @@ module Spring
   class Application
     WATCH_INTERVAL = 0.2
 
-    attr_reader :manager
+    attr_reader :manager, :watcher
 
-    def initialize(manager, watcher = nil)
+    def initialize(manager, watcher = Spring.watcher)
       @manager = manager
       @watcher = watcher
       @setup   = Set.new
-    end
-
-    def watcher
-      @watcher ||= Spring.watcher
     end
 
     def start
