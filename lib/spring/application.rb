@@ -1,7 +1,7 @@
 require "spring/configuration"
 require "spring/listen_watcher"
 require "spring/polling_watcher"
-require "spring/application_watcher"
+require "spring/watcher"
 require "spring/commands"
 require "set"
 
@@ -18,7 +18,7 @@ module Spring
     end
 
     def watcher
-      @watcher ||= Spring.application_watcher
+      @watcher ||= Spring.watcher
     end
 
     def start

@@ -323,9 +323,9 @@ If you want to register multiple callbacks you can simply call
 Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
 You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
 
-### application_watcher
+### watcher
 
-As mentioned above Spring will automatically detect file changes to any file loaded when the server
+As mentioned above, Spring will automatically detect file changes to any file loaded when the server
 boots. If you would like to add additional files or directories to watch you can easily do that by
 adding a few lines to your `config/spring.rb` file.
 
@@ -333,7 +333,7 @@ A few examples:
 
 ```ruby
 # to watch for changes in your factories
-Spring.application_watcher.add_directories "#{Rails.root}/spec/factories"
+Spring.watcher.add_directories "#{Rails.root}/spec/factories"
 ```
 
 ### Filesystem polling
