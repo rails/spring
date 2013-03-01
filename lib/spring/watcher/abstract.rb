@@ -20,15 +20,12 @@ module Spring
       def add_files(new_files)
         files.concat Array(new_files).select { |f| File.exist? f }.map { |f| File.realpath f }
         files.uniq!
-
-        # FIXME: Be intelligent about when to restart, as it's expensive
-        #        with the Listen watcher.
-        restart if running?
+        subjects_changed
       end
 
       def add_directories(new_directories)
         directories.concat Array(new_directories).map { |d| File.realpath d }
-        restart if running?
+        subjects_changed
       end
 
       def stale?
@@ -59,7 +56,7 @@ module Spring
         raise NotImplementedError
       end
 
-      def running?
+      def subjects_changed
         raise NotImplementedError
       end
     end

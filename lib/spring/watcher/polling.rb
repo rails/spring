@@ -11,8 +11,9 @@ module Spring
 
       def start
         unless @poller
-          @mtime  = compute_mtime
           @poller = Thread.new {
+            Thread.current.abort_on_exception = true
+
             loop do
               sleep latency
               mark_stale if mtime < compute_mtime
@@ -28,8 +29,8 @@ module Spring
         end
       end
 
-      def running?
-        @poller
+      def subjects_changed
+        @mtime = compute_mtime
       end
 
       private

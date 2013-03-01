@@ -3,6 +3,7 @@ require "tmpdir"
 require "fileutils"
 require "active_support/core_ext/numeric/time"
 require "spring/watcher"
+require "listen"
 
 module WatcherTests
   LATENCY = 0.01
@@ -96,6 +97,24 @@ class ListenWatcherTest < ActiveSupport::TestCase
 
   def watcher_class
     Spring::Watcher::Listen
+  end
+
+  test "root directories" do
+    begin
+      other_dir_1 = Dir.mktmpdir
+      other_dir_2 = Dir.mktmpdir
+      File.write("#{other_dir_1}/foo", "foo")
+      File.write("#{dir}/foo", "foo")
+
+      watcher.add_files ["#{other_dir_1}/foo"]
+      watcher.add_directories [other_dir_2]
+      watcher.add_files ["#{dir}/foo"]
+
+      assert_equal [dir, other_dir_1, other_dir_2].sort, watcher.base_directories.sort
+    ensure
+      FileUtils.rmdir other_dir_1
+      FileUtils.rmdir other_dir_2
+    end
   end
 end
 
