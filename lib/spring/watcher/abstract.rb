@@ -1,5 +1,6 @@
 require "set"
 require "pathname"
+require "mutex_m"
 
 module Spring
   module Watcher
@@ -9,9 +10,13 @@ module Spring
     #   IO.select([watcher]) # watcher is running in background
     #   watcher.stale? # => true
     class Abstract
+      include Mutex_m
+
       attr_reader :files, :directories, :root, :latency
 
       def initialize(root, latency)
+        super()
+
         @root        = File.realpath(root)
         @latency     = latency
         @files       = Set.new

@@ -37,8 +37,10 @@ module Spring
       end
 
       def changed(modified, added, removed)
-        if (modified + added + removed).any? { |f| watching? f }
-          mark_stale
+        synchronize do
+          if (modified + added + removed).any? { |f| watching? f }
+            mark_stale
+          end
         end
       end
 

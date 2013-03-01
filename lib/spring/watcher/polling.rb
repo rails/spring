@@ -10,7 +10,7 @@ module Spring
       end
 
       def check_stale
-        mark_stale if mtime < compute_mtime
+        synchronize { mark_stale if mtime < compute_mtime }
       end
 
       def add(*)
@@ -24,7 +24,7 @@ module Spring
             Thread.current.abort_on_exception = true
 
             loop do
-              sleep latency
+              Kernel.sleep latency
               check_stale
             end
           }
