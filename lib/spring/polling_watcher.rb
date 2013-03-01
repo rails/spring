@@ -13,19 +13,18 @@ module Spring
 
       files.concat new_files
       files.uniq!
-      reset
+      restart
     end
 
     def add_directories(new_directories)
       directories.concat Array(new_directories).map { |d| File.realpath d }
-      reset
+      restart
     end
 
-    def reset
+    def restart
       @mtime = compute_mtime
     end
-    alias start   reset
-    alias restart reset
+    alias start restart
 
     def stale?
       mtime < compute_mtime
