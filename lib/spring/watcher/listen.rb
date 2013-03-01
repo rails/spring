@@ -25,7 +25,6 @@ module Spring
 
       def start
         unless @listener
-          require 'listen'
           @listener = ::Listen.to(root, latency: latency).change(&method(:changed))
           @listener.start(false)
         end
