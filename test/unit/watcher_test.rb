@@ -16,7 +16,6 @@ module WatcherTests
 
   def teardown
     FileUtils.remove_entry_secure @dir
-    watcher.stop
   end
 
   def touch(file, mtime = nil)
@@ -78,6 +77,11 @@ if Spring::ListenWatcher.available?
 
     def watcher
       @watcher ||= Spring::ListenWatcher.new(@dir, :latency => LATENCY)
+    end
+
+    def teardown
+      super
+      watcher.stop
     end
   end
 end

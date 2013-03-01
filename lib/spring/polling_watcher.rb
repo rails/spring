@@ -27,9 +27,6 @@ module Spring
     alias start   reset
     alias restart reset
 
-    def stop
-    end
-
     def stale?
       mtime < compute_mtime
     end
