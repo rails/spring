@@ -4,7 +4,7 @@ module Spring
   end
 
   self.application_watcher = begin
-                               watcher_class = if ListenWatcher.available? && 0 > 1
+                               watcher_class = if ListenWatcher.available?
                                                  ListenWatcher
                                                else
                                                  PollingWatcher
