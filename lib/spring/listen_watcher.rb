@@ -34,7 +34,7 @@ module Spring
     end
 
     def stale?
-      !!@stale
+      @stale
     end
 
     def start
