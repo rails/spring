@@ -91,13 +91,11 @@ module WatcherTests
   end
 end
 
-if Spring::Watcher::Listen.available?
-  class ListenWatcherTest < ActiveSupport::TestCase
-    include WatcherTests
+class ListenWatcherTest < ActiveSupport::TestCase
+  include WatcherTests
 
-    def watcher_class
-      Spring::Watcher::Listen
-    end
+  def watcher_class
+    Spring::Watcher::Listen
   end
 end
 
