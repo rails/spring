@@ -15,7 +15,7 @@ module WatcherTests
   end
 
   def setup
-    @dir = Dir.mktmpdir
+    @dir = File.realpath(Dir.mktmpdir)
   end
 
   def teardown
@@ -137,8 +137,8 @@ class ListenWatcherTest < ActiveSupport::TestCase
 
   test "root directories" do
     begin
-      other_dir_1 = Dir.mktmpdir
-      other_dir_2 = Dir.mktmpdir
+      other_dir_1 = File.realpath(Dir.mktmpdir)
+      other_dir_2 = File.realpath(Dir.mktmpdir)
       File.write("#{other_dir_1}/foo", "foo")
       File.write("#{dir}/foo", "foo")
 
