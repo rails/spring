@@ -2,6 +2,3 @@ source 'https://rubygems.org'
 
 gem 'rails', '~> 3.2.0'
 gem 'sqlite3'
-gem 'listen',     :require => false
-gem 'rb-inotify', :require => false
-gem 'rb-fsevent', :require => false

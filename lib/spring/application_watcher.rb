@@ -1,9 +1,9 @@
 module Spring
   class << self
-    attr_accessor :application_watcher
-  end
+    attr_writer :application_watcher
 
-  self.application_watcher = begin
+    def application_watcher
+      @application_watcher ||= begin
                                watcher_class = if ListenWatcher.available?
                                                  ListenWatcher
                                                else
@@ -13,4 +13,6 @@ module Spring
                                watcher_class.new(Spring.application_root_path, :latency => 0.2)
                              end
 
+    end
+  end
 end

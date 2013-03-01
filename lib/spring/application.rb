@@ -9,12 +9,16 @@ module Spring
   class Application
     WATCH_INTERVAL = 0.2
 
-    attr_reader :manager, :watcher
+    attr_reader :manager
 
-    def initialize(manager, watcher = Spring.application_watcher)
+    def initialize(manager, watcher = nil)
       @manager = manager
       @watcher = watcher
       @setup   = Set.new
+    end
+
+    def watcher
+      @watcher ||= Spring.application_watcher
     end
 
     def start
@@ -103,6 +107,7 @@ module Spring
       if command.respond_to?(:setup)
         command.setup
         watcher.add_files $LOADED_FEATURES # loaded features may have changed
+        watcher.restart
       end
     end
 
