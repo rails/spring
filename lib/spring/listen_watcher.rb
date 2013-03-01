@@ -60,10 +60,6 @@ module Spring
 
     private
 
-    def mark_as_stale!
-      @stale = true
-    end
-
     def setup
       require 'listen'
       @listener = Listen.to(root_path, listener_options).change(&method(:changed))
