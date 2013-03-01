@@ -53,6 +53,17 @@ module Spring
       start
     end
 
+    def watching?(file)
+      File.fnmatch?(File.join(root_path, '**'), file) &&
+        (files.include?(file) || file.start_with?(*directories))
+    end
+
+    def changed(modified, added, removed)
+      if (modified + added + removed).any? { |f| watching? f }
+        @stale = true
+      end
+    end
+
     private
 
     def mark_as_stale!
@@ -62,19 +73,8 @@ module Spring
     def setup
       require 'listen'
 
-      listener_callback = lambda do |modified, added, removed|
-        all_changed_files = (modified + added + removed)
-
-        all_changed_files.each do |file|
-          next unless File.fnmatch?(File.join(root_path,'**'), file)
-
-          mark_as_stale! if files.include?(file)
-          mark_as_stale! if file.start_with?(*directories)
-        end
-      end
-
       @listener = Listen.to(root_path, listener_options)
-                        .change(&listener_callback)
+                        .change(&method(:changed))
                         .polling_fallback_message(false)
     end
   end
