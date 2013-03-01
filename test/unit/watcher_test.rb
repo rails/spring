@@ -90,6 +90,12 @@ module WatcherTests
     assert IO.select([watcher], [], [], 1), "IO.select timed out before watcher was readable"
     assert watcher.stale?
   end
+
+  def test_add_relative_path
+    File.write("#{dir}/foo", "foo")
+    watcher.add "foo"
+    assert_equal ["#{dir}/foo"], watcher.files.to_a
+  end
 end
 
 class ListenWatcherTest < ActiveSupport::TestCase

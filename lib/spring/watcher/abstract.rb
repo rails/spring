@@ -1,4 +1,5 @@
 require "set"
+require "pathname"
 
 module Spring
   module Watcher
@@ -20,14 +21,21 @@ module Spring
       end
 
       def add(*items)
-        items.flatten.each do |item|
-          next unless File.exist? item
-          item = File.realpath item
+        items = items.flatten.map do |item|
+          item = Pathname.new(item)
 
-          if File.directory?(item)
-            directories << item
+          if item.relative?
+            Pathname.new("#{root}/#{item}")
           else
-            files << item
+            item
+          end
+        end
+
+        items.each do |item|
+          if item.directory?
+            directories << item.realpath.to_s
+          else
+            files << item.realpath.to_s
           end
         end
 

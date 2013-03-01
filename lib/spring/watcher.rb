@@ -21,4 +21,8 @@ module Spring
       Watcher::Polling
     end
   end
+
+  def self.watch(*items)
+    watcher.add *items
+  end
 end
