@@ -73,9 +73,9 @@ module Spring
         end
       end
 
-      @listener = Listen.to(root_path, listener_options).
-                         change(&listener_callback).
-                         polling_fallback_message(false)
+      @listener = Listen.to(root_path, listener_options)
+                        .change(&listener_callback)
+                        .polling_fallback_message(false)
     end
   end
 end
