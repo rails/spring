@@ -54,8 +54,7 @@ module Spring
     end
 
     def watching?(file)
-      File.fnmatch?(File.join(root_path, '**'), file) &&
-        (files.include?(file) || file.start_with?(*directories))
+      files.include?(file) || file.start_with?(*directories)
     end
 
     def changed(modified, added, removed)
