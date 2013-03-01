@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'rails', '~> 3.2.0'
 gem 'sqlite3'
 
-gem 'listen'
+# gem 'listen'
 gem 'rb-inotify', :require => false  # linux
 gem 'rb-fsevent', :require => false  # mac os x
 gem 'rb-kqueue',  :require => false  # bsd
