@@ -224,7 +224,7 @@ class AppTest < ActiveSupport::TestCase
       gemfile = app_root.join("Gemfile")
       gemfile_contents = gemfile.read
       File.write(gemfile, gemfile_contents.sub(%{# gem 'listen'}, %{gem 'listen'}))
-      assert_success "bundle check"
+      assert_success "bundle install"
 
       assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "Listen"
       assert_app_reloaded
