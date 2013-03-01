@@ -29,7 +29,7 @@ module Spring
 
       require Spring.application_root_path.join("config", "environment")
 
-      watcher.add_files $LOADED_FEATURES
+      watch_loaded_features
       watcher.add_files ["Gemfile", "Gemfile.lock"].map { |f| "#{Rails.root}/#{f}" }
       watcher.add_directories Rails.application.paths["config/initializers"].map { |p| "#{Rails.root}/#{p}/" }
 
@@ -102,7 +102,7 @@ module Spring
 
       if command.respond_to?(:setup)
         command.setup
-        watcher.add_files $LOADED_FEATURES # loaded features may have changed
+        watch_loaded_features # loaded features may have changed
         watcher.restart
       end
     end
@@ -111,6 +111,10 @@ module Spring
       Spring.after_fork_callbacks.each do |callback|
         callback.call
       end
+    end
+
+    def watch_loaded_features
+      watcher.add_files $LOADED_FEATURES.select { |f| f.start_with?(File.realpath(Rails.root)) }
     end
   end
 end

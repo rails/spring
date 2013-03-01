@@ -1,58 +1,50 @@
 module Spring
   class PollingWatcher
-    attr_reader :root_path, :files, :directories
+    attr_reader :mtime, :files, :directories
 
-    def initialize(root_path, listener_options = {})
-      @root_path        = File.realpath(root_path)
-      @polling          = false
-
-      @files            = []
-      @directories      = []
+    def initialize
+      @files       = []
+      @directories = []
+      @mtime       = nil
     end
 
     def add_files(new_files)
-      new_files = Array(new_files).select { |f| File.exist?(f) }
+      new_files = new_files.select { |f| File.exist? f }.map { |f| File.realpath f }
 
-      files.concat new_files.map { |f| File.realpath(f) }
+      files.concat new_files
       files.uniq!
+      reset
     end
 
     def add_directories(new_directories)
-      directories.concat Array(new_directories).map { |d| File.realpath(d) }
+      directories.concat Array(new_directories).map { |d| File.realpath d }
+      reset
     end
 
-    def start
-      @polling = true
-      @watched_files = calculate_watched_file_hash
+    def reset
+      @mtime = compute_mtime
     end
-    alias_method :reset,   :start
-    alias_method :restart, :start
+    alias start   reset
+    alias restart reset
 
     def stop
-      @polling = false
     end
 
     def stale?
-      @watched_files != calculate_watched_file_hash if @polling
+      mtime < compute_mtime
     end
 
     private
 
-    def calculate_watched_file_hash
-      Hash[files_within_root_path.map { |f| [f, mtime_of(f)] }]
-    end
-
-    def mtime_of(file)
-      File.exist?(file) ? File.mtime(file).to_f : Float::MAX
-    end
-
-    def files_within_root_path
-      expanded_files.select { |f| File.fnmatch?(File.join(root_path,'**'), f) }
+    def compute_mtime
+      expanded_files.map { |f| File.mtime(f).to_f }.max || 0
+    rescue Errno::ENOENT
+      # if a file does no longer exist, the watcher is always stale.
+      Float::MAX
     end
 
     def expanded_files
-      files + directories.map { |d| Dir.glob("#{d}/**") }.flatten
+      files + Dir["{#{directories.join(",")}}"]
     end
   end
 end
-

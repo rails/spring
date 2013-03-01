@@ -3,14 +3,12 @@ module Spring
     attr_writer :watcher
 
     def watcher
-      @watcher ||= watcher_class.new(Spring.application_root_path, :latency => 0.2)
-    end
-
-    def watcher_class
-      if ListenWatcher.available?
-        ListenWatcher
-      else
-        PollingWatcher
+      @watcher ||= begin
+        if ListenWatcher.available?
+          ListenWatcher.new(Spring.application_root_path, :latency => 0.2)
+        else
+          PollingWatcher.new
+        end
       end
     end
   end

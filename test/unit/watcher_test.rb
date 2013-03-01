@@ -70,26 +70,6 @@ module WatcherTests
     touch "#{subdir}/foo", Time.now - 1.minute
     assert_stale
   end
-
-  def test_does_not_watch_files_outside_of_the_root_path
-    Dir.mktmpdir do |dir|
-      watcher.add_directories(dir)
-      watcher.start
-
-      assert_not_stale
-      touch "#{dir}/foo", Time.now - 1.minute
-      assert_not_stale
-    end
-  end
-
-  def test_does_not_watch_files_until_started
-    file = "#{@dir}/bar"
-    watcher.add_directories(dir)
-
-    assert_not_stale
-    touch file, Time.now - 1.minute
-    assert_not_stale
-  end
 end
 
 if Spring::ListenWatcher.available?
@@ -106,6 +86,6 @@ class PollingWatcherTest < ActiveSupport::TestCase
   include WatcherTests
 
   def watcher
-    @watcher ||= Spring::PollingWatcher.new(@dir, :latency => LATENCY)
+    @watcher ||= Spring::PollingWatcher.new
   end
 end
