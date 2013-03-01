@@ -22,12 +22,10 @@ module Spring
 
       files.concat new_files.map { |f| File.realpath(f) }
       files.uniq!
-      reset
     end
 
     def add_directories(new_directories)
       directories.concat Array(new_directories).map { |d| File.realpath(d) }
-      reset
     end
 
     def reset

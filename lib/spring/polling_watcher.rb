@@ -4,11 +4,10 @@ module Spring
 
     def initialize(root_path, listener_options = {})
       @root_path        = File.realpath(root_path)
+      @polling          = false
 
       @files            = []
       @directories      = []
-
-      reset
     end
 
     def add_files(new_files)
@@ -16,24 +15,26 @@ module Spring
 
       files.concat new_files.map { |f| File.realpath(f) }
       files.uniq!
-      reset
     end
 
     def add_directories(new_directories)
       directories.concat Array(new_directories).map { |d| File.realpath(d) }
-      reset
     end
 
-    def reset
+    def start
+      @polling = true
       @watched_files = calculate_watched_file_hash
+    end
+    alias_method :reset,   :start
+    alias_method :restart, :start
+
+    def stop
+      @polling = false
     end
 
     def stale?
-      @watched_files != calculate_watched_file_hash
+      @watched_files != calculate_watched_file_hash if @polling
     end
-
-    def stop;  end
-    def start; end
 
     private
 

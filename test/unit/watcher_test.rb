@@ -40,6 +40,7 @@ module WatcherTests
     touch file, Time.now - 2.seconds
 
     watcher.add_files [file]
+    watcher.start
 
     assert_not_stale
     touch file, Time.now
@@ -51,6 +52,7 @@ module WatcherTests
     touch file, Time.now
 
     watcher.add_files [file]
+    watcher.start
 
     assert_not_stale
     FileUtils.rm(file)
@@ -62,6 +64,7 @@ module WatcherTests
     FileUtils.mkdir(subdir)
 
     watcher.add_directories(subdir)
+    watcher.start
 
     assert_not_stale
     touch "#{subdir}/foo", Time.now - 1.minute
@@ -71,11 +74,21 @@ module WatcherTests
   def test_does_not_watch_files_outside_of_the_root_path
     Dir.mktmpdir do |dir|
       watcher.add_directories(dir)
+      watcher.start
 
       assert_not_stale
       touch "#{dir}/foo", Time.now - 1.minute
       assert_not_stale
     end
+  end
+
+  def test_does_not_watch_files_until_started
+    file = "#{@dir}/bar"
+    watcher.add_directories(dir)
+
+    assert_not_stale
+    touch file, Time.now - 1.minute
+    assert_not_stale
   end
 end
 
