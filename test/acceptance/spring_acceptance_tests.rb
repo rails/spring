@@ -1,3 +1,4 @@
+require 'helper'
 require 'io/wait'
 require "timeout"
 require "spring/sid"
@@ -5,6 +6,15 @@ require "spring/env"
 require "pty"
 
 module SpringAcceptanceTests
+
+  module ClassMethods
+    attr_accessor :installed
+  end
+
+  def self.included(base)
+    base.extend ClassMethods
+  end
+
   def gem_home
     app_root.join "vendor/gems/#{RUBY_VERSION}"
   end
@@ -114,22 +124,25 @@ module SpringAcceptanceTests
     "#{spring} test #{@test}"
   end
 
-  @@installed = false
+
+  def controller_test_path
+    "#{app_root}/test/functional/posts_controller_test.rb"
+  end
 
   def setup
-    @test                = "#{app_root}/test/functional/posts_controller_test.rb"
+    @test                = controller_test_path
     @test_contents       = File.read(@test)
     @controller          = "#{app_root}/app/controllers/posts_controller.rb"
     @controller_contents = File.read(@controller)
 
-    unless @@installed
+    unless self.class.installed
       FileUtils.mkdir_p(gem_home)
       system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
       app_run "gem install ../../../spring-#{Spring::VERSION}.gem"
       app_run "(gem list bundler | grep bundler) || gem install bundler #{'--pre' if RUBY_VERSION >= "2.0"}", timeout: nil
       app_run "bundle check || bundle update", timeout: nil
       app_run "bundle exec rake db:migrate db:test:clone"
-      @@installed = true
+      self.class.installed = true
     end
 
     FileUtils.rm_rf "#{app_root}/bin"
@@ -313,19 +326,4 @@ module SpringAcceptanceTests
   end
 end
 
-class Rails_3_2_Test < ActiveSupport::TestCase
-  include SpringAcceptanceTests
-
-  def app_root
-    Pathname.new("#{TEST_ROOT}/apps/rails-3-2")
-  end
-end
-
-class Rails_3_1_Test < ActiveSupport::TestCase
-  include SpringAcceptanceTests
-
-  def app_root
-    Pathname.new("#{TEST_ROOT}/apps/rails-3-1")
-  end
-end
 
