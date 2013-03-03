@@ -1,4 +1,4 @@
-require 'spring_acceptance_tests'
+require_relative 'spring_acceptance_tests'
 
 class Rails_3_1_Test < ActiveSupport::TestCase
   include SpringAcceptanceTests
