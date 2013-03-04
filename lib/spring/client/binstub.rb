@@ -20,7 +20,7 @@ module Spring
           generate_spring_binstub
           generate_command_binstub
         else
-          STDERR.puts "The '#{name}' command is not known to spring."
+          $stderr.puts "The '#{name}' command is not known to spring."
           exit 1
         end
       end
@@ -50,7 +50,7 @@ if spec
   spec.activate
   load spec.bin_file("spring")
 else
-  STDERR.puts "Could not find spring gem in #{Gem::Specification.dirs.join(", ")}."
+  $stderr.puts "Could not find spring gem in #{Gem::Specification.dirs.join(", ")}."
   exit 1
 end
 CODE

@@ -69,7 +69,7 @@ module Spring
       def verify_server_version(server)
         server_version = server.gets.chomp
         if server_version != env.version
-          STDERR.puts <<-ERROR
+          $stderr.puts <<-ERROR
 There is a version mismatch beween the spring client and the server.
 You should restart the server and make sure to use the same version.
 

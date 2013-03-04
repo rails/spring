@@ -18,7 +18,7 @@ module Spring
     def self.run(args)
       command_for(args.first).call(args)
     rescue ClientError => e
-      STDERR.puts e.message
+      $stderr.puts e.message
       exit 1
     end
 

@@ -16,7 +16,7 @@ module Spring
           sleep 0.1 until !env.server_running? || Time.now >= timeout
 
           if env.server_running?
-            STDERR.puts "Spring did not stop; killing forcibly."
+            $stderr.puts "Spring did not stop; killing forcibly."
             kill 'KILL'
           else
             puts "Spring stopped."
