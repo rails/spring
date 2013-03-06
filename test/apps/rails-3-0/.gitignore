@@ -1,0 +1,7 @@
+.bundle
+db/*.sqlite3
+log/*.log
+tmp/
+
+/bin
+/vendor/gems
