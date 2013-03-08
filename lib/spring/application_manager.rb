@@ -50,14 +50,12 @@ module Spring
 
     # Returns the pid of the process running the command, or nil if the application process died.
     def run(client)
-      @client = client
-      with_child { child.send_io @client }
+      with_child { child.send_io client }
       child.gets.chomp.to_i # get the pid
     rescue Errno::ECONNRESET, Errno::EPIPE
       nil
     ensure
-      @client.close
-      @client = nil
+      client.close
     end
 
     def stop
@@ -70,11 +68,17 @@ module Spring
       @child, child_socket = UNIXSocket.pair
       @pid = fork {
         [STDOUT, STDERR].each { |s| s.reopen('/dev/null', 'w') } if silence
-        @client.close if @client
+
+        (ObjectSpace.each_object(IO).to_a - [STDOUT, STDERR, STDIN, child_socket])
+          .reject(&:closed?)
+          .each(&:close)
+
         ENV['RAILS_ENV'] = ENV['RACK_ENV'] = app_env
+
         ProcessTitleUpdater.run { |distance|
           "spring app    | #{spring_env.app_name} | started #{distance} ago | #{app_env} mode"
         }
+
         Application.new(child_socket).start
       }
       child_socket.close
