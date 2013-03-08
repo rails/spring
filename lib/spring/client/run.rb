@@ -91,8 +91,17 @@ ERROR
 
       def forward_signals(pid)
         FORWARDED_SIGNALS.each do |sig|
-          trap(sig) { Process.kill(sig, -Process.getpgid(pid)) }
+          trap(sig) { forward_signal sig, pid }
         end
+      end
+
+      def forward_signal(sig, pid)
+        Process.kill(sig, -Process.getpgid(pid))
+      rescue Errno::ESRCH
+        # If the application process is gone, then don't block the
+        # signal on this process.
+        trap(sig, 'DEFAULT')
+        Process.kill(sig, Process.pid)
       end
     end
   end
