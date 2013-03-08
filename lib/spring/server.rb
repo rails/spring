@@ -23,15 +23,8 @@ module Spring
     end
 
     def boot
-      # Boot the server into the process group of the current session.
-      # This will cause it to be automatically killed once the session
-      # ends (i.e. when the user closes their terminal).
-      Process.setpgid(0, SID.pgid)
-
-      # Ignore SIGINT and SIGQUIT otherwise the user typing ^C or ^\ on the command line
-      # will kill the server/application.
-      IGNORE_SIGNALS.each { |sig| trap(sig,  "IGNORE") }
-
+      set_pgid
+      ignore_signals
       set_exit_hook
       write_pidfile
       redirect_output
@@ -49,6 +42,19 @@ module Spring
       client.puts @applications[rails_env].run(app_client)
     rescue SocketError => e
       raise e unless client.eof?
+    end
+
+    # Boot the server into the process group of the current session.
+    # This will cause it to be automatically killed once the session
+    # ends (i.e. when the user closes their terminal).
+    def set_pgid
+      Process.setpgid(0, SID.pgid)
+    end
+
+    # Ignore SIGINT and SIGQUIT otherwise the user typing ^C or ^\ on the command line
+    # will kill the server/application.
+    def ignore_signals
+      IGNORE_SIGNALS.each { |sig| trap(sig,  "IGNORE") }
     end
 
     def set_exit_hook
