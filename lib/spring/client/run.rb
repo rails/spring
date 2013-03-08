@@ -14,7 +14,7 @@ module Spring
         "-e", "Spring::Server.boot"
       ]
 
-      FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO)
+      FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO) & Signal.list.keys
 
       def call
         Spring.verify_environment!
@@ -90,7 +90,7 @@ ERROR
       end
 
       def forward_signals(pid)
-        (FORWARDED_SIGNALS & Signal.list.keys).each do |sig|
+        FORWARDED_SIGNALS.each do |sig|
           trap(sig) { Process.kill(sig, -Process.getpgid(pid)) }
         end
       end
