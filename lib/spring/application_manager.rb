@@ -31,25 +31,27 @@ module Spring
       @pid
     end
 
-    # Returns the pid of the process running the command, or nil if the application process died.
-    def run(client)
-      @client = client
-
+    def with_child
       synchronize do
         if alive?
           begin
-            child.send_io @client
+            yield
           rescue Errno::EPIPE
             # EPIPE indicates child has died but has not been collected by the wait thread yet
             start
-            child.send_io @client
+            yield
           end
         else
           start
-          child.send_io @client
+          yield
         end
       end
+    end
 
+    # Returns the pid of the process running the command, or nil if the application process died.
+    def run(client)
+      @client = client
+      with_child { child.send_io @client }
       child.gets.chomp.to_i # get the pid
     rescue Errno::ECONNRESET, Errno::EPIPE
       nil
