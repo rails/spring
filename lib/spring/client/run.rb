@@ -16,18 +16,51 @@ module Spring
 
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO) & Signal.list.keys
 
+      def server
+        @server ||= UNIXSocket.open(env.socket_name)
+      end
+
       def call
         Spring.verify_environment!
+
         boot_server unless env.server_running?
+        verify_server_version
 
         application, client = UNIXSocket.pair
 
-        server = UNIXSocket.open(env.socket_name)
+        connect_to_application(client)
+        run_command(client, application)
+      rescue Errno::ECONNRESET
+        exit 1
+      ensure
+        server.close if @server
+      end
 
-        verify_server_version(server)
+      def boot_server
+        env.socket_path.unlink if env.socket_path.exist?
+        Process.spawn(*SERVER_COMMAND)
+        sleep 0.1 until env.socket_path.exist?
+      end
+
+      def verify_server_version
+        server_version = server.gets.chomp
+        if server_version != env.version
+          $stderr.puts <<-ERROR
+There is a version mismatch beween the spring client and the server.
+You should restart the server and make sure to use the same version.
+
+CLIENT: #{env.version}, SERVER: #{server_version}
+ERROR
+          exit 1
+        end
+      end
+
+      def connect_to_application(client)
         server.send_io client
         server.puts rails_env_for(*args)
+      end
 
+      def run_command(client, application)
         application.send_io STDOUT
         application.send_io STDERR
         application.send_io STDIN
@@ -53,30 +86,8 @@ module Spring
         else
           exit 1
         end
-      rescue Errno::ECONNRESET
-        exit 1
       ensure
-        application.close if application
-        server.close if server
-      end
-
-      def boot_server
-        env.socket_path.unlink if env.socket_path.exist?
-        Process.spawn(*SERVER_COMMAND)
-        sleep 0.1 until env.socket_path.exist?
-      end
-
-      def verify_server_version(server)
-        server_version = server.gets.chomp
-        if server_version != env.version
-          $stderr.puts <<-ERROR
-There is a version mismatch beween the spring client and the server.
-You should restart the server and make sure to use the same version.
-
-CLIENT: #{env.version}, SERVER: #{server_version}
-ERROR
-          exit 1
-        end
+        application.close
       end
 
       def rails_env_for(command_name, *tail)
