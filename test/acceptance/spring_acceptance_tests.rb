@@ -5,9 +5,14 @@ require "spring/sid"
 require "spring/env"
 require "pty"
 
-class AppTest < ActiveSupport::TestCase
-  def app_root
-    Pathname.new("#{TEST_ROOT}/apps/rails-3-2")
+module SpringAcceptanceTests
+
+  module ClassMethods
+    attr_accessor :installed
+  end
+
+  def self.included(base)
+    base.extend ClassMethods
   end
 
   def gem_home
@@ -119,68 +124,71 @@ class AppTest < ActiveSupport::TestCase
     "#{spring} test #{@test}"
   end
 
-  @@installed = false
 
-  setup do
-    @test                = "#{app_root}/test/functional/posts_controller_test.rb"
+  def controller_test_path
+    "#{app_root}/test/functional/posts_controller_test.rb"
+  end
+
+  def setup
+    @test                = controller_test_path
     @test_contents       = File.read(@test)
     @controller          = "#{app_root}/app/controllers/posts_controller.rb"
     @controller_contents = File.read(@controller)
 
-    unless @@installed
+    unless self.class.installed
       FileUtils.mkdir_p(gem_home)
       system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
       app_run "gem install ../../../spring-#{Spring::VERSION}.gem"
       app_run "(gem list bundler | grep bundler) || gem install bundler #{'--pre' if RUBY_VERSION >= "2.0"}", timeout: nil
       app_run "bundle check || bundle update", timeout: nil
       app_run "bundle exec rake db:migrate db:test:clone"
-      @@installed = true
+      self.class.installed = true
     end
 
     FileUtils.rm_rf "#{app_root}/bin"
   end
 
-  teardown do
+  def teardown
     app_run "#{spring} stop"
     File.write(@test,       @test_contents)
     File.write(@controller, @controller_contents)
   end
 
-  test "basic" do
+  def test_basic
     assert_speedup do
       2.times { app_run spring_test_command }
     end
   end
 
-  test "help message when called without arguments" do
+  def test_help_message_when_called_without_arguments
     assert_success spring, stdout: 'Usage: spring COMMAND [ARGS]'
   end
 
-  test "test changes are picked up" do
+  def test_changes_are_picked_up
     assert_speedup do
-      assert_success spring_test_command, stdout: "0 failures"
+      assert_success spring_test_command, stdout: "0 failures, 0 errors"
 
       File.write(@test, @test_contents.sub("get :index", "raise 'omg'"))
       assert_failure spring_test_command, stdout: "RuntimeError: omg"
     end
   end
 
-  test "code changes are picked up" do
+  def test_code_changes_are_picked_up
     assert_speedup do
-      assert_success spring_test_command, stdout: "0 failures"
+      assert_success spring_test_command, stdout: "0 failures, 0 errors"
 
       File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
       assert_failure spring_test_command, stdout: "RuntimeError: omg"
     end
   end
 
-  test "code changes in pre-referenced app files are picked up" do
+  def test_code_changes_in_pre_referenced_app_files_are_picked_up
     begin
       initializer = "#{app_root}/config/initializers/load_posts_controller.rb"
       File.write(initializer, "PostsController\n")
 
       assert_speedup do
-        assert_success spring_test_command, stdout: "0 failures"
+        assert_success spring_test_command, stdout: "0 failures, 0 errors"
 
         File.write(@controller, @controller_contents.sub("@posts = Post.all", "raise 'omg'"))
         assert_failure spring_test_command, stdout: "RuntimeError: omg"
@@ -214,12 +222,12 @@ class AppTest < ActiveSupport::TestCase
     File.write(application, application_contents)
   end
 
-  test "app gets reloaded when preloaded files change (polling watcher)" do
+  def test_app_gets_reloaded_when_preloaded_files_change_polling_watcher
     assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "Polling"
     assert_app_reloaded
   end
 
-  test "app gets reloaded when preloaded files change (listen watcher)" do
+  def test_app_gets_reloaded_when_preloaded_files_change_listen_watcher
     # listen with ruby 2.0.0-rc1 crashes on travis, revisit when they install 2.0.0-p0
     skip if RUBY_VERSION == "2.0.0" && RUBY_PATCHLEVEL == -1
 
@@ -237,7 +245,7 @@ class AppTest < ActiveSupport::TestCase
     end
   end
 
-  test "app recovers when a boot-level error is introduced" do
+  def test_app_recovers_when_a_boot_level_error_is_introduced
     begin
       application = "#{app_root}/config/application.rb"
       application_contents = File.read(application)
@@ -258,7 +266,7 @@ class AppTest < ActiveSupport::TestCase
     end
   end
 
-  test "stop command kills server" do
+  def test_stop_command_kills_server
     app_run spring_test_command
     assert spring_env.server_running?, "The server should be running but it isn't"
 
@@ -266,21 +274,21 @@ class AppTest < ActiveSupport::TestCase
     assert !spring_env.server_running?, "The server should not be running but it is"
   end
 
-  test "custom commands" do
+  def test_custom_commands
     assert_success "#{spring} custom", stdout: "omg"
   end
 
-  test "runner alias" do
+  def test_runner_alias
     assert_success "#{spring} r 'puts 1'", stdout: "1"
   end
 
-  test "binstubs" do
+  def test_binstubs
     app_run "#{spring} binstub rake"
     assert_success "bin/spring help"
     assert_success "bin/rake -T", stdout: "rake db:migrate"
   end
 
-  test "after fork callback" do
+  def test_after_fork_callback
     begin
       config_path = "#{app_root}/config/spring.rb"
       config_contents = File.read(config_path)
@@ -292,7 +300,7 @@ class AppTest < ActiveSupport::TestCase
     end
   end
 
-  test "missing config/application.rb" do
+  def test_missing_config_application
     begin
       FileUtils.mv app_root.join("config/application.rb"), app_root.join("config/application.rb.bak")
       assert_failure "#{spring} rake -T", stderr: "unable to find your config/application.rb"
@@ -301,19 +309,21 @@ class AppTest < ActiveSupport::TestCase
     end
   end
 
-  test "piping" do
+  def test_piping
     assert_success "#{spring} rake -T | grep db", stdout: "rake db:migrate"
   end
 
-  test "status" do
+  def test_status
     assert_success "#{spring} status", stdout: "Spring is not running"
     app_run "#{spring} runner ''"
     assert_success "#{spring} status", stdout: "Spring is running"
   end
 
-  test "runner command sets Rails environment from command-line options" do
+  def test_runner_command_sets_rails_environment_from_command_line_options
     # Not using "test" environment here to avoid false positives on Travis (where "test" is default)
     assert_success "#{spring} runner -e development 'puts Rails.env'", stdout: "development"
     assert_success "#{spring} runner --environment=development 'puts Rails.env'", stdout: "development"
   end
 end
+
+

@@ -1,0 +1,19 @@
+source 'https://rubygems.org'
+
+gem 'rails', '4.0.0.beta1'
+gem 'sqlite3'
+
+group :assets do
+  gem 'sass-rails',   '~> 4.0.0.beta1'
+  gem 'coffee-rails', '~> 4.0.0.beta1'
+
+  gem 'uglifier', '>= 1.0.3'
+end
+
+gem 'jquery-rails'
+gem 'turbolinks'
+
+# gem 'listen'
+gem 'rb-inotify', :require => false  # linux
+gem 'rb-fsevent', :require => false  # mac os x
+gem 'rb-kqueue',  :require => false  # bsd

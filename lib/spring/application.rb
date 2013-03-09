@@ -27,7 +27,7 @@ module Spring
 
       watcher.add loaded_application_features
       watcher.add "Gemfile", "Gemfile.lock"
-      watcher.add Rails.application.paths["config/initializers"]
+      watcher.add Rails.application.paths["config/initializers"].to_a
 
       run
     end
@@ -54,8 +54,13 @@ module Spring
 
       setup command
 
-      ActionDispatch::Reloader.cleanup!
-      ActionDispatch::Reloader.prepare!
+      if defined?(ActionDispatch::Reloader)
+        ActionDispatch::Reloader.cleanup!
+        ActionDispatch::Reloader.prepare!
+      else
+        # For Rails 3.0 compat
+        ActionDispatch::Callbacks.new(Proc.new {}, false).call({})
+      end
 
       pid = fork {
         Process.setsid
