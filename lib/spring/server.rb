@@ -3,6 +3,7 @@ require "socket"
 require "spring/env"
 require "spring/application_manager"
 require "spring/process_title_updater"
+require "spring/commands"
 
 # readline must be required before we setpgid, otherwise the require may hang,
 # if readline has been built against libedit. See issue #70.
@@ -36,12 +37,29 @@ module Spring
 
     def serve(client)
       client.puts env.version
-      app_client = client.recv_io
-      rails_env  = client.gets.chomp
 
-      client.puts @applications[rails_env].run(app_client)
+      app_client       = client.recv_io
+      command          = JSON.parse(client.read(client.gets.to_i))
+      args, client_env = command.values_at('args', 'env')
+
+      if Spring.command?(args.first)
+        client.puts
+        client.puts @applications[rails_env_for(args, client_env)].run(app_client)
+      else
+        client.close
+      end
     rescue SocketError => e
       raise e unless client.eof?
+    end
+
+    def rails_env_for(args, client_env)
+      command = Spring.command(args.first)
+
+      if command.respond_to?(:env)
+        env = command.env(args.drop(1))
+      end
+
+      env || client_env['RAILS_ENV'] || client_env['RACK_ENV'] || 'development'
     end
 
     # Boot the server into the process group of the current session.

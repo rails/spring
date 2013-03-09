@@ -17,17 +17,15 @@ module Spring
 
     def self.run(args)
       command_for(args.first).call(args)
+    rescue CommandNotFound
+      Client::Help.call(args)
     rescue ClientError => e
       $stderr.puts e.message
       exit 1
     end
 
     def self.command_for(name)
-      if Spring.command?(name)
-        Client::Run
-      else
-        COMMANDS.fetch(name) { Client::Help }
-      end
+      COMMANDS[name] || Client::Run
     end
   end
 end

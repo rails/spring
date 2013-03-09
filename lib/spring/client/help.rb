@@ -9,6 +9,11 @@ module Spring
         "Print available commands."
       end
 
+      def self.call(args)
+        require "spring/commands"
+        super
+      end
+
       def initialize(args, spring_commands = nil, application_commands = nil)
         super args
 

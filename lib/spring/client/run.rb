@@ -1,7 +1,6 @@
 require "rbconfig"
 require "socket"
-
-require "spring/commands"
+require "json"
 
 module Spring
   module Client
@@ -57,7 +56,8 @@ ERROR
 
       def connect_to_application(client)
         server.send_io client
-        server.puts rails_env_for(*args)
+        send_json server, args: args, env: ENV
+        server.gets or raise CommandNotFound
       end
 
       def run_command(client, application)
@@ -65,12 +65,7 @@ ERROR
         application.send_io STDERR
         application.send_io STDIN
 
-        application.puts args.length
-
-        args.each do |arg|
-          application.puts  arg.length
-          application.write arg
-        end
+        send_json application, args
 
         pid = server.gets
         pid = pid.chomp if pid
@@ -90,16 +85,6 @@ ERROR
         application.close
       end
 
-      def rails_env_for(command_name, *tail)
-        command = Spring.command(command_name)
-
-        if command.respond_to?(:env)
-          env = command.env(tail)
-        end
-
-        env || ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
-      end
-
       def forward_signals(pid)
         FORWARDED_SIGNALS.each do |sig|
           trap(sig) { forward_signal sig, pid }
@@ -113,6 +98,13 @@ ERROR
         # signal on this process.
         trap(sig, 'DEFAULT')
         Process.kill(sig, Process.pid)
+      end
+
+      def send_json(socket, data)
+        data = JSON.dump(data)
+
+        socket.puts  data.length
+        socket.write data
       end
     end
   end

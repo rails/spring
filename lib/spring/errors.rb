@@ -30,4 +30,7 @@ module Spring
         "config/spring.rb."
     end
   end
+
+  class CommandNotFound < ClientError
+  end
 end

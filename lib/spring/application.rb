@@ -1,7 +1,8 @@
+require "set"
+require "json"
+
 require "spring/configuration"
 require "spring/watcher"
-require "spring/commands"
-require "set"
 
 module Spring
   class Application
@@ -47,10 +48,9 @@ module Spring
     end
 
     def serve(client)
-      streams     = 3.times.map { client.recv_io }
-      args_length = client.gets.to_i
-      args        = args_length.times.map { client.read(client.gets.to_i) }
-      command     = Spring.command(args.shift)
+      streams = 3.times.map { client.recv_io }
+      args    = JSON.parse(client.read(client.gets.to_i))
+      command = Spring.command(args.shift)
 
       setup command
 

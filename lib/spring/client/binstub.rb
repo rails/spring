@@ -7,6 +7,11 @@ module Spring
         "Generate spring based binstubs."
       end
 
+      def self.call(args)
+        require "spring/commands"
+        super
+      end
+
       def initialize(args)
         super
 
