@@ -1,19 +1,18 @@
 require "socket"
 require "spring/application"
-require "thread"
+require "mutex_m"
 
 module Spring
   class ApplicationManager
+    include Mutex_m
+
     attr_reader :pid, :child, :app_env, :spring_env
 
     def initialize(app_env)
+      super()
+
       @app_env    = app_env
       @spring_env = Env.new
-      @mutex      = Mutex.new
-    end
-
-    def synchronize
-      @mutex.synchronize { yield }
     end
 
     def start
@@ -73,8 +72,6 @@ module Spring
     def start_child(silence = false)
       @child, child_socket = UNIXSocket.pair
       @pid = fork {
-        @mutex.unlock if @mutex.locked?
-
         [STDOUT, STDERR].each { |s| s.reopen('/dev/null', 'w') } if silence
 
         (ObjectSpace.each_object(IO).to_a - [STDOUT, STDERR, STDIN, child_socket])
