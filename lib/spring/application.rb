@@ -48,6 +48,8 @@ module Spring
     end
 
     def serve(client)
+      manager.puts
+
       streams = 3.times.map { client.recv_io }
       args    = JSON.parse(client.read(client.gets.to_i))
       command = Spring.command(args.shift)

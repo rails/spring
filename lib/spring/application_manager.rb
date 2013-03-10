@@ -36,8 +36,9 @@ module Spring
         if alive?
           begin
             yield
-          rescue Errno::EPIPE
-            # EPIPE indicates child has died but has not been collected by the wait thread yet
+          rescue Errno::ECONNRESET, Errno::EPIPE
+            # The child has died but has not been collected by the wait thread yet,
+            # so start a new child and try again.
             start
             yield
           end
@@ -50,7 +51,11 @@ module Spring
 
     # Returns the pid of the process running the command, or nil if the application process died.
     def run(client)
-      with_child { child.send_io client }
+      with_child do
+        child.send_io client
+        child.gets
+      end
+
       child.gets.chomp.to_i # get the pid
     rescue Errno::ECONNRESET, Errno::EPIPE
       nil
