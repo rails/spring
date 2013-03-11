@@ -104,8 +104,9 @@ MESSAGE
 
       def setup
         $LOAD_PATH.unshift "spec"
-        super
         require 'rspec/core'
+        ::RSpec::Core::Runner.disable_autorun!
+        super
       end
 
       def call(args)
