@@ -220,9 +220,6 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "app gets reloaded when preloaded files change (listen watcher)" do
-    # listen with ruby 2.0.0-rc1 crashes on travis, revisit when they install 2.0.0-p0
-    skip if RUBY_VERSION == "2.0.0" && RUBY_PATCHLEVEL == -1
-
     begin
       gemfile = app_root.join("Gemfile")
       gemfile_contents = gemfile.read

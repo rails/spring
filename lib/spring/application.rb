@@ -12,6 +12,10 @@ module Spring
       @manager = manager
       @watcher = watcher
       @setup   = Set.new
+
+      # Workaround for GC bug in Ruby 2 which causes segfaults if watcher.to_io
+      # instances get dereffed.
+      @fds = [manager, watcher.to_io]
     end
 
     def start
@@ -37,7 +41,7 @@ module Spring
       watcher.start
 
       loop do
-        IO.select([manager, watcher])
+        IO.select(@fds)
 
         if watcher.stale?
           exit
