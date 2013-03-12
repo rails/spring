@@ -6,7 +6,8 @@ require "spring/watcher"
 require "listen"
 
 module WatcherTests
-  LATENCY = 0.01
+  LATENCY = 0.001
+  TIMEOUT = 1
 
   attr_accessor :dir
 
@@ -30,12 +31,13 @@ module WatcherTests
   end
 
   def assert_stale
-    sleep LATENCY * 3
+    timeout = Time.now + TIMEOUT
+    sleep LATENCY until watcher.stale? || Time.now > timeout
     assert watcher.stale?
   end
 
   def assert_not_stale
-    sleep LATENCY * 3
+    sleep LATENCY * 10
     assert !watcher.stale?
   end
 
