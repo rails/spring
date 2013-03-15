@@ -1,11 +1,9 @@
 require "socket"
+require "thread"
 require "spring/application"
-require "mutex_m"
 
 module Spring
   class ApplicationManager
-    include Mutex_m
-
     attr_reader :pid, :child, :app_env, :spring_env
 
     def initialize(app_env)
@@ -13,6 +11,16 @@ module Spring
 
       @app_env    = app_env
       @spring_env = Env.new
+      @mutex      = Mutex.new
+    end
+
+    # We're not using @mutex.synchronize to avoid the weird "<internal:prelude>:10"
+    # line which messes with backtraces in e.g. rspec
+    def synchronize
+      @mutex.lock
+      yield
+    ensure
+      @mutex.unlock
     end
 
     def start
