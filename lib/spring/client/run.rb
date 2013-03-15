@@ -5,14 +5,6 @@ require "json"
 module Spring
   module Client
     class Run < Command
-      SERVER_COMMAND = [
-        File.join(*RbConfig::CONFIG.values_at('bindir', 'RUBY_INSTALL_NAME')),
-        "-I", File.expand_path("../../..", __FILE__),
-        "-r", "spring/server",
-        "-r", "bundler/setup",
-        "-e", "Spring::Server.boot"
-      ]
-
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO) & Signal.list.keys
 
       def server
@@ -37,7 +29,7 @@ module Spring
 
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
-        Process.spawn(*SERVER_COMMAND)
+        Process.spawn("spring", "start")
         sleep 0.1 until env.socket_path.exist?
       end
 

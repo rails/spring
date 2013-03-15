@@ -3,6 +3,7 @@ require "spring/client/command"
 require "spring/client/run"
 require "spring/client/help"
 require "spring/client/binstub"
+require "spring/client/start"
 require "spring/client/stop"
 require "spring/client/status"
 
@@ -11,6 +12,7 @@ module Spring
     COMMANDS = {
       "help"    => Client::Help,
       "binstub" => Client::Binstub,
+      "start"   => Client::Start,
       "stop"    => Client::Stop,
       "status"  => Client::Status
     }
