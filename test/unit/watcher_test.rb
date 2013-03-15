@@ -128,6 +128,12 @@ module WatcherTests
     watcher.add "foo"
     assert_equal ["#{dir}/foo"], watcher.files.to_a
   end
+
+  def test_add_dot_relative_path
+    File.write("#{dir}/foo", "foo")
+    watcher.add "./foo"
+    assert_equal ["#{dir}/foo"], watcher.files.to_a
+  end
 end
 
 class ListenWatcherTest < ActiveSupport::TestCase
