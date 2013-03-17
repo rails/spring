@@ -72,8 +72,7 @@ MESSAGE
 
       def call(args)
         if args.empty?
-          $stderr.puts "you need to specify what test to run: spring test TEST_NAME"
-          return
+          args = ['test']
         end
 
         ARGV.replace args
