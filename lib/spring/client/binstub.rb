@@ -20,10 +20,17 @@ module Spring
       end
 
       def call
-        if Spring.command?(name)
+        if Spring.command?(name) || name == "--all"
           bindir.mkdir unless bindir.exist?
           generate_spring_binstub
-          generate_command_binstub
+          if name == "--all"
+            Spring.commands.each do |command|
+              @name = command[0]
+              generate_command_binstub
+            end
+          else
+            generate_command_binstub
+          end
         else
           $stderr.puts "The '#{name}' command is not known to spring."
           exit 1

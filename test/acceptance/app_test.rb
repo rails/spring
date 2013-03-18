@@ -277,6 +277,13 @@ class AppTest < ActiveSupport::TestCase
     assert_success "bin/rake -T", stdout: "rake db:migrate"
   end
 
+  test "binstubing all commands" do
+    app_run "#{spring} binstub --all"
+    assert_success "bin/spring help"
+    assert_success "bin/rake -T", stdout: "rake db:migrate"
+    assert_success "bin/runner 'puts 1'", stdout: "1"
+  end
+
   test "after fork callback" do
     begin
       config_path = "#{app_root}/config/spring.rb"
