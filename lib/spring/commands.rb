@@ -111,7 +111,7 @@ MESSAGE
 
       def call(args)
         $0 = "rspec"
-        ::RSpec::Core::Runner.run(args)
+        Kernel.exit ::RSpec::Core::Runner.run(args)
       end
 
       def description
@@ -131,7 +131,7 @@ MESSAGE
       end
 
       def call(args)
-        ::Cucumber::Cli::Main.execute(args)
+        Kernel.exit(1) if ::Cucumber::Cli::Main.execute(args)
       end
 
       def description
