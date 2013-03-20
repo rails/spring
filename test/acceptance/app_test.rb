@@ -124,6 +124,8 @@ class AppTest < ActiveSupport::TestCase
   setup do
     @test                = "#{app_root}/test/functional/posts_controller_test.rb"
     @test_contents       = File.read(@test)
+    @spec                = "#{app_root}/spec/dummy_spec.rb"
+    @spec_contents       = File.read(@spec)
     @controller          = "#{app_root}/app/controllers/posts_controller.rb"
     @controller_contents = File.read(@controller)
 
@@ -143,6 +145,7 @@ class AppTest < ActiveSupport::TestCase
   teardown do
     app_run "#{spring} stop"
     File.write(@test,       @test_contents)
+    File.write(@spec,       @spec_contents)
     File.write(@controller, @controller_contents)
   end
 
@@ -312,5 +315,11 @@ class AppTest < ActiveSupport::TestCase
     # Not using "test" environment here to avoid false positives on Travis (where "test" is default)
     assert_success "#{spring} runner -e staging 'puts Rails.env'", stdout: "staging"
     assert_success "#{spring} runner --environment=staging 'puts Rails.env'", stdout: "staging"
+  end
+
+  test "exit code for failing specs" do
+    assert_success "#{spring} rspec"
+    File.write(@spec, @spec_contents.sub("true.should be_true", "false.should be_true"))
+    assert_failure "#{spring} rspec"
   end
 end
