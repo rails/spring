@@ -116,7 +116,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def spring_test_command
-    "#{spring} test #{@test}"
+    "#{spring} testunit #{@test}"
   end
 
   @@installed = false

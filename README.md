@@ -67,7 +67,7 @@ cd /path/to/spring/test/apps/rails-3-2
 We can run a test:
 
 ```
-$ time spring test test/functional/posts_controller_test.rb
+$ time spring testunit test/functional/posts_controller_test.rb
 Run options:
 
 # Running tests:
@@ -100,7 +100,7 @@ the processes will be killed automatically.
 Running the test is faster next time:
 
 ```
-$ time spring test test/functional/posts_controller_test.rb
+$ time spring testunit test/functional/posts_controller_test.rb
 Run options:
 
 # Running tests:
@@ -116,25 +116,25 @@ user	0m0.276s
 sys	0m0.059s
 ```
 
-Running `spring test`, `spring rake`, `spring rails`, etc gets a bit
+Running `spring testunit`, `spring rake`, `spring rails`, etc gets a bit
 tedious. It also suffers from a performance issue in Rubygems ([which I
 am actively working on](https://github.com/rubygems/rubygems/pull/435))
 which means the `spring` command takes a while to start up. The more
 gems you have, the longer it takes.
 
 Spring binstubs solve both of these problems. If you will be running the
-`test` command regularly, run:
+`testunit` command regularly, run:
 
 ```
-$ spring binstub test
+$ spring binstub testunit
 ```
 
-This generates a `bin/spring` and a `bin/test`, which allows you to run
-`spring` and `spring test` in a way that doesn't trigger the Rubygems
+This generates a `bin/spring` and a `bin/testunit`, which allows you to run
+`spring` and `spring testunit` in a way that doesn't trigger the Rubygems
 performance bug:
 
 ```
-$ time bin/test test/functional/posts_controller_test.rb
+$ time bin/testunit test/functional/posts_controller_test.rb
 Run options:
 
 # Running tests:
@@ -220,12 +220,12 @@ order to make it easy for people to try spring. However in the future
 the code to use a specific test framework should not be contained in the
 spring repository.
 
-### `test`
+### `testunit`
 
 Runs a test (e.g. Test::Unit, MiniTest::Unit, etc.) Preloads the `test_helper` file.
 
 This command can also recursively run a directory of tests. For example,
-`spring test test/functional` will run `test/functional/**/*_test.rb`.
+`spring testunit test/functional` will run `test/functional/**/*_test.rb`.
 
 ### `rspec`
 
@@ -272,7 +272,7 @@ preloads for every command:
 
 ```ruby
 # if your test helper is called "helper"
-Commands::Command::Test.preloads = %w(helper)
+Commands::Command::TestUnit.preloads = %w(helper)
 
 # if you don't want to preload spec_helper.rb
 Commands::Command::RSpec.preloads = []

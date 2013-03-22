@@ -58,7 +58,7 @@ MESSAGE
       end
     end
 
-    class Test < Command
+    class TestUnit < Command
       preloads << "test_helper"
 
       def env(*)
@@ -89,7 +89,7 @@ MESSAGE
         "Execute a Test::Unit test."
       end
     end
-    Spring.register_command "test", Test.new
+    Spring.register_command "testunit", TestUnit.new
 
     class RSpec < Command
       preloads << "spec_helper"

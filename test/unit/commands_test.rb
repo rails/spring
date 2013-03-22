@@ -7,7 +7,7 @@ class CommandsTest < ActiveSupport::TestCase
       real_stderr = $stderr
       $stderr = StringIO.new('')
 
-      command = Spring::Commands::Test.new
+      command = Spring::Commands::TestUnit.new
       command.call([])
 
       assert_equal "you need to specify what test to run: spring test TEST_NAME\n", $stderr.string
