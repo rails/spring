@@ -1,4 +1,4 @@
-## Next version
+## 0.0.8
 
 * Renamed `spring test` to `spring testunit`.
 * Implemented `spring rails` to replace `spring
