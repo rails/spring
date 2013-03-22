@@ -4,28 +4,35 @@ require "spring/client/command"
 require 'spring/client/help'
 require 'spring/client'
 
-class RandomSpringCommand
-  def self.description
-    'Random Spring Command'
-  end
-end
-
-class RandomApplicationCommand
-  def description
-    'Random Application Command'
-  end
-end
-
 class HelpTest < ActiveSupport::TestCase
   def spring_commands
-    { 'command' => RandomSpringCommand }
+    {
+      'command' => Class.new {
+        def self.description
+          'Random Spring Command'
+        end
+      },
+      'rails' => Class.new {
+        def self.description
+          "omg"
+        end
+      }
+    }
   end
 
   def application_commands
-    @application_commands ||= begin
-                                command = RandomApplicationCommand.new
-                                { 'random' => command, 'r' => command }
-                              end
+    {
+      'random' => Class.new {
+        def description
+          'Random Application Command'
+        end
+      }.new,
+      'hidden' => Class.new {
+        def description
+          nil
+        end
+      }.new
+    }
   end
 
   def setup
@@ -38,11 +45,12 @@ Usage: spring COMMAND [ARGS]
 
 Commands for spring itself:
 
-  command    Random Spring Command
+  command  Random Spring Command
 
 Commands for your application:
 
-  random, r  Random Application Command
+  rails    omg
+  random   Random Application Command
     EOF
 
     assert_equal expected_output.chomp, @help.formatted_help

@@ -9,12 +9,8 @@ module Spring
     attr_reader :commands
   end
 
-  def self.register_command(name, klass, options = {})
+  def self.register_command(name, klass)
     commands[name] = klass
-
-    if options[:alias]
-      commands[options[:alias]] = klass
-    end
   end
 
   def self.command?(name)
@@ -157,8 +153,7 @@ MESSAGE
     end
     Spring.register_command "rake", Rake.new
 
-
-    class Console < Command
+    class RailsConsole < Command
       def env(tail)
         tail.first if tail.first && !tail.first.index("-")
       end
@@ -173,12 +168,12 @@ MESSAGE
       end
 
       def description
-        "Start the Rails console."
+        nil
       end
     end
-    Spring.register_command "console", Console.new, alias: "c"
+    Spring.register_command "rails_console", RailsConsole.new
 
-    class Generate < Command
+    class RailsGenerate < Command
       def setup
         super
         Rails.application.load_generators
@@ -190,12 +185,12 @@ MESSAGE
       end
 
       def description
-        "Trigger a Rails generator."
+        nil
       end
     end
-    Spring.register_command "generate", Generate.new, alias: "g"
+    Spring.register_command "rails_generate", RailsGenerate.new
 
-    class Runner < Command
+    class RailsRunner < Command
       def env(tail)
         previous_option = nil
         tail.reverse.each do |option|
@@ -215,10 +210,10 @@ MESSAGE
       end
 
       def description
-        "Execute a command with the Rails runner."
+        nil
       end
     end
-    Spring.register_command "runner", Runner.new, alias: "r"
+    Spring.register_command "rails_runner", RailsRunner.new
   end
 
   # Load custom commands, if any.

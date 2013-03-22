@@ -17,8 +17,10 @@ module Spring
       def initialize(args, spring_commands = nil, application_commands = nil)
         super args
 
-        @spring_commands      = spring_commands       || Spring::Client::COMMANDS
-        @application_commands = application_commands  || Spring.commands
+        @spring_commands      = spring_commands      || Spring::Client::COMMANDS.dup
+        @application_commands = application_commands || Spring.commands.dup
+
+        @application_commands["rails"] = @spring_commands.delete("rails")
       end
 
       def call
@@ -27,41 +29,20 @@ module Spring
 
       def formatted_help
         ["Usage: spring COMMAND [ARGS]\n",
-         *spring_command_help,
+         *command_help("spring itself", spring_commands),
          '',
-         *application_command_help].join("\n")
+         *command_help("your application", application_commands)].join("\n")
       end
 
-      def spring_command_help
-        ["Commands for spring itself:\n",
-        *client_commands.map { |c,n| display_value(c,n) }]
-      end
-
-      def application_command_help
-        ["Commands for your application:\n",
-        *registered_commands.map { |c,n| display_value(c,n) }]
+      def command_help(subject, commands)
+        ["Commands for #{subject}:\n",
+        *commands.sort_by(&:first).map { |name, command| display(name, command) }.compact]
       end
 
       private
 
-      def client_commands
-        spring_commands.invert
-      end
-
-      def registered_commands
-        Hash[unique_commands.collect { |c| [c, command_aliases(c)] }]
-      end
-
       def all_commands
-        @all_commands ||= client_commands.merge(registered_commands)
-      end
-
-      def unique_commands
-        application_commands.collect { |k,v| v }.uniq
-      end
-
-      def command_aliases(command)
-        spring_commands.merge(application_commands).select { |k,v| v == command }.keys
+        spring_commands.merge application_commands
       end
 
       def description_for_command(command)
@@ -72,12 +53,14 @@ module Spring
         end
       end
 
-      def display_value(command, names)
-        "  #{ Array(names).join(', ').ljust(max_name_width) }  #{ description_for_command(command) }"
+      def display(name, command)
+        if description = description_for_command(command)
+          "  #{name.ljust(max_name_width)}  #{description}"
+        end
       end
 
       def max_name_width
-        @max_name_width ||= all_commands.collect { |_,n| Array(n).join(', ').length }.max
+        @max_name_width ||= all_commands.keys.map(&:length).max
       end
     end
   end

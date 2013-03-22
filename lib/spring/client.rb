@@ -6,6 +6,7 @@ require "spring/client/binstub"
 require "spring/client/start"
 require "spring/client/stop"
 require "spring/client/status"
+require "spring/client/rails"
 
 module Spring
   module Client
@@ -14,7 +15,8 @@ module Spring
       "binstub" => Client::Binstub,
       "start"   => Client::Start,
       "stop"    => Client::Stop,
-      "status"  => Client::Status
+      "status"  => Client::Status,
+      "rails"   => Client::Rails
     }
 
     def self.run(args)

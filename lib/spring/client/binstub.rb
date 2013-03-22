@@ -20,7 +20,7 @@ module Spring
       end
 
       def call
-        if Spring.command?(name)
+        if Spring.command?(name) || name == "rails"
           bindir.mkdir unless bindir.exist?
           generate_spring_binstub
           generate_command_binstub

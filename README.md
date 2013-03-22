@@ -116,7 +116,7 @@ user	0m0.276s
 sys	0m0.059s
 ```
 
-Running `spring test`, `spring rake`, `spring console`, etc gets a bit
+Running `spring test`, `spring rake`, `spring rails`, etc gets a bit
 tedious. It also suffers from a performance issue in Rubygems ([which I
 am actively working on](https://github.com/rubygems/rubygems/pull/435))
 which means the `spring` command takes a while to start up. The more
@@ -240,33 +240,12 @@ Runs a cucumber feature.
 
 Runs a rake task.
 
-### `console`
+### `rails console`, `rails generate`, `rails runner`
 
-Boots into the Rails console. Currently this is usable but not perfect,
-for example you can't scroll back through command history. (That will be
-fixed.)
-
-You can pass the Rails env as argument, just like you would to `rails console`,
-e.g.:
-
-```
-$ spring console test
-```
-
-### `generate`
-
-Runs a Rails generator.
-
-### `runner`
-
-The Rails runner.
-
-You can pass the Rails env as argument, just like you would to `rails runner`
-using the `-e` or `--environment` options, e.g.:
-
-```
-$ spring runner -e test 'puts Rails.env'
-```
+These execute the rails command you already know and love. If you run
+a different sub command (e.g. `rails server`) then spring will automatically
+pass it through to the underlying `rails` executable (without the
+speed-up).
 
 ## Configuration
 
@@ -299,7 +278,7 @@ Commands::Command::Test.preloads = %w(helper)
 Commands::Command::RSpec.preloads = []
 
 # if you want to preload additional files for the console
-Commands::Command::Console.preloads << 'extenstions/console_helper'
+Commands::Command::RailsConsole.preloads << 'extenstions/console_helper'
 ```
 
 ### after fork callbacks

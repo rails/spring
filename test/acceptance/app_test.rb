@@ -215,7 +215,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "app gets reloaded when preloaded files change (polling watcher)" do
-    assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "Polling"
+    assert_success "#{spring} rails runner 'puts Spring.watcher.class'", stdout: "Polling"
     assert_app_reloaded
   end
 
@@ -226,7 +226,7 @@ class AppTest < ActiveSupport::TestCase
       File.write(gemfile, gemfile_contents.sub(%{# gem 'listen'}, %{gem 'listen'}))
       app_run "bundle install", timeout: nil
 
-      assert_success "#{spring} runner 'puts Spring.watcher.class'", stdout: "Listen"
+      assert_success "#{spring} rails runner 'puts Spring.watcher.class'", stdout: "Listen"
       assert_app_reloaded
     ensure
       File.write(gemfile, gemfile_contents)
@@ -267,14 +267,12 @@ class AppTest < ActiveSupport::TestCase
     assert_success "#{spring} custom", stdout: "omg"
   end
 
-  test "runner alias" do
-    assert_success "#{spring} r 'puts 1'", stdout: "1"
-  end
-
   test "binstubs" do
     app_run "#{spring} binstub rake"
+    app_run "#{spring} binstub rails"
     assert_success "bin/spring help"
     assert_success "bin/rake -T", stdout: "rake db:migrate"
+    assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
   end
 
   test "after fork callback" do
@@ -283,7 +281,7 @@ class AppTest < ActiveSupport::TestCase
       config_contents = File.read(config_path)
 
       File.write(config_path, config_contents + "\nSpring.after_fork { puts '!callback!' }")
-      assert_success "#{spring} r 'puts 2'", stdout: "!callback!\n2"
+      assert_success "#{spring} rails runner 'puts 2'", stdout: "!callback!\n2"
     ensure
       File.write(config_path, config_contents)
     end
@@ -304,13 +302,13 @@ class AppTest < ActiveSupport::TestCase
 
   test "status" do
     assert_success "#{spring} status", stdout: "Spring is not running"
-    app_run "#{spring} runner ''"
+    app_run "#{spring} rails runner ''"
     assert_success "#{spring} status", stdout: "Spring is running"
   end
 
   test "runner command sets Rails environment from command-line options" do
     # Not using "test" environment here to avoid false positives on Travis (where "test" is default)
-    assert_success "#{spring} runner -e staging 'puts Rails.env'", stdout: "staging"
-    assert_success "#{spring} runner --environment=staging 'puts Rails.env'", stdout: "staging"
+    assert_success "#{spring} rails runner -e staging 'puts Rails.env'", stdout: "staging"
+    assert_success "#{spring} rails runner --environment=staging 'puts Rails.env'", stdout: "staging"
   end
 end
