@@ -150,6 +150,10 @@ user	0m0.077s
 sys	0m0.059s
 ```
 
+You can add "./bin" to your `PATH` when in your application's directory
+[with direnv](https://github.com/zimbatm/direnv), but you should
+recognise and understand the security implications of using that.
+
 If we edit any of the application files, or test files, the change will
 be picked up on the next run, without the background process
 having to be restarted.
