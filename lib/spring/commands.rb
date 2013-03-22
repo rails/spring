@@ -131,6 +131,8 @@ MESSAGE
       end
 
       def call(args)
+        # Cucumber's execute funtion returns `true` if any of the steps failed or
+        # some other error occured.
         Kernel.exit(1) if ::Cucumber::Cli::Main.execute(args)
       end
 
