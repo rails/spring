@@ -30,12 +30,16 @@ class AppTest < ActiveSupport::TestCase
     @stderr ||= IO.pipe
   end
 
+  def env
+    @env ||= {"GEM_HOME" => gem_home.to_s, "GEM_PATH" => ""}
+  end
+
   def app_run(command, opts = {})
     start_time = Time.now
 
     Bundler.with_clean_env do
       Process.spawn(
-        { "GEM_HOME" => gem_home.to_s, "GEM_PATH" => "" },
+        env,
         command.to_s,
         out:   stdout.last,
         err:   stderr.last,
@@ -319,5 +323,10 @@ class AppTest < ActiveSupport::TestCase
     assert_success "#{spring} rspec"
     File.write(@spec, @spec_contents.sub("true.should be_true", "false.should be_true"))
     assert_failure "#{spring} rspec"
+  end
+
+  test "selecting rails environment for rake" do
+    env['RAILS_ENV'] = 'staging'
+    assert_success "#{spring} rake -p 'ENV[\"RAILS_ENV\"]'", stdout: "staging"
   end
 end

@@ -48,7 +48,7 @@ ERROR
 
       def connect_to_application(client)
         server.send_io client
-        send_json server, args: args, env: ENV
+        send_json server, args: args, env: ENV.to_hash
         server.gets or raise CommandNotFound
       end
 
