@@ -71,17 +71,19 @@ MESSAGE
       end
 
       def call(args)
-        if args.size > 0
-          ARGV.replace args
-          path = File.expand_path(args.first)
+        if args.empty?
+          $stderr.puts "you need to specify what test to run: spring test TEST_NAME"
+          return
+        end
 
+        ARGV.replace args
+        args.each do |arg|
+          path = File.expand_path(arg)
           if File.directory?(path)
             Dir[File.join path, "**", "*_test.rb"].each { |f| require f }
           else
             require path
           end
-        else
-          $stderr.puts "you need to specify what test to run: spring test TEST_NAME"
         end
       end
 
