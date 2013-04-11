@@ -1,3 +1,4 @@
+
 # Spring
 
 [![Build Status](https://travis-ci.org/jonleighton/spring.png?branch=master)](https://travis-ci.org/jonleighton/spring)
@@ -276,13 +277,13 @@ preloads for every command:
 
 ```ruby
 # if your test helper is called "helper"
-Commands::Command::TestUnit.preloads = %w(helper)
+Spring::Commands::TestUnit.preloads = %w(helper)
 
 # if you don't want to preload spec_helper.rb
-Commands::Command::RSpec.preloads = []
+Spring::Commands::RSpec.preloads = []
 
 # if you want to preload additional files for the console
-Commands::Command::RailsConsole.preloads << 'extenstions/console_helper'
+Spring::Commands::RailsConsole.preloads << 'extenstions/console_helper'
 ```
 
 ### after fork callbacks
