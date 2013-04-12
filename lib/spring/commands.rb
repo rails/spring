@@ -140,6 +140,21 @@ MESSAGE
     Spring.register_command "cucumber", Cucumber.new
 
     class Rake < Command
+      class << self
+        attr_accessor :environment_matchers
+      end
+
+      self.environment_matchers = {
+        /^(test|spec|cucumber)($|:)/ => "test"
+      }
+
+      def env(args)
+        self.class.environment_matchers.each do |matcher, environment|
+          return environment if matcher === args.first
+        end
+        nil
+      end
+
       def setup
         super
         require "rake"
@@ -157,8 +172,8 @@ MESSAGE
     Spring.register_command "rake", Rake.new
 
     class RailsConsole < Command
-      def env(tail)
-        tail.first if tail.first && !tail.first.index("-")
+      def env(args)
+        args.first if args.first && !args.first.index("-")
       end
 
       def setup

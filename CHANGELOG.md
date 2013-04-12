@@ -1,3 +1,8 @@
+## Next version
+
+* Added `Spring::Commands::Rake.environment_matchers` for matching
+  rake tasks to specific environments.
+
 ## 0.0.8
 
 * Renamed `spring test` to `spring testunit`.

@@ -61,4 +61,13 @@ class CommandsTest < ActiveSupport::TestCase
     command = Spring::Commands::RailsRunner.new
     assert_nil command.env(['puts 1+1'])
   end
+
+  test "rake command has configurable environments" do
+    command = Spring::Commands::Rake.new
+    assert_nil command.env(["foo"])
+    assert_equal "test", command.env(["test"])
+    assert_equal "test", command.env(["test:models"])
+    assert_equal "test", command.env(["spec"])
+    assert_nil command.env(["test_foo"])
+  end
 end

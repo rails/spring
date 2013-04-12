@@ -243,7 +243,17 @@ Runs a cucumber feature.
 
 ### `rake`
 
-Runs a rake task.
+Runs a rake task. Rake tasks run in the `development` environment by
+default. You can change this on the fly by using the `RAILS_ENV`
+environment variable. The environment is also configurable with the
+`Spring::Commands::Rake.environment_matchers` hash. This has sensible
+defaults, but if you need to match a specific task to a specific
+environment, you'd do it like this:
+
+``` ruby
+Spring::Commands::Rake.environment_matchers["perf_test"] = "test"
+Spring::Commands::Rake.environment_matchers[/^perf/]      = "test"
+```
 
 ### `rails console`, `rails generate`, `rails runner`
 
