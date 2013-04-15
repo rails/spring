@@ -1,4 +1,3 @@
-
 # Spring
 
 [![Build Status](https://travis-ci.org/jonleighton/spring.png?branch=master)](https://travis-ci.org/jonleighton/spring)
@@ -324,7 +323,7 @@ boots. If you would like to watch additional files or directories, use
 `Spring.watch`:
 
 ```ruby
-Spring.watch "#{Rails.root}/spec/factories"
+Spring.watch "spec/factories"
 ```
 
 ### Filesystem polling
