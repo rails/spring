@@ -78,9 +78,9 @@ Finished tests in 0.127245s, 55.0121 tests/s, 78.5887 assertions/s.
 
 7 tests, 10 assertions, 0 failures, 0 errors, 0 skips
 
-real	0m2.165s
-user	0m0.281s
-sys	0m0.066s
+real    0m2.165s
+user    0m0.281s
+sys     0m0.066s
 ```
 
 That booted our app in the background:
@@ -111,9 +111,9 @@ Finished tests in 0.176896s, 39.5714 tests/s, 56.5305 assertions/s.
 
 7 tests, 10 assertions, 0 failures, 0 errors, 0 skips
 
-real	0m0.610s
-user	0m0.276s
-sys	0m0.059s
+real    0m0.610s
+user    0m0.276s
+sys     0m0.059s
 ```
 
 Running `spring testunit`, `spring rake`, `spring rails`, etc gets a bit
@@ -145,9 +145,9 @@ Finished tests in 0.166585s, 42.0207 tests/s, 60.0296 assertions/s.
 
 7 tests, 10 assertions, 0 failures, 0 errors, 0 skips
 
-real	0m0.407s
-user	0m0.077s
-sys	0m0.059s
+real    0m0.407s
+user    0m0.077s
+sys     0m0.059s
 ```
 
 You can add "./bin" to your `PATH` when in your application's directory
@@ -251,7 +251,7 @@ environment, you'd do it like this:
 
 ``` ruby
 Spring::Commands::Rake.environment_matchers["perf_test"] = "test"
-Spring::Commands::Rake.environment_matchers[/^perf/]      = "test"
+Spring::Commands::Rake.environment_matchers[/^perf/]     = "test"
 ```
 
 ### `rails console`, `rails generate`, `rails runner`
@@ -261,22 +261,22 @@ a different sub command (e.g. `rails server`) then spring will automatically
 pass it through to the underlying `rails` executable (without the
 speed-up).
 
-## Configuration
+## Configuration file
 
-### application_root
+Spring will read `config/spring.rb` for custom settings, described below.
 
-Spring must know how to find your rails application. If you have a
+### Specifying application root
+
+Spring must know how to find your Rails application. If you have a
 normal app everything works out of the box. If you are working on a
 project with a special setup (an engine for example), you must tell
 Spring where your app is located:
-
-**config/spring.rb**
 
 ```ruby
 Spring.application_root = './test/dummy'
 ```
 
-### preload files
+### Preloading files
 
 Every Spring command has the ability to preload a set of files. The
 `test` command for example preloads `test_helper` (it also adds the
@@ -292,10 +292,10 @@ Spring::Commands::TestUnit.preloads = %w(helper)
 Spring::Commands::RSpec.preloads = []
 
 # if you want to preload additional files for the console
-Spring::Commands::RailsConsole.preloads << 'extenstions/console_helper'
+Spring::Commands::RailsConsole.preloads << 'extensions/console_helper'
 ```
 
-### after fork callbacks
+### Callbacks after forking
 
 You might want to run code after Spring forked off the process but
 before the actual command is run. You might want to use an
@@ -311,22 +311,23 @@ end
 If you want to register multiple callbacks you can simply call
 `Spring.after_fork` multiple times with different blocks.
 
-### tmp directory
-
-Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
-You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
-
 ### Watching files and directories
 
 As mentioned above, Spring will automatically detect file changes to any file loaded when the server
-boots. If you would like to watch additional files or directories, use
-`Spring.watch`:
+boots. If you would like to watch additional files or directories, use `watch`:
 
 ```ruby
 Spring.watch "spec/factories"
 ```
 
-### Filesystem polling
+## Other configuration
+
+### tmp directory
+
+Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
+You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
+
+### Filesystem polling speed
 
 By default Spring will check the filesystem for changes once every 0.2 seconds. This
 method requires zero configuration, but if you find that it's using too
