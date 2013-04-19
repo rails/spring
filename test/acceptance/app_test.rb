@@ -102,13 +102,13 @@ class AppTest < ActiveSupport::TestCase
 
   def assert_success(command, expected_output = nil)
     artifacts = app_run(command)
-    assert artifacts[:status].success?, "expected successful exit status"
+    assert artifacts[:status].success?, "expected successful exit status\n\n#{dump_streams(command, *artifacts.values_at(:stdout, :stderr))}"
     assert_output artifacts, expected_output if expected_output
   end
 
   def assert_failure(command, expected_output = nil)
     artifacts = app_run(command)
-    assert !artifacts[:status].success?, "expected unsuccessful exit status"
+    assert !artifacts[:status].success?, "expected unsuccessful exit status\n\n#{dump_streams(command, *artifacts.values_at(:stdout, :stderr))}"
     assert_output artifacts, expected_output if expected_output
   end
 
