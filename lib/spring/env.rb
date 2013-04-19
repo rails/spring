@@ -48,12 +48,10 @@ module Spring
     end
 
     def server_running?
-      if pidfile_path.exist?
-        pidfile = pidfile_path.open('r')
-        !pidfile.flock(File::LOCK_EX | File::LOCK_NB)
-      else
-        false
-      end
+      pidfile = pidfile_path.open('r')
+      !pidfile.flock(File::LOCK_EX | File::LOCK_NB)
+    rescue Errno::ENOENT
+      false
     ensure
       if pidfile
         pidfile.flock(File::LOCK_UN)
