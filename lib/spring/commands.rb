@@ -1,3 +1,5 @@
+require "spring/watcher"
+
 # If the config/spring.rb contains requires for commands from other gems,
 # then we need to be under bundler.
 require "bundler/setup"

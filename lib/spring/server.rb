@@ -4,6 +4,8 @@ require "thread"
 require "spring/env"
 require "spring/application_manager"
 require "spring/process_title_updater"
+
+# Must be last, as it requires bundler/setup
 require "spring/commands"
 
 # readline must be required before we setpgid, otherwise the require may hang,

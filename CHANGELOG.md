@@ -6,6 +6,7 @@
   changed. This forces a new server to boot up on the next run, which
   ensures that you get the correct gems (or the correct error message from
   bundler if you have forgotten to `bundle install`.)
+* Fixed error when `Spring.watch` is used in `config/spring.rb`
 
 ## 0.0.8
 
