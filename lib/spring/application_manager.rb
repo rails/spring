@@ -4,11 +4,10 @@ require "spring/application"
 
 module Spring
   class ApplicationManager
-    attr_reader :pid, :child, :app_env, :spring_env
+    attr_reader :pid, :child, :app_env, :spring_env, :server
 
-    def initialize(app_env)
-      super()
-
+    def initialize(server, app_env)
+      @server     = server
       @app_env    = app_env
       @spring_env = Env.new
       @mutex      = Mutex.new
@@ -78,6 +77,8 @@ module Spring
     private
 
     def start_child(silence = false)
+      server.application_starting
+
       @child, child_socket = UNIXSocket.pair
       @pid = fork {
         [STDOUT, STDERR].each { |s| s.reopen('/dev/null', 'w') } if silence

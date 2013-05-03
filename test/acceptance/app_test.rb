@@ -67,7 +67,7 @@ class AppTest < ActiveSupport::TestCase
   def read_streams
     [stdout, stderr].map(&:first).map do |stream|
       output = ""
-      output << stream.readpartial(10240) while IO.select([stream], [], [], 0.1)
+      output << stream.readpartial(10240) while IO.select([stream], [], [], 0.5)
       output
     end
   end
@@ -328,5 +328,23 @@ class AppTest < ActiveSupport::TestCase
   test "selecting rails environment for rake" do
     env['RAILS_ENV'] = 'staging'
     assert_success "#{spring} rake -p 'ENV[\"RAILS_ENV\"]'", stdout: "staging"
+  end
+
+  test "changing the Gemfile restarts the server" do
+    begin
+      gemfile = app_root.join("Gemfile")
+      gemfile_contents = gemfile.read
+
+      assert_success %(#{spring} rails runner 'require "rspec"')
+
+      File.write(gemfile, gemfile_contents.sub(%{gem 'rspec'}, %{# gem 'rspec'}))
+      app_run "bundle check"
+
+      await_reload
+      assert_failure %(#{spring} rails runner 'require "rspec"'), stderr: "cannot load such file -- rspec"
+    ensure
+      File.write(gemfile, gemfile_contents)
+      assert_success "bundle check"
+    end
   end
 end

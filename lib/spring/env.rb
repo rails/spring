@@ -6,6 +6,7 @@ require "spring/sid"
 
 module Spring
   IGNORE_SIGNALS = %w(INT QUIT)
+  BINFILE        = File.expand_path("../../../bin/spring", __FILE__)
 
   class Env
     attr_reader :root
@@ -57,6 +58,10 @@ module Spring
         pidfile.flock(File::LOCK_UN)
         pidfile.close
       end
+    end
+
+    def bundle_mtime
+      [Bundler.default_lockfile, Bundler.default_gemfile].select(&:exist?).map(&:mtime).max
     end
 
     private

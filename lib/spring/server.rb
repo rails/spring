@@ -1,4 +1,5 @@
 require "socket"
+require "thread"
 
 require "spring/env"
 require "spring/application_manager"
@@ -19,17 +20,19 @@ module Spring
 
     def initialize(env = Env.new)
       @env          = env
-      @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(k) }
+      @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(self, k) }
       @pidfile      = env.pidfile_path.open('a')
+      @mutex        = Mutex.new
     end
 
     def boot
+      write_pidfile
       set_pgid
       ignore_signals
       set_exit_hook
-      write_pidfile
       redirect_output
       set_process_title
+      watch_bundle
 
       server = UNIXServer.open(env.socket_name)
       loop { serve server.accept }
@@ -78,15 +81,15 @@ module Spring
     def set_exit_hook
       server_pid = Process.pid
 
-      at_exit do
-        # We don't want this hook to run in any forks of the current process
-        if Process.pid == server_pid
-          [env.socket_path, env.pidfile_path].each do |path|
-            path.unlink if path.exist?
-          end
+      # We don't want this hook to run in any forks of the current process
+      at_exit { shutdown if Process.pid == server_pid }
+    end
 
-          @applications.values.each(&:stop)
-        end
+    def shutdown
+      @applications.values.each(&:stop)
+
+      [env.socket_path, env.pidfile_path].each do |path|
+        path.unlink if path.exist?
       end
     end
 
@@ -96,7 +99,6 @@ module Spring
         @pidfile.write("#{Process.pid}\n")
         @pidfile.fsync
       else
-        $stderr.puts "#{@pidfile.path} is locked; it looks like a server is already running"
         exit 1
       end
     end
@@ -120,6 +122,14 @@ module Spring
       ProcessTitleUpdater.run { |distance|
         "spring server | #{env.app_name} | started #{distance} ago"
       }
+    end
+
+    def watch_bundle
+      @bundle_mtime = env.bundle_mtime
+    end
+
+    def application_starting
+      @mutex.synchronize { exit if env.bundle_mtime != @bundle_mtime }
     end
   end
 end

@@ -29,7 +29,7 @@ module Spring
 
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
-        Process.spawn("spring", "start")
+        Process.spawn(BINFILE, "start")
         sleep 0.1 until env.socket_path.exist?
       end
 

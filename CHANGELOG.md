@@ -2,6 +2,10 @@
 
 * Added `Spring::Commands::Rake.environment_matchers` for matching
   rake tasks to specific environments.
+* Kill the spring server when the `Gemfile` or `Gemfile.lock` is
+  changed. This forces a new server to boot up on the next run, which
+  ensures that you get the correct gems (or the correct error message from
+  bundler if you have forgotten to `bundle install`.)
 
 ## 0.0.8
 
