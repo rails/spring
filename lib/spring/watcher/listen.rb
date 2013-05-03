@@ -5,17 +5,31 @@ module Spring
 
       def self.available?
         require "listen"
+        require "listen/version"
         true
       rescue LoadError
         false
       end
 
+      def listen_klass
+        if ::Listen::VERSION >= "1.0.0"
+          ::Listen::Listener
+        else
+          ::Listen::MultiListener
+        end
+      end
+
       def start
         unless @listener
-          @listener = ::Listen::MultiListener.new(*base_directories)
+          @listener = listen_klass.new(*base_directories, relative_paths: false)
           @listener.latency(latency)
           @listener.change(&method(:changed))
-          @listener.start(false)
+
+          if ::Listen::VERSION >= "1.0.0"
+            @listener.start
+          else
+            @listener.start(false)
+          end
         end
       end
 

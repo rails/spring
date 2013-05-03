@@ -3,7 +3,8 @@ require "tmpdir"
 require "fileutils"
 require "active_support/core_ext/numeric/time"
 require "spring/watcher"
-require "listen"
+
+raise "listen not loaded" unless Spring::Watcher::Listen.available?
 
 module WatcherTests
   LATENCY = 0.001
