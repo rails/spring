@@ -6,6 +6,8 @@ require "spring/env"
 require "pty"
 
 class AppTest < ActiveSupport::TestCase
+  DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
+
   def app_root
     Pathname.new("#{TEST_ROOT}/apps/rails-3-2")
   end
@@ -48,7 +50,7 @@ class AppTest < ActiveSupport::TestCase
       )
     end
 
-    _, status = Timeout.timeout(opts.fetch(:timeout, 10)) { Process.wait2 }
+    _, status = Timeout.timeout(opts.fetch(:timeout, DEFAULT_TIMEOUT)) { Process.wait2 }
 
     stdout, stderr = read_streams
     puts dump_streams(command, stdout, stderr) if ENV["SPRING_DEBUG"]
