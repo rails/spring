@@ -24,7 +24,7 @@ module Spring
       # The test environment has config.cache_classes = true set by default.
       # However, we don't want this to prevent us from performing class reloading,
       # so this gets around that.
-      Rails::Application.initializer :initialize_dependency_mechanism, group: :all do
+      ::Rails::Application.initializer :initialize_dependency_mechanism, group: :all do
         ActiveSupport::Dependencies.mechanism = :load
       end
 
