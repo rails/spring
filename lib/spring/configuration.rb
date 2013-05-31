@@ -4,6 +4,10 @@ module Spring
   class << self
     attr_accessor :application_root
 
+    def gemfile
+      ENV['BUNDLE_GEMFILE'] || "Gemfile"
+    end
+
     def after_fork_callbacks
       @after_fork_callbacks ||= []
     end
@@ -27,7 +31,7 @@ module Spring
     private
 
     def find_project_root(current_dir = Pathname.new(Dir.pwd))
-      if current_dir.join("Gemfile").exist?
+      if current_dir.join(gemfile).exist?
         current_dir
       elsif current_dir.root?
         raise UnknownProject.new(Dir.pwd)
