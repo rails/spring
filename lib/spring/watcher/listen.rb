@@ -21,7 +21,9 @@ module Spring
 
       def start
         unless @listener
-          @listener = listen_klass.new(*base_directories, relative_paths: false)
+          bundle_path = Bundler.bundle_path.relative_path_from(Pathname.new(root)).to_s
+          ignore = [Regexp.new("^#{Regexp.escape(bundle_path)}")]
+          @listener = listen_klass.new(*base_directories, relative_paths: false, ignore: ignore)
           @listener.latency(latency)
           @listener.change(&method(:changed))
 
