@@ -59,9 +59,10 @@ module Spring
       end
 
       def base_directories
-        [root] +
+        ([root] +
           files.reject       { |f| f.start_with? root }.map { |f| File.expand_path("#{f}/..") } +
           directories.reject { |d| d.start_with? root }
+        ).uniq
       end
     end
   end
