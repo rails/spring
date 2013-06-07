@@ -11,17 +11,9 @@ module Spring
         false
       end
 
-      def listen_klass
-        if ::Listen::VERSION >= "1.0.0"
-          ::Listen::Listener
-        else
-          ::Listen::MultiListener
-        end
-      end
-
       def start
         unless @listener
-          @listener = listen_klass.new(*base_directories, relative_paths: false)
+          @listener = ::Listen.to(*base_directories, relative_paths: false)
           @listener.latency(latency)
           @listener.change(&method(:changed))
 

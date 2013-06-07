@@ -344,9 +344,6 @@ adding the following to to your `Gemfile`:
 ```ruby
 group :development, :test do
   gem 'listen'
-  gem 'rb-inotify', :require => false  # linux
-  gem 'rb-fsevent', :require => false  # mac os x
-  gem 'rb-kqueue',  :require => false  # bsd
 end
 ```
 
