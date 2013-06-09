@@ -1,4 +1,4 @@
-## Next version
+## 0.0.9
 
 * Added `Spring::Commands::Rake.environment_matchers` for matching
   rake tasks to specific environments.
