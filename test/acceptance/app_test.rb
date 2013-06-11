@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'helper'
 require 'io/wait'
 require "timeout"
@@ -33,7 +34,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def env
-    @env ||= {"GEM_HOME" => gem_home.to_s, "GEM_PATH" => ""}
+    @env ||= {"GEM_HOME" => gem_home.to_s, "GEM_PATH" => "", "UTF_8" => "✓"}
   end
 
   def app_run(command, opts = {})

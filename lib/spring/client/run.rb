@@ -95,7 +95,7 @@ ERROR
       def send_json(socket, data)
         data = JSON.dump(data)
 
-        socket.puts  data.length
+        socket.puts  data.bytesize
         socket.write data
       end
     end
