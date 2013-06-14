@@ -236,7 +236,7 @@ class AppTest < ActiveSupport::TestCase
 
       config_path = "#{app_root}/config/spring.rb"
       config_contents = File.read(config_path)
-      File.write(config_path,config_contents + "\nSpring.watch_via = :listen")
+      File.write(config_path,config_contents + "\nSpring.watch_method = :listen")
 
       app_run "bundle install", timeout: nil
 

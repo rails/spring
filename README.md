@@ -335,7 +335,7 @@ method requires zero configuration, but if you find that it's using too
 much CPU, then you can turn on event-based file system listening:
 
 ```ruby
-Spring.watch_via = :listen
+Spring.watch_method = :listen
 ```
 
 You may need to add the [`listen` gem](https://github.com/guard/listen) to your `Gemfile`.

@@ -4,19 +4,19 @@ require "spring/watcher/polling"
 
 module Spring
   class << self
-    attr_accessor :watch_interval, :watch_via
+    attr_accessor :watch_interval, :watch_method
     attr_writer :watcher
   end
 
   self.watch_interval = 0.2
-  self.watch_via = :polling
+  self.watch_method = :polling
 
   def self.watcher
     @watcher ||= watcher_class.new(Spring.application_root_path, watch_interval)
   end
 
   def self.watcher_class
-    if watch_via.to_s == 'listen'
+    if watch_method.to_s == 'listen'
       if Watcher::Listen.available?
         Watcher::Listen
       else
@@ -24,10 +24,10 @@ module Spring
 Falling back to Wather::Polling}
         Watcher::Polling
       end
-    elsif watch_via.to_s == 'polling'
+    elsif watch_method.to_s == 'polling'
       Watcher::Polling
-    elsif watch_via.kind_of?(Class)
-      watch_via
+    elsif watch_method.kind_of?(Class)
+      watch_method
     else
       raise NotImplementedError
     end

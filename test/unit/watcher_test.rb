@@ -141,7 +141,7 @@ class ListenWatcherTest < ActiveSupport::TestCase
   include WatcherTests
 
   def watcher_class
-    Spring.watch_via = :listen
+    Spring.watch_method = :listen
     Spring.watcher_class
   end
 
@@ -168,7 +168,7 @@ class PollingWatcherTest < ActiveSupport::TestCase
   include WatcherTests
 
   def watcher_class
-    Spring.watch_via = :polling
+    Spring.watch_method = :polling
     Spring.watcher_class
   end
 end
@@ -177,7 +177,7 @@ class CustomWatcherTest < ActiveSupport::TestCase
   class DummyListener; end
 
   def test_watcher_class
-    Spring.watch_via = DummyListener
+    Spring.watch_method = DummyListener
     assert_equal Spring.watcher_class, DummyListener
   end
 end
