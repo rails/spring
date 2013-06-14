@@ -233,11 +233,17 @@ class AppTest < ActiveSupport::TestCase
       gemfile = app_root.join("Gemfile")
       gemfile_contents = gemfile.read
       File.write(gemfile, gemfile_contents.sub(%{# gem 'listen'}, %{gem 'listen'}))
+
+      config_path = "#{app_root}/config/spring.rb"
+      config_contents = File.read(config_path)
+      File.write(config_path,config_contents + "\nSpring.watch_via = :listen")
+
       app_run "bundle install", timeout: nil
 
       assert_success "#{spring} rails runner 'puts Spring.watcher.class'", stdout: "Listen"
       assert_app_reloaded
     ensure
+      File.write(config_path,config_contents)
       File.write(gemfile, gemfile_contents)
       assert_success "bundle check"
     end

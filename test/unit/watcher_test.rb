@@ -141,7 +141,8 @@ class ListenWatcherTest < ActiveSupport::TestCase
   include WatcherTests
 
   def watcher_class
-    Spring::Watcher::Listen
+    Spring.watch_via = :listen
+    Spring.watcher_class
   end
 
   test "root directories" do
@@ -167,6 +168,16 @@ class PollingWatcherTest < ActiveSupport::TestCase
   include WatcherTests
 
   def watcher_class
-    Spring::Watcher::Polling
+    Spring.watch_via = :polling
+    Spring.watcher_class
+  end
+end
+
+class CustomWatcherTest < ActiveSupport::TestCase
+  class DummyListener; end
+
+  def test_watcher_class
+    Spring.watch_via = DummyListener
+    assert_equal Spring.watcher_class, DummyListener
   end
 end
