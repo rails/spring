@@ -348,3 +348,17 @@ end
 ```
 
 Note that this make the initial application startup slightly slower.
+
+### Watchers
+
+Spring will automatically watch for changes by `:polling`, alternate watchers can be specified like `:listen`.
+
+```ruby
+Spring.watch_via = :polling
+```
+
+To use [listen](https://github.com/guard/listen) you will need to add the gem to your Gemfile.
+
+```ruby
+gem 'listen', group: ['development', 'test']
+```
