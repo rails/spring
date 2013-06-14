@@ -268,11 +268,11 @@ a different sub command (e.g. `rails server`) then spring will automatically
 pass it through to the underlying `rails` executable (without the
 speed-up).
 
-## Configuration file
+## Configuration
 
 Spring will read `config/spring.rb` for custom settings, described below.
 
-### Specifying application root
+### Application root
 
 Spring must know how to find your Rails application. If you have a
 normal app everything works out of the box. If you are working on a
@@ -320,45 +320,27 @@ If you want to register multiple callbacks you can simply call
 
 ### Watching files and directories
 
-As mentioned above, Spring will automatically detect file changes to any file loaded when the server
-boots. If you would like to watch additional files or directories, use `watch`:
+Spring will automatically detect file changes to any file loaded when the server
+boots. Changes will cause the affected environments to be restarted.
+
+If there are additional files or directories which should trigger an
+application restart, you can specify them with `Spring.watch`:
 
 ```ruby
 Spring.watch "spec/factories"
 ```
 
-## Other configuration
+By default Spring polls the filesystem for changes once every 0.2 seconds. This
+method requires zero configuration, but if you find that it's using too
+much CPU, then you can turn on event-based file system listening:
+
+```ruby
+Spring.watch_via = :listen
+```
+
+You may need to add the [`listen` gem](https://github.com/guard/listen) to your `Gemfile`.
 
 ### tmp directory
 
 Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
 You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
-
-### Filesystem polling speed
-
-By default Spring will check the filesystem for changes once every 0.2 seconds. This
-method requires zero configuration, but if you find that it's using too
-much CPU, then you can turn on event-based file system listening by
-adding the following to to your `Gemfile`:
-
-```ruby
-group :development, :test do
-  gem 'listen'
-end
-```
-
-Note that this make the initial application startup slightly slower.
-
-### Watchers
-
-Spring will automatically watch for changes by `:polling`, alternate watchers can be specified like `:listen`.
-
-```ruby
-Spring.watch_via = :polling
-```
-
-To use [listen](https://github.com/guard/listen) you will need to add the gem to your Gemfile.
-
-```ruby
-gem 'listen', group: ['development', 'test']
-```
