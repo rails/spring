@@ -4,5 +4,3 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'listen', :require => false
-gem 'rb-inotify', :require => false
-gem 'rb-fsevent', :require => false

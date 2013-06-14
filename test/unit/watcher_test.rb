@@ -3,8 +3,8 @@ require "tmpdir"
 require "fileutils"
 require "active_support/core_ext/numeric/time"
 require "spring/watcher"
-
-raise "listen not loaded" unless Spring::Watcher::Listen.available?
+require "spring/watcher/polling"
+require "spring/watcher/listen"
 
 module WatcherTests
   LATENCY = 0.001
@@ -141,8 +141,7 @@ class ListenWatcherTest < ActiveSupport::TestCase
   include WatcherTests
 
   def watcher_class
-    Spring.watch_method = :listen
-    Spring.watcher_class
+    Spring::Watcher::Listen
   end
 
   test "root directories" do
@@ -168,16 +167,6 @@ class PollingWatcherTest < ActiveSupport::TestCase
   include WatcherTests
 
   def watcher_class
-    Spring.watch_method = :polling
-    Spring.watcher_class
-  end
-end
-
-class CustomWatcherTest < ActiveSupport::TestCase
-  class DummyListener; end
-
-  def test_watcher_class
-    Spring.watch_method = DummyListener
-    assert_equal Spring.watcher_class, DummyListener
+    Spring::Watcher::Polling
   end
 end

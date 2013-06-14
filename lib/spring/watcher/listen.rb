@@ -1,15 +1,10 @@
+require "listen"
+require "listen/version"
+
 module Spring
   module Watcher
     class Listen < Abstract
       attr_reader :listener
-
-      def self.available?
-        require "listen"
-        require "listen/version"
-        true
-      rescue LoadError
-        false
-      end
 
       def start
         unless @listener
