@@ -326,20 +326,19 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "runner command sets Rails environment from command-line options" do
-    # Not using "test" environment here to avoid false positives on Travis (where "test" is default)
-    assert_success "#{spring} rails runner -e staging 'puts Rails.env'", stdout: "staging"
-    assert_success "#{spring} rails runner --environment=staging 'puts Rails.env'", stdout: "staging"
+    assert_success "#{spring} rails runner -e production 'puts Rails.env'", stdout: "production"
+    assert_success "#{spring} rails runner --environment=production 'puts Rails.env'", stdout: "production"
+  end
+
+  test "forcing rails env via environment variable" do
+    env['RAILS_ENV'] = 'production'
+    assert_success "#{spring} rake -p 'Rails.env'", stdout: "production"
   end
 
   test "exit code for failing specs" do
     assert_success "#{spring} rspec"
     File.write(@spec, @spec_contents.sub("true.should be_true", "false.should be_true"))
     assert_failure "#{spring} rspec"
-  end
-
-  test "selecting rails environment for rake" do
-    env['RAILS_ENV'] = 'staging'
-    assert_success "#{spring} rake -p 'Rails.env'", stdout: "staging"
   end
 
   test "changing the Gemfile restarts the server" do

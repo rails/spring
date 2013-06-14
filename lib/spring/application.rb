@@ -27,7 +27,14 @@ module Spring
         ActiveSupport::Dependencies.mechanism = :load
       end
 
+      # This initializer has issues after we disconnect from the DB, but we don't need it.
+      if defined?(ActiveRecord::Base)
+        ActiveRecord::Railtie.initializers.delete_if { |i| i.name == "active_record.set_reloader_hooks" }
+      end
+
       require Spring.application_root_path.join("config", "environment")
+
+      ActiveRecord::Base.connection.disconnect! if defined?(ActiveRecord::Base)
 
       watcher.add loaded_application_features
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
@@ -66,6 +73,7 @@ module Spring
         Process.setsid
         [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
+        ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
         invoke_after_fork_callbacks
         command.call(args)
       }
