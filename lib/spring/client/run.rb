@@ -92,7 +92,7 @@ ERROR
       end
 
       def send_json(socket, data)
-        data = OkJson.encode(data)
+        data = JSON.dump(data)
 
         socket.puts  data.bytesize
         socket.write data

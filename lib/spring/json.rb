@@ -10,6 +10,19 @@
 # Therefore, we are vendoring a json library for our own use in order to
 # not interfere.
 
+module Spring
+  module JSON
+    def self.load(string)
+      string.force_encoding("utf-8")
+      OkJson.decode(string)
+    end
+
+    def self.dump(data)
+      OkJson.encode(data)
+    end
+  end
+end
+
 #
 # Copyright 2011, 2012 Keith Rarick
 #

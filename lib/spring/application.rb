@@ -54,7 +54,7 @@ module Spring
       manager.puts
 
       streams = 3.times.map { client.recv_io }
-      args    = OkJson.decode(client.read(client.gets.to_i))
+      args    = JSON.load(client.read(client.gets.to_i))
       command = Spring.command(args.shift)
 
       setup command

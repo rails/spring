@@ -1,5 +1,5 @@
 require "spring/configuration"
-require "spring/okjson"
+require "spring/json"
 
 require "spring/client/command"
 require "spring/client/run"
