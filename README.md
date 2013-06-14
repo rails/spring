@@ -233,15 +233,20 @@ spring repository.
 
 ### `testunit`
 
-Runs a test (e.g. Test::Unit, MiniTest::Unit, etc.) Preloads the `test_helper` file.
+Runs a test (e.g. Test::Unit, MiniTest::Unit, etc.)
 
 This command can also recursively run a directory of tests. For example,
 `spring testunit test/functional` will run `test/functional/**/*_test.rb`.
 
+If your test helper file takes a while to load, consider preloading it
+(see below).
+
 ### `rspec`
 
-Runs an rspec spec, exactly the same as the `rspec` executable. Preloads
-the `spec_helper` file.
+Runs an rspec spec, exactly the same as the `rspec` executable.
+
+If your spec helper file takes a while to load, consider preloading it
+(see below).
 
 ### `cucumber`
 
@@ -285,22 +290,21 @@ Spring.application_root = './test/dummy'
 
 ### Preloading files
 
-Every Spring command has the ability to preload a set of files. The
-`test` command for example preloads `test_helper` (it also adds the
-`test/` directory to your load path). If the
-defaults don't work for your application you can configure the
-preloads for every command:
+Every Spring command has the ability to preload a set of files. For
+example, if your `test/test_helper.rb` is time consuming to require
+(perhaps it refreshes your database schema), you may like to preload
+it:
 
-```ruby
-# if your test helper is called "helper"
-Spring::Commands::TestUnit.preloads = %w(helper)
-
-# if you don't want to preload spec_helper.rb
-Spring::Commands::RSpec.preloads = []
-
-# if you want to preload additional files for the console
-Spring::Commands::RailsConsole.preloads << 'extensions/console_helper'
+``` ruby
+Spring::Commands::TestUnit.preloads << "test_helper"`
 ```
+
+This means that `test_helper.rb` will get required once up-front, and won't
+be required on subsequent test runs. If `test_helper.rb` changes, the
+application will do a full restart.
+
+`Command#preloads` is an array of dependencies which should be preloaded
+before the command runs.
 
 ### Callbacks after forking
 

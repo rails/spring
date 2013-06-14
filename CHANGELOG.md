@@ -7,6 +7,11 @@
 * Fallback when Process.fork is not available. In such cases, the user
   will not receive the speedup that Spring provides, but won't receive
   an error either.
+* Don't preload `test_helper` or `spec_helper` by default. This was
+  causing people subtle problems (for example see #113) and is perhaps
+  surprising behaviour. It may be desirable but it depends on the
+  application, therefore we suggest it to people in the README but no
+  longer do it by default.
 
 ## 0.0.9
 

@@ -61,8 +61,6 @@ MESSAGE
     end
 
     class TestUnit < Command
-      preloads << "test_helper"
-
       def env(*)
         "test"
       end
@@ -95,8 +93,6 @@ MESSAGE
     Spring.register_command "testunit", TestUnit.new
 
     class RSpec < Command
-      preloads << "spec_helper"
-
       def env(*)
         "test"
       end
