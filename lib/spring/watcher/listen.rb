@@ -1,3 +1,4 @@
+gem "listen", "~> 1.0"
 require "listen"
 require "listen/version"
 
@@ -11,12 +12,7 @@ module Spring
           @listener = ::Listen.to(*base_directories, relative_paths: false)
           @listener.latency(latency)
           @listener.change(&method(:changed))
-
-          if ::Listen::VERSION >= "1.0.0"
-            @listener.start
-          else
-            @listener.start(false)
-          end
+          @listener.start
         end
       end
 
