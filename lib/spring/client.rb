@@ -20,6 +20,7 @@ module Spring
     }
 
     def self.run(args)
+      require "spring/commands" # load custom configuration
       command_for(args.first).call(args)
     rescue CommandNotFound
       Client::Help.call(args)

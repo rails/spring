@@ -31,7 +31,9 @@ module Spring
       require Spring.application_root_path.join("config", "environment")
 
       watcher.add loaded_application_features
-      watcher.add "Gemfile", "Gemfile.lock"
+      if Spring.application_root_path.join("Gemfile").exist?
+        watcher.add "Gemfile", "Gemfile.lock"
+      end
       watcher.add Rails.application.paths["config/initializers"]
 
       run
