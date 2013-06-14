@@ -1,3 +1,10 @@
+## Next release
+
+* Added `Spring.watch_via=` configuration option to switch between
+  polling and the `listen` gem. Previously, we used the `listen` gem if
+  it was available, but this makes the option explicit. Set
+  `Spring.watch_via = :listen` to use the listen gem.
+
 ## 0.0.9
 
 * Added `Spring::Commands::Rake.environment_matchers` for matching
