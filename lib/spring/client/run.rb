@@ -47,7 +47,7 @@ ERROR
 
       def connect_to_application(client)
         server.send_io client
-        send_json server, "args" => args, "env" => ENV.to_hash
+        send_json server, "args" => args, "default_rails_env" => default_rails_env
         server.gets or raise CommandNotFound
       end
 
@@ -96,6 +96,10 @@ ERROR
 
         socket.puts  data.bytesize
         socket.write data
+      end
+
+      def default_rails_env
+        ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
       end
     end
   end

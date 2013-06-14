@@ -34,7 +34,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def env
-    @env ||= {"GEM_HOME" => gem_home.to_s, "GEM_PATH" => "", "UTF_8" => "✓"}
+    @env ||= {"GEM_HOME" => gem_home.to_s, "GEM_PATH" => ""}
   end
 
   def app_run(command, opts = {})
@@ -336,7 +336,7 @@ class AppTest < ActiveSupport::TestCase
 
   test "selecting rails environment for rake" do
     env['RAILS_ENV'] = 'staging'
-    assert_success "#{spring} rake -p 'ENV[\"RAILS_ENV\"]'", stdout: "staging"
+    assert_success "#{spring} rake -p 'Rails.env'", stdout: "staging"
   end
 
   test "changing the Gemfile restarts the server" do

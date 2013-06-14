@@ -44,13 +44,14 @@ module Spring
     def serve(client)
       client.puts env.version
 
-      app_client       = client.recv_io
-      command          = JSON.load(client.read(client.gets.to_i))
-      args, client_env = command.values_at('args', 'env')
+      app_client = client.recv_io
+      command    = JSON.load(client.read(client.gets.to_i))
+
+      args, default_rails_env = command.values_at('args', 'default_rails_env')
 
       if Spring.command?(args.first)
         client.puts
-        client.puts @applications[rails_env_for(args, client_env)].run(app_client)
+        client.puts @applications[rails_env_for(args, default_rails_env)].run(app_client)
       else
         client.close
       end
@@ -58,14 +59,14 @@ module Spring
       raise e unless client.eof?
     end
 
-    def rails_env_for(args, client_env)
+    def rails_env_for(args, default_rails_env)
       command = Spring.command(args.first)
 
       if command.respond_to?(:env)
         env = command.env(args.drop(1))
       end
 
-      env || client_env['RAILS_ENV'] || client_env['RACK_ENV'] || 'development'
+      env || default_rails_env
     end
 
     # Boot the server into the process group of the current session.
