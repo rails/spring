@@ -1,6 +1,5 @@
 require "rbconfig"
 require "socket"
-require "json"
 
 module Spring
   module Client
@@ -48,7 +47,7 @@ ERROR
 
       def connect_to_application(client)
         server.send_io client
-        send_json server, args: args, env: ENV.to_hash
+        send_json server, "args" => args, "env" => ENV.to_hash
         server.gets or raise CommandNotFound
       end
 
@@ -93,7 +92,7 @@ ERROR
       end
 
       def send_json(socket, data)
-        data = JSON.dump(data)
+        data = OkJson.encode(data)
 
         socket.puts  data.bytesize
         socket.write data

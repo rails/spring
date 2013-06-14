@@ -4,6 +4,7 @@ require "thread"
 require "spring/env"
 require "spring/application_manager"
 require "spring/process_title_updater"
+require "spring/okjson"
 
 # Must be last, as it requires bundler/setup
 require "spring/commands"
@@ -44,7 +45,7 @@ module Spring
       client.puts env.version
 
       app_client       = client.recv_io
-      command          = JSON.parse(client.read(client.gets.to_i))
+      command          = OkJson.decode(client.read(client.gets.to_i))
       args, client_env = command.values_at('args', 'env')
 
       if Spring.command?(args.first)

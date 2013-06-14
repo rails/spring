@@ -1,5 +1,4 @@
 require "set"
-require "json"
 
 require "spring/configuration"
 require "spring/watcher"
@@ -55,7 +54,7 @@ module Spring
       manager.puts
 
       streams = 3.times.map { client.recv_io }
-      args    = JSON.parse(client.read(client.gets.to_i))
+      args    = OkJson.decode(client.read(client.gets.to_i))
       command = Spring.command(args.shift)
 
       setup command
