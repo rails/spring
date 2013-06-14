@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
-$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
-require 'spring/client'
-Spring::Client.run(ARGV)
+if Process.respond_to?(:fork)
+  $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+  require 'spring/client'
+  Spring::Client.run(ARGV)
+else
+  exec "bundle", "exec", *ARGV
+end
