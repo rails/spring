@@ -7,6 +7,9 @@ require "spring/env"
 require "pty"
 
 class AppTest < ActiveSupport::TestCase
+  # Runtimes on the CI tend to be a bit more volatile, so make
+  # the ratio more permissive
+  DEFAULT_SPEEDUP = ENV['CI'] ? 0.8 : 0.6
   DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
 
   def app_root
@@ -115,7 +118,7 @@ class AppTest < ActiveSupport::TestCase
     assert_output artifacts, expected_output if expected_output
   end
 
-  def assert_speedup(ratio = 0.6)
+  def assert_speedup(ratio = DEFAULT_SPEEDUP)
     @times = []
     yield
     assert (@times.last / @times.first) < ratio, "#{@times.last} was not less than #{ratio} of #{@times.first}"
