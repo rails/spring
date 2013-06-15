@@ -12,6 +12,9 @@
   surprising behaviour. It may be desirable but it depends on the
   application, therefore we suggest it to people in the README but no
   longer do it by default.
+* Rake tasks do not connect to the database unless the task depends on
+  the :environment task. This allows running tasks which need there to
+  not be a connection, such as `db:drop`.
 
 ## 0.0.9
 
