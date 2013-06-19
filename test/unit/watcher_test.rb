@@ -135,6 +135,11 @@ module WatcherTests
     watcher.add "./foo"
     assert_equal ["#{dir}/foo"], watcher.files.to_a
   end
+
+  def test_add_non_existant_file
+    watcher.add './foobar'
+    assert watcher.files.empty?
+  end
 end
 
 class ListenWatcherTest < ActiveSupport::TestCase

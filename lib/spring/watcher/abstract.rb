@@ -36,6 +36,8 @@ module Spring
           end
         end
 
+        items = items.select(&:exist?)
+
         items.each do |item|
           if item.directory?
             directories << item.realpath.to_s
