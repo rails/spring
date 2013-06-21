@@ -9,7 +9,8 @@ class AppTest < ActiveSupport::TestCase
   # Runtimes on the CI tend to be a bit more volatile, so make
   # the ratio more permissive
   DEFAULT_SPEEDUP = ENV['CI'] ? 0.8 : 0.6
-  DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
+  DEFAULT_TIMEOUT = ENV['CI'] ? 30  : 10
+  RELOAD_TIME     = ENV['CI'] ? 1   : 0.4
 
   TTY = "/tmp/spring_test_tty"
 
@@ -106,7 +107,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def await_reload
-    sleep 0.4
+    sleep RELOAD_TIME
   end
 
   def debug(artifacts)
