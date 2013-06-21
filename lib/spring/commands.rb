@@ -65,17 +65,11 @@ MESSAGE
         "test"
       end
 
-      def setup
-        $LOAD_PATH.unshift "test"
-        super
-      end
-
       def call(args)
-        if args.empty?
-          args = ['test']
-        end
-
+        $LOAD_PATH.unshift "test"
+        args = ['test'] if args.empty?
         ARGV.replace args
+
         args.each do |arg|
           path = File.expand_path(arg)
           if File.directory?(path)
@@ -97,16 +91,10 @@ MESSAGE
         "test"
       end
 
-      def setup
-        $LOAD_PATH.unshift "spec"
-        require 'rspec/core'
-        ::RSpec::Core::Runner.disable_autorun!
-        super
-      end
-
       def call(args)
+        ARGV.replace args
         $0 = "rspec"
-        Kernel.exit ::RSpec::Core::Runner.run(args)
+        require 'rspec/autorun'
       end
 
       def description
@@ -120,12 +108,8 @@ MESSAGE
         "test"
       end
 
-      def setup
-        super
-        require 'cucumber'
-      end
-
       def call(args)
+        require 'cucumber'
         # Cucumber's execute funtion returns `true` if any of the steps failed or
         # some other error occured.
         Kernel.exit(1) if ::Cucumber::Cli::Main.execute(args)
@@ -153,12 +137,8 @@ MESSAGE
         nil
       end
 
-      def setup
-        super
-        require "rake"
-      end
-
       def call(args)
+        require "rake"
         ARGV.replace args
         ::Rake.application.run
       end
