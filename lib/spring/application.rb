@@ -1,6 +1,4 @@
 require "set"
-
-require "spring/configuration"
 require "spring/watcher"
 
 module Spring

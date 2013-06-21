@@ -1,6 +1,7 @@
 require "socket"
 require "thread"
 
+require "spring/configuration"
 require "spring/env"
 require "spring/application_manager"
 require "spring/process_title_updater"
@@ -116,8 +117,7 @@ module Spring
     # there are exceptions etc, so we just open the current terminal
     # device directly.
     def redirect_output
-      # ruby doesn't expose ttyname()
-      file = open(STDIN.tty? ? `tty`.chomp : "/dev/null", "a")
+      file = open(ttyname, "a")
       STDOUT.reopen(file)
       STDERR.reopen(file)
     end
@@ -134,6 +134,18 @@ module Spring
 
     def application_starting
       @mutex.synchronize { exit if env.bundle_mtime != @bundle_mtime }
+    end
+
+    private
+
+    # Ruby doesn't expose ttyname()
+    # The SPRING_TTY env var is really just to support the tests
+    def ttyname
+      if STDIN.tty?
+        `tty`.chomp
+      else
+        ENV["SPRING_TTY"] || "/dev/null"
+      end
     end
   end
 end

@@ -1,4 +1,4 @@
-require "spring/configuration"
+require "spring/errors"
 require "spring/json"
 
 require "spring/client/command"

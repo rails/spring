@@ -4,13 +4,14 @@ require 'io/wait'
 require "timeout"
 require "spring/sid"
 require "spring/env"
-require "pty"
 
 class AppTest < ActiveSupport::TestCase
   # Runtimes on the CI tend to be a bit more volatile, so make
   # the ratio more permissive
   DEFAULT_SPEEDUP = ENV['CI'] ? 0.8 : 0.6
   DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
+
+  TTY = "/tmp/spring_test_tty"
 
   def app_root
     Pathname.new("#{TEST_ROOT}/apps/rails-3-2")
@@ -36,8 +37,16 @@ class AppTest < ActiveSupport::TestCase
     @stderr ||= IO.pipe
   end
 
+  def tty
+    @tty ||= File.open(TTY, "w+")
+  end
+
   def env
-    @env ||= {"GEM_HOME" => gem_home.to_s, "GEM_PATH" => ""}
+    @env ||= {
+      "GEM_HOME"   => gem_home.to_s,
+      "GEM_PATH"   => "",
+      "SPRING_TTY" => tty.path
+    }
   end
 
   def app_run(command, opts = {})
@@ -56,39 +65,40 @@ class AppTest < ActiveSupport::TestCase
 
     _, status = Timeout.timeout(opts.fetch(:timeout, DEFAULT_TIMEOUT)) { Process.wait2 }
 
-    stdout, stderr = read_streams
-    puts dump_streams(command, stdout, stderr) if ENV["SPRING_DEBUG"]
+    output = read_streams
+    puts dump_streams(command, output) if ENV["SPRING_DEBUG"]
 
     @times << (Time.now - start_time) if @times
 
-    {
-      status: status,
-      stdout: stdout,
-      stderr: stderr,
-    }
+    output.merge(status: status, command: command)
   rescue Timeout::Error => e
-    raise e, "Output:\n\n#{dump_streams(command, *read_streams)}"
+    raise e, "Output:\n\n#{dump_streams(command, read_streams)}"
   end
 
   def read_streams
-    [stdout, stderr].map(&:first).map do |stream|
-      output = ""
-      output << stream.readpartial(10240) while IO.select([stream], [], [], 0.5)
-      output
-    end
+    {
+      stdout: read_stream(stdout.first),
+      stderr: read_stream(stderr.first),
+      tty:    read_stream(tty)
+    }
   end
 
-  def dump_streams(command, stdout, stderr)
+  def read_stream(stream)
+    output = ""
+    while IO.select([stream], [], [], 0.5) && !stream.eof?
+      output << stream.readpartial(10240)
+    end
+    output
+  end
+
+  def dump_streams(command, streams)
     output = "$ #{command}\n"
 
-    unless stdout.chomp.empty?
-      output << "--- stdout ---\n"
-      output << "#{stdout.chomp}\n"
-    end
-
-    unless stderr.chomp.empty?
-      output << "--- stderr ---\n"
-      output << "#{stderr.chomp}\n"
+    streams.each do |name, stream|
+      unless stream.chomp.empty?
+        output << "--- #{name} ---\n"
+        output << "#{stream.chomp}\n"
+      end
     end
 
     output << "\n"
@@ -99,22 +109,31 @@ class AppTest < ActiveSupport::TestCase
     sleep 0.4
   end
 
+  def debug(artifacts)
+    dump_streams(
+      artifacts[:command],
+      stdout: artifacts[:stdout],
+      stderr: artifacts[:stderr],
+      tty:    artifacts[:tty]
+    )
+  end
+
   def assert_output(artifacts, expected)
     expected.each do |stream, output|
       assert artifacts[stream].include?(output),
-             "expected #{stream} to include '#{output}', but it was:\n\n#{artifacts[stream]}"
+             "expected #{stream} to include '#{output}'.\n\n#{debug(artifacts)}"
     end
   end
 
   def assert_success(command, expected_output = nil)
     artifacts = app_run(command)
-    assert artifacts[:status].success?, "expected successful exit status\n\n#{dump_streams(command, *artifacts.values_at(:stdout, :stderr))}"
+    assert artifacts[:status].success?, "expected successful exit status\n\n#{debug(artifacts)}"
     assert_output artifacts, expected_output if expected_output
   end
 
   def assert_failure(command, expected_output = nil)
     artifacts = app_run(command)
-    assert !artifacts[:status].success?, "expected unsuccessful exit status\n\n#{dump_streams(command, *artifacts.values_at(:stdout, :stderr))}"
+    assert !artifacts[:status].success?, "expected unsuccessful exit status\n\n#{debug(artifacts)}"
     assert_output artifacts, expected_output if expected_output
   end
 
@@ -309,7 +328,11 @@ class AppTest < ActiveSupport::TestCase
   test "missing config/application.rb" do
     begin
       FileUtils.mv app_root.join("config/application.rb"), app_root.join("config/application.rb.bak")
-      assert_failure "#{spring} rake -T", stderr: "unable to find your config/application.rb"
+
+      assert_output(
+        app_run("#{spring} rake -T"),
+        tty: "unable to find your config/application.rb"
+      )
     ensure
       FileUtils.mv app_root.join("config/application.rb.bak"), app_root.join("config/application.rb")
     end

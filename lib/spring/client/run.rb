@@ -11,8 +11,6 @@ module Spring
       end
 
       def call
-        Spring.verify_environment!
-
         boot_server unless env.server_running?
         verify_server_version
 
