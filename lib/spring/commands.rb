@@ -1,9 +1,5 @@
 require "spring/watcher"
 
-# If the config/spring.rb contains requires for commands from other gems,
-# then we need to be under bundler.
-require "bundler/setup"
-
 module Spring
   @commands = {}
 
@@ -23,125 +19,15 @@ module Spring
     commands.fetch name
   end
 
-  module Commands
-    class TestUnit
-      def env(*)
-        "test"
-      end
+  require "spring/commands/rails"
+  require "spring/commands/rake"
+  require "spring/commands/testunit"
+  require "spring/commands/rspec"
+  require "spring/commands/cucumber"
 
-      def call
-        $LOAD_PATH.unshift "test"
-        ARGV << "test" if ARGV.empty?
-        ARGV.each { |arg| require_test(File.expand_path(arg)) }
-      end
-
-      def require_test(path)
-        if File.directory?(path)
-          Dir[File.join path, "**", "*_test.rb"].each { |f| require f }
-        else
-          require path
-        end
-      end
-
-      def description
-        "Execute a Test::Unit test."
-      end
-    end
-    Spring.register_command "testunit", TestUnit.new
-
-    class RSpec
-      def env(*)
-        "test"
-      end
-
-      def exec_name
-        "rspec"
-      end
-    end
-    Spring.register_command "rspec", RSpec.new
-
-    class Cucumber
-      def env(*)
-        "test"
-      end
-
-      def exec_name
-        "cucumber"
-      end
-    end
-    Spring.register_command "cucumber", Cucumber.new
-
-    class Rake
-      class << self
-        attr_accessor :environment_matchers
-      end
-
-      self.environment_matchers = {
-        /^(test|spec|cucumber)($|:)/ => "test"
-      }
-
-      def env(args)
-        self.class.environment_matchers.each do |matcher, environment|
-          return environment if matcher === args.first
-        end
-        nil
-      end
-
-      def exec_name
-        "rake"
-      end
-    end
-    Spring.register_command "rake", Rake.new
-
-    class Rails
-      def call
-        ARGV.unshift command_name
-        Object.const_set(:APP_PATH, ::Rails.root.join('config/application'))
-        require "rails/commands"
-      end
-
-      def description
-        nil
-      end
-    end
-
-    class RailsConsole < Rails
-      def env(args)
-        args.first if args.first && !args.first.index("-")
-      end
-
-      def command_name
-        "console"
-      end
-    end
-    Spring.register_command "rails_console", RailsConsole.new
-
-    class RailsGenerate < Rails
-      def command_name
-        "generate"
-      end
-    end
-    Spring.register_command "rails_generate", RailsGenerate.new
-
-    class RailsRunner < Rails
-      def env(tail)
-        previous_option = nil
-        tail.reverse.each do |option|
-          case option
-          when /--environment=(\w+)/ then return $1
-          when '-e' then return previous_option
-          end
-          previous_option = option
-        end
-        nil
-      end
-
-      def command_name
-        "runner"
-      end
-    end
-    Spring.register_command "rails_runner", RailsRunner.new
-  end
+  # If the config/spring.rb contains requires for commands from other gems,
+  # then we need to be under bundler.
+  require "bundler/setup"
 
   # Load custom commands, if any.
   # needs to be at the end to allow modification of existing commands.

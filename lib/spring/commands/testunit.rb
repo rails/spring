@@ -1,0 +1,29 @@
+module Spring
+  module Commands
+    class TestUnit
+      def env(*)
+        "test"
+      end
+
+      def call
+        $LOAD_PATH.unshift "test"
+        ARGV << "test" if ARGV.empty?
+        ARGV.each { |arg| require_test(File.expand_path(arg)) }
+      end
+
+      def require_test(path)
+        if File.directory?(path)
+          Dir[File.join path, "**", "*_test.rb"].each { |f| require f }
+        else
+          require path
+        end
+      end
+
+      def description
+        "Execute a Test::Unit test."
+      end
+    end
+
+    Spring.register_command "testunit", TestUnit.new
+  end
+end
