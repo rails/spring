@@ -8,7 +8,10 @@ module Spring
       def call
         $LOAD_PATH.unshift "test"
         ARGV << "test" if ARGV.empty?
-        ARGV.each { |arg| require_test(File.expand_path(arg)) }
+        ARGV.each do |arg|
+          break if arg.start_with?("-")
+          require_test(File.expand_path(arg))
+        end
       end
 
       def require_test(path)
