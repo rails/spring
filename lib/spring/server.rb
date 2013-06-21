@@ -37,8 +37,14 @@ module Spring
       redirect_output
       set_process_title
       watch_bundle
+      start_server
+    end
 
+    def start_server
       server = UNIXServer.open(env.socket_name)
+    rescue Errno::EPERM
+      raise TmpUnwritable.new(env.tmp_path)
+    else
       loop { serve server.accept }
     end
 
@@ -94,7 +100,9 @@ module Spring
       @applications.values.each(&:stop)
 
       [env.socket_path, env.pidfile_path].each do |path|
-        path.unlink if path.exist?
+        if path.exist?
+          path.unlink rescue nil
+        end
       end
     end
 
