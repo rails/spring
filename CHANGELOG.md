@@ -24,6 +24,7 @@
   placing requires in suitable locations in the Rails boot process
   (which is not explained in the README).
 * Seed the random number generator on each run.
+* Global config file in `~/.spring.rb`
 
 ## 0.0.9
 

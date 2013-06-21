@@ -20,6 +20,10 @@ class AppTest < ActiveSupport::TestCase
     app_root.join "vendor/gems/#{RUBY_VERSION}"
   end
 
+  def user_home
+    app_root.join "user_home"
+  end
+
   def spring
     gem_home.join "bin/spring"
   end
@@ -37,7 +41,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def env
-    @env ||= {"GEM_HOME" => gem_home.to_s, "GEM_PATH" => ""}
+    @env ||= {"GEM_HOME" => gem_home.to_s, "GEM_PATH" => "", "HOME" => user_home.to_s }
   end
 
   def app_run(command, opts = {})
@@ -301,6 +305,18 @@ class AppTest < ActiveSupport::TestCase
 
       File.write(config_path, config_contents + "\nSpring.after_fork { puts '!callback!' }")
       assert_success "#{spring} rails runner 'puts 2'", stdout: "!callback!\n2"
+    ensure
+      File.write(config_path, config_contents)
+    end
+  end
+
+  test "global config file evaluated" do
+    begin
+      config_path = "#{user_home}/.spring.rb"
+      config_contents = File.read(config_path)
+
+      File.write(config_path, config_contents + "\nSpring.after_fork { puts '!global_config!' }")
+      assert_success "#{spring} rails runner 'puts 2'", stdout: "!global_config!\n2"
     ensure
       File.write(config_path, config_contents)
     end
