@@ -73,9 +73,12 @@ module Spring
         Process.setsid
         [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
+
         ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
-        invoke_after_fork_callbacks
         ARGV.replace(args)
+        srand
+
+        invoke_after_fork_callbacks
 
         if command.respond_to?(:call)
           command.call
