@@ -48,6 +48,8 @@ module Spring
       def description_for_command(command)
         if command.respond_to?(:description)
           command.description
+        elsif command.respond_to?(:exec_name)
+          "Runs the #{command.exec_name} command"
         else
           "No description given."
         end

@@ -76,7 +76,17 @@ module Spring
         ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
         invoke_after_fork_callbacks
         ARGV.replace(args)
-        command.call
+
+        if command.respond_to?(:call)
+          command.call
+        else
+          exec_name = command.exec_name
+          gem_name  = command.gem_name if command.respond_to?(:gem_name)
+
+          exec = Gem.bin_path(gem_name || exec_name, exec_name)
+          $0 = exec
+          load exec
+        end
       }
 
       manager.puts pid

@@ -54,13 +54,8 @@ module Spring
         "test"
       end
 
-      def call
-        $0 = "rspec"
-        require 'rspec/autorun'
-      end
-
-      def description
-        "Execute an RSpec spec."
+      def exec_name
+        "rspec"
       end
     end
     Spring.register_command "rspec", RSpec.new
@@ -70,15 +65,8 @@ module Spring
         "test"
       end
 
-      def call
-        require 'cucumber'
-        # Cucumber's execute funtion returns `true` if any of the steps failed or
-        # some other error occured.
-        Kernel.exit(1) if ::Cucumber::Cli::Main.execute(args)
-      end
-
-      def description
-        "Execute a Cucumber feature."
+      def exec_name
+        "cucumber"
       end
     end
     Spring.register_command "cucumber", Cucumber.new
@@ -99,13 +87,8 @@ module Spring
         nil
       end
 
-      def call
-        require "rake"
-        ::Rake.application.run
-      end
-
-      def description
-        "Run a rake task."
+      def exec_name
+        "rake"
       end
     end
     Spring.register_command "rake", Rake.new
