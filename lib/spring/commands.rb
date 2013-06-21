@@ -93,41 +93,37 @@ module Spring
     end
     Spring.register_command "rake", Rake.new
 
-    class RailsConsole
+    class Rails
+      def call
+        ARGV.unshift command_name
+        Object.const_set(:APP_PATH, ::Rails.root.join('config/application'))
+        require "rails/commands"
+      end
+
+      def description
+        nil
+      end
+    end
+
+    class RailsConsole < Rails
       def env(args)
         args.first if args.first && !args.first.index("-")
       end
 
-      def setup
-        require "rails/commands/console"
-      end
-
-      def call
-        ::Rails::Console.start(::Rails.application)
-      end
-
-      def description
-        nil
+      def command_name
+        "console"
       end
     end
     Spring.register_command "rails_console", RailsConsole.new
 
-    class RailsGenerate
-      def setup
-        Rails.application.load_generators
-      end
-
-      def call
-        require "rails/commands/generate"
-      end
-
-      def description
-        nil
+    class RailsGenerate < Rails
+      def command_name
+        "generate"
       end
     end
     Spring.register_command "rails_generate", RailsGenerate.new
 
-    class RailsRunner
+    class RailsRunner < Rails
       def env(tail)
         previous_option = nil
         tail.reverse.each do |option|
@@ -140,13 +136,8 @@ module Spring
         nil
       end
 
-      def call
-        Object.const_set(:APP_PATH, Rails.root.join('config/application'))
-        require "rails/commands/runner"
-      end
-
-      def description
-        nil
+      def command_name
+        "runner"
       end
     end
     Spring.register_command "rails_runner", RailsRunner.new
