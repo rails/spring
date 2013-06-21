@@ -19,6 +19,10 @@
   connection to the database, which would then prevent tasks like
   db:create from running (because at that point the database doesn't
   exist)
+* Removed ability to specify list of files for a command to preload. We
+  weren't using this any more internally, and this is easy to do by
+  placing requires in suitable locations in the Rails boot process
+  (which is not explained in the README).
 
 ## 0.0.9
 

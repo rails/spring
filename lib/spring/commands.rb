@@ -24,43 +24,7 @@ module Spring
   end
 
   module Commands
-    class Command
-      @preloads = []
-
-      def self.preloads
-        @preloads ||= superclass.preloads.dup
-      end
-
-      def self.preloads=(val)
-        @preloads = val
-      end
-
-      def preloads
-        self.class.preloads
-      end
-
-      def setup
-        preload_files
-      end
-
-      private
-
-      def preload_files
-        preloads.each do |file|
-          begin
-            require file
-          rescue LoadError => e
-            $stderr.puts <<-MESSAGE
-The #{self.class} command tried to preload #{file} but could not find it.
-You can configure what to preload in your `config/spring.rb` with:
-  #{self.class}.preloads = %w(files to preload)
-MESSAGE
-          end
-        end
-      end
-    end
-
-    class TestUnit < Command
+    class TestUnit
       def env(*)
         "test"
       end
@@ -86,7 +50,7 @@ MESSAGE
     end
     Spring.register_command "testunit", TestUnit.new
 
-    class RSpec < Command
+    class RSpec
       def env(*)
         "test"
       end
@@ -103,7 +67,7 @@ MESSAGE
     end
     Spring.register_command "rspec", RSpec.new
 
-    class Cucumber < Command
+    class Cucumber
       def env(*)
         "test"
       end
@@ -121,7 +85,7 @@ MESSAGE
     end
     Spring.register_command "cucumber", Cucumber.new
 
-    class Rake < Command
+    class Rake
       class << self
         attr_accessor :environment_matchers
       end
@@ -149,7 +113,7 @@ MESSAGE
     end
     Spring.register_command "rake", Rake.new
 
-    class RailsConsole < Command
+    class RailsConsole
       def env(args)
         args.first if args.first && !args.first.index("-")
       end
@@ -169,9 +133,8 @@ MESSAGE
     end
     Spring.register_command "rails_console", RailsConsole.new
 
-    class RailsGenerate < Command
+    class RailsGenerate
       def setup
-        super
         Rails.application.load_generators
       end
 
@@ -186,7 +149,7 @@ MESSAGE
     end
     Spring.register_command "rails_generate", RailsGenerate.new
 
-    class RailsRunner < Command
+    class RailsRunner
       def env(tail)
         previous_option = nil
         tail.reverse.each do |option|

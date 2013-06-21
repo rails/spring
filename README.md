@@ -239,14 +239,14 @@ This command can also recursively run a directory of tests. For example,
 `spring testunit test/functional` will run `test/functional/**/*_test.rb`.
 
 If your test helper file takes a while to load, consider preloading it
-(see below).
+(see "Running code before forking" below).
 
 ### `rspec`
 
 Runs an rspec spec, exactly the same as the `rspec` executable.
 
 If your spec helper file takes a while to load, consider preloading it
-(see below).
+(see "Running code before forking" below).
 
 ### `cucumber`
 
@@ -288,25 +288,20 @@ Spring where your app is located:
 Spring.application_root = './test/dummy'
 ```
 
-### Preloading files
+### Running code before forking
 
-Every Spring command has the ability to preload a set of files. For
-example, if your `test/test_helper.rb` is time consuming to require
-(perhaps it refreshes your database schema), you may like to preload
-it:
+There is no `Spring.before_fork` callback. To run something before the
+fork, you can place it in `config/spring.rb` or in any of the files
+which get run when your application initializers, such as
+`config/application.rb`, `config/environments/*.rb` or
+`config/initializers/*.rb`.
 
-``` ruby
-Spring::Commands::TestUnit.preloads << "test_helper"`
-```
+For example, if loading your test helper is slow, you might like to
+preload it to speed up your test runs. To do this you could put a
+`require Rails.root.join("test/helper")` in
+`config/environments/test.rb`.
 
-This means that `test_helper.rb` will get required once up-front, and won't
-be required on subsequent test runs. If `test_helper.rb` changes, the
-application will do a full restart.
-
-`Command#preloads` is an array of dependencies which should be preloaded
-before the command runs.
-
-### Callbacks after forking
+### Running code after forking
 
 You might want to run code after Spring forked off the process but
 before the actual command is run. You might want to use an
