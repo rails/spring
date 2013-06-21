@@ -6,7 +6,6 @@ require "spring/sid"
 
 module Spring
   IGNORE_SIGNALS = %w(INT QUIT)
-  BINFILE        = File.expand_path("../../../bin/spring", __FILE__)
 
   class Env
     attr_reader :root
