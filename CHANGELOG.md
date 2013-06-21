@@ -1,4 +1,4 @@
-## Next release
+## 0.0.10
 
 * Added `Spring.watch_via=` configuration option to switch between
   polling and the `listen` gem. Previously, we used the `listen` gem if
