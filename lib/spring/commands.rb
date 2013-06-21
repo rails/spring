@@ -31,6 +31,9 @@ module Spring
 
   # Load custom commands, if any.
   # needs to be at the end to allow modification of existing commands.
+  config = File.expand_path("~/.spring.rb")
+  require config if File.exist?(config)
+
   config = File.expand_path("./config/spring.rb")
   require config if File.exist?(config)
 end

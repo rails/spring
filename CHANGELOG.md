@@ -1,6 +1,7 @@
 ## 0.0.11 (unreleased)
 
 * Added the `rails destroy` command.
+* Global config file in `~/.spring.rb`
 
 ## 0.0.10
 
