@@ -12,6 +12,13 @@
   surprising behaviour. It may be desirable but it depends on the
   application, therefore we suggest it to people in the README but no
   longer do it by default.
+* Don't stay connected to database in the application processes. There's
+  no need to keep a connection open.
+* Avoid using the database in the application processes. Previously,
+  reloading the autoloaded constants would inadvertantly cause a
+  connection to the database, which would then prevent tasks like
+  db:create from running (because at that point the database doesn't
+  exist)
 
 ## 0.0.9
 

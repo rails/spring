@@ -34,7 +34,7 @@ module Spring
 
       require Spring.application_root_path.join("config", "environment")
 
-      ActiveRecord::Base.connection.disconnect! if defined?(ActiveRecord::Base)
+      ActiveRecord::Base.remove_connection if defined?(ActiveRecord::Base)
 
       watcher.add loaded_application_features
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
