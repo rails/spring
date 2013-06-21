@@ -34,7 +34,7 @@ module Spring
 
       require Spring.application_root_path.join("config", "environment")
 
-      ActiveRecord::Base.remove_connection if defined?(ActiveRecord::Base)
+      ActiveRecord::Base.connection.disconnect! if defined?(ActiveRecord::Base)
 
       watcher.add loaded_application_features
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
@@ -73,7 +73,7 @@ module Spring
         Process.setsid
         [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
-        ActiveRecord::Base.establish_connection if connect?(command, args)
+        ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
         invoke_after_fork_callbacks
         command.call(args)
       }
@@ -116,16 +116,6 @@ module Spring
 
     def loaded_application_features
       $LOADED_FEATURES.select { |f| f.start_with?(File.realpath(Rails.root)) }
-    end
-
-    private
-
-    def connect?(command, args)
-      if command.respond_to?(:connect?)
-        command.connect?(args) && defined?(ActiveRecord::Base)
-      else
-        defined?(ActiveRecord::Base)
-      end
     end
   end
 end

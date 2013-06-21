@@ -358,10 +358,4 @@ class AppTest < ActiveSupport::TestCase
       assert_success "bundle check"
     end
   end
-
-  test "rake only connects database when environment task is a dependency" do
-    assert_success "#{spring} rake with_env",           stdout: "true"
-    assert_success "#{spring} rake without_env",        stdout: "false"
-    assert_success "#{spring} rake with_env_recursive", stdout: "true"
-  end
 end

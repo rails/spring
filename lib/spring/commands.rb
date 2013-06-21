@@ -158,29 +158,9 @@ MESSAGE
         require "rake"
       end
 
-      def prerequisites(name)
-        task = ::Rake::Task[name] rescue nil
-
-        if task
-          task.prerequisites + task.prerequisites.map { |p| prerequisites(p) }.flatten(1)
-        else
-          []
-        end
-      end
-
-      def connect?(args)
-        ARGV.replace args
-        app = ::Rake.application
-        app.init
-        app.load_rakefile
-
-        app.top_level_tasks.any? { |name|
-          prerequisites(name).include?("environment")
-        }
-      end
-
       def call(args)
-        ::Rake.application.top_level
+        ARGV.replace args
+        ::Rake.application.run
       end
 
       def description
