@@ -75,7 +75,8 @@ module Spring
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
         invoke_after_fork_callbacks
-        command.call(args)
+        ARGV.replace(args)
+        command.call
       }
 
       manager.puts pid

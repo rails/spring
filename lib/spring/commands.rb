@@ -29,18 +29,17 @@ module Spring
         "test"
       end
 
-      def call(args)
+      def call
         $LOAD_PATH.unshift "test"
-        args = ['test'] if args.empty?
-        ARGV.replace args
+        ARGV << "test" if ARGV.empty?
+        ARGV.each { |arg| require_test(File.expand_path(arg)) }
+      end
 
-        args.each do |arg|
-          path = File.expand_path(arg)
-          if File.directory?(path)
-            Dir[File.join path, "**", "*_test.rb"].each { |f| require f }
-          else
-            require path
-          end
+      def require_test(path)
+        if File.directory?(path)
+          Dir[File.join path, "**", "*_test.rb"].each { |f| require f }
+        else
+          require path
         end
       end
 
@@ -55,8 +54,7 @@ module Spring
         "test"
       end
 
-      def call(args)
-        ARGV.replace args
+      def call
         $0 = "rspec"
         require 'rspec/autorun'
       end
@@ -72,7 +70,7 @@ module Spring
         "test"
       end
 
-      def call(args)
+      def call
         require 'cucumber'
         # Cucumber's execute funtion returns `true` if any of the steps failed or
         # some other error occured.
@@ -101,9 +99,8 @@ module Spring
         nil
       end
 
-      def call(args)
+      def call
         require "rake"
-        ARGV.replace args
         ::Rake.application.run
       end
 
@@ -122,8 +119,7 @@ module Spring
         require "rails/commands/console"
       end
 
-      def call(args)
-        ARGV.replace args
+      def call
         ::Rails::Console.start(::Rails.application)
       end
 
@@ -138,8 +134,7 @@ module Spring
         Rails.application.load_generators
       end
 
-      def call(args)
-        ARGV.replace args
+      def call
         require "rails/commands/generate"
       end
 
@@ -162,9 +157,8 @@ module Spring
         nil
       end
 
-      def call(args)
+      def call
         Object.const_set(:APP_PATH, Rails.root.join('config/application'))
-        ARGV.replace args
         require "rails/commands/runner"
       end
 

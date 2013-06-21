@@ -1,5 +1,5 @@
 class CustomCommand
-  def call(args)
+  def call
     puts "omg"
   end
 end
