@@ -1,3 +1,7 @@
+## 0.0.11 (Unreleased)
+
+* Global config file in `~/.spring.rb`
+
 ## 0.0.10
 
 * Added `Spring.watch_via=` configuration option to switch between
@@ -24,7 +28,6 @@
   placing requires in suitable locations in the Rails boot process
   (which is not explained in the README).
 * Seed the random number generator on each run.
-* Global config file in `~/.spring.rb`
 
 ## 0.0.9
 
