@@ -28,6 +28,12 @@ module Spring
       end
     end
 
+    class RailsDestroy < Rails
+      def command_name
+        "destroy"
+      end
+    end
+
     class RailsRunner < Rails
       def env(tail)
         previous_option = nil
@@ -48,6 +54,7 @@ module Spring
 
     Spring.register_command "rails_console",  RailsConsole.new
     Spring.register_command "rails_generate", RailsGenerate.new
+    Spring.register_command "rails_destroy",  RailsDestroy.new
     Spring.register_command "rails_runner",   RailsRunner.new
   end
 end

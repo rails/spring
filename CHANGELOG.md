@@ -1,3 +1,7 @@
+## 0.0.11 (unreleased)
+
+* Added the `rails destroy` command.
+
 ## 0.0.10
 
 * Added `Spring.watch_via=` configuration option to switch between
