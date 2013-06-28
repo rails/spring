@@ -47,7 +47,7 @@ module Spring
 # https://github.com/rubygems/rubygems/pull/435
 
 glob       = "{#{Gem::Specification.dirs.join(",")}}/spring-*.gemspec"
-candidates = Dir[glob].to_a.sort
+candidates = Dir[glob].to_a.sort_by { |c| Gem::Version.new(File.basename(c).split(/[-\.]/)[1...-1].join(".")) }
 
 spec = Gem::Specification.load(candidates.last)
 
