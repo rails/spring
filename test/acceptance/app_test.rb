@@ -50,7 +50,9 @@ class AppTest < ActiveSupport::TestCase
       "GEM_HOME"   => gem_home.to_s,
       "GEM_PATH"   => "",
       "SPRING_TTY" => tty.path,
-      "HOME"       => user_home.to_s
+      "HOME"       => user_home.to_s,
+      "RAILS_ENV"  => nil,
+      "RACK_ENV"   => nil
     }
   end
 
