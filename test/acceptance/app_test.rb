@@ -6,9 +6,7 @@ require "spring/sid"
 require "spring/env"
 
 class AppTest < ActiveSupport::TestCase
-  # Runtimes on the CI tend to be a bit more volatile, so make
-  # the ratio more permissive
-  DEFAULT_SPEEDUP = ENV['CI'] ? 0.8 : 0.6
+  DEFAULT_SPEEDUP = 0.8
   DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
 
   TTY = "/tmp/spring_test_tty"
