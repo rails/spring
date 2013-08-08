@@ -26,6 +26,12 @@ module Spring
         ActiveSupport::Dependencies.mechanism = :load
       end
 
+      # Ensure eager loading does not take place, even though it usually would do
+      # in test mode with config.cache_classes = true. Eager loading in this situation
+      # just makes the initial run take longer without much gain in subsequent runs,
+      # at least in my testing.
+      Rails::Application::Finisher.initializers.delete_if { |i| i.name == :eager_load! }
+
       require Spring.application_root_path.join("config", "environment")
 
       Rails.application.config.cache_classes = false
