@@ -25,14 +25,9 @@ module Spring
         ActiveSupport::Dependencies.mechanism = :load
       end
 
-      # This initializer has issues after we disconnect from the DB, but we don't need it.
-      if defined?(ActiveRecord::Base)
-        ActiveRecord::Railtie.initializers.delete_if { |i| i.name == "active_record.set_reloader_hooks" }
-      end
-
       require Spring.application_root_path.join("config", "environment")
 
-      ActiveRecord::Base.remove_connection if defined?(ActiveRecord::Base)
+      disconnect_database
 
       watcher.add loaded_application_features
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
@@ -62,6 +57,7 @@ module Spring
       args    = JSON.load(client.read(client.gets.to_i))
       command = Spring.command(args.shift)
 
+      connect_database
       setup command
 
       ActionDispatch::Reloader.cleanup!
@@ -72,7 +68,7 @@ module Spring
         [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
 
-        ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
+        connect_database
         ARGV.replace(args)
         srand
 
@@ -89,6 +85,8 @@ module Spring
           load exec
         end
       }
+
+      disconnect_database
 
       manager.puts pid
 
@@ -128,6 +126,14 @@ module Spring
 
     def loaded_application_features
       $LOADED_FEATURES.select { |f| f.start_with?(File.realpath(Rails.root)) }
+    end
+
+    def disconnect_database
+      ActiveRecord::Base.remove_connection if defined?(ActiveRecord::Base)
+    end
+
+    def connect_database
+      ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
     end
   end
 end
