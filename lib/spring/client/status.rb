@@ -21,8 +21,8 @@ module Spring
       end
 
       def application_pids
-        candidates = `ps -a -o ppid= -o pid=`.lines
-        candidates.select { |l| l =~ /^#{env.pid} / }
+        candidates = `ps -a -x -o ppid= -o pid=`.lines
+        candidates.select { |l| l =~ /^(\s+)?#{env.pid} / }
                   .map    { |l| l.split(" ").last   }
       end
     end
