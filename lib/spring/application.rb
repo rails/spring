@@ -18,15 +18,17 @@ module Spring
     def start
       require Spring.application_root_path.join("config", "application")
 
-      # The test environment has config.cache_classes = true set by default.
-      # However, we don't want this to prevent us from performing class reloading,
-      # so this gets around that.
-      ::Rails::Application.initializer :initialize_dependency_mechanism, group: :all do
+      # config/environments/test.rb will have config.cache_classes = true. However
+      # we want it to be false so that we can reload files. This is a hack to
+      # override the effect of config.cache_classes = true. We can then actually
+      # set config.cache_classes = false after loading the environment.
+      Rails::Application.initializer :initialize_dependency_mechanism, group: :all do
         ActiveSupport::Dependencies.mechanism = :load
       end
 
       require Spring.application_root_path.join("config", "environment")
 
+      Rails.application.config.cache_classes = false
       disconnect_database
 
       watcher.add loaded_application_features
