@@ -5,10 +5,10 @@
 
 ## 0.0.10
 
-* Added `Spring.watch_via=` configuration option to switch between
+* Added `Spring.watch_method=` configuration option to switch between
   polling and the `listen` gem. Previously, we used the `listen` gem if
   it was available, but this makes the option explicit. Set
-  `Spring.watch_via = :listen` to use the listen gem.
+  `Spring.watch_method = :listen` to use the listen gem.
 * Fallback when Process.fork is not available. In such cases, the user
   will not receive the speedup that Spring provides, but won't receive
   an error either.
