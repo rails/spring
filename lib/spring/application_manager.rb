@@ -13,6 +13,10 @@ module Spring
       @mutex      = Mutex.new
     end
 
+    def log(message)
+      server.log(message)
+    end
+
     # We're not using @mutex.synchronize to avoid the weird "<internal:prelude>:10"
     # line which messes with backtraces in e.g. rspec
     def synchronize
@@ -46,10 +50,12 @@ module Spring
           rescue Errno::ECONNRESET, Errno::EPIPE
             # The child has died but has not been collected by the wait thread yet,
             # so start a new child and try again.
+            log "child dead; starting"
             start
             yield
           end
         else
+          log "child not running; starting"
           start
           yield
         end
@@ -63,8 +69,11 @@ module Spring
         child.gets
       end
 
-      child.gets.chomp.to_i # get the pid
-    rescue Errno::ECONNRESET, Errno::EPIPE
+      pid = child.gets.chomp.to_i
+      log "got worker pid #{pid}"
+      pid
+    rescue Errno::ECONNRESET, Errno::EPIPE => e
+      log "#{e} while reading from child; returning no pid"
       nil
     ensure
       client.close

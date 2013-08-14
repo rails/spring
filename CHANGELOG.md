@@ -2,6 +2,8 @@
 
 * Added the `rails destroy` command.
 * Global config file in `~/.spring.rb`
+* Added logging for debugging. Specify a log file with the
+  `SPRING_LOG` environment variable.
 
 ## 0.0.10
 

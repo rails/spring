@@ -8,10 +8,11 @@ module Spring
   IGNORE_SIGNALS = %w(INT QUIT)
 
   class Env
-    attr_reader :root
+    attr_reader :root, :log_file
 
     def initialize(root = nil)
-      @root = root || Pathname.new(File.expand_path('.'))
+      @root     = root || Pathname.new(File.expand_path('.'))
+      @log_file = File.open(ENV["SPRING_LOG"] || "/dev/null", "a")
     end
 
     def version
@@ -61,6 +62,11 @@ module Spring
 
     def bundle_mtime
       [Bundler.default_lockfile, Bundler.default_gemfile].select(&:exist?).map(&:mtime).max
+    end
+
+    def log(message)
+      log_file.puts "[#{Time.now}] #{message}"
+      log_file.flush
     end
 
     private

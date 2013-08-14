@@ -6,6 +6,10 @@ module Spring
     class Run < Command
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO) & Signal.list.keys
 
+      def log(message)
+        env.log "[client] #{message}"
+      end
+
       def server
         @server ||= UNIXSocket.open(env.socket_name)
       end
@@ -53,6 +57,8 @@ ERROR
       end
 
       def run_command(client, application)
+        log "sending command"
+
         application.send_io STDOUT
         application.send_io STDERR
         application.send_io STDIN
@@ -68,9 +74,16 @@ ERROR
         client.close
 
         if pid && !pid.empty?
+          log "got pid: #{pid}"
+
           forward_signals(pid.to_i)
-          exit application.read.to_i
+          status = application.read.to_i
+
+          log "got exit status #{status}"
+
+          exit status
         else
+          log "got no pid"
           exit 1
         end
       ensure

@@ -29,6 +29,10 @@ module Spring
       @mutex        = Mutex.new
     end
 
+    def log(message)
+      env.log "[server] #{message}"
+    end
+
     def boot
       write_pidfile
       set_pgid
@@ -42,6 +46,7 @@ module Spring
 
     def start_server
       server = UNIXServer.open(env.socket_name)
+      log "started on #{env.socket_name}"
     rescue Errno::EPERM
       raise TmpUnwritable.new(env.tmp_path)
     else
@@ -49,6 +54,7 @@ module Spring
     end
 
     def serve(client)
+      log "accepted client"
       client.puts env.version
 
       app_client = client.recv_io
@@ -57,9 +63,11 @@ module Spring
       args, default_rails_env = command.values_at('args', 'default_rails_env')
 
       if Spring.command?(args.first)
+        log "running command #{args.first}"
         client.puts
         client.puts @applications[rails_env_for(args, default_rails_env)].run(app_client)
       else
+        log "command not found #{args.first}"
         client.close
       end
     rescue SocketError => e

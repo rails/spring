@@ -6,13 +6,18 @@ module Spring
     attr_reader :manager, :watcher
 
     def initialize(manager, watcher = Spring.watcher)
-      @manager = manager
-      @watcher = watcher
-      @setup   = Set.new
+      @manager    = manager
+      @watcher    = watcher
+      @setup      = Set.new
+      @spring_env = Env.new
 
       # Workaround for GC bug in Ruby 2 which causes segfaults if watcher.to_io
       # instances get dereffed.
       @fds = [manager, watcher.to_io]
+    end
+
+    def log(message)
+      @spring_env.log "[application:#{Rails.env}] #{message}"
     end
 
     def start
@@ -45,12 +50,14 @@ module Spring
     end
 
     def run
+      log "started"
       watcher.start
 
       loop do
         IO.select(@fds)
 
         if watcher.stale?
+          log "watcher stale; exiting"
           exit
         else
           serve manager.recv_io(UNIXSocket)
@@ -59,6 +66,7 @@ module Spring
     end
 
     def serve(client)
+      log "got client"
       manager.puts
 
       streams = 3.times.map { client.recv_io }
@@ -96,17 +104,20 @@ module Spring
 
       disconnect_database
 
+      log "forked #{pid}"
       manager.puts pid
 
       # Wait in a separate thread so we can run multiple commands at once
       Thread.new {
         _, status = Process.wait2 pid
+        log "#{pid} exited with #{status.exitstatus}"
         streams.each(&:close)
         client.puts(status.exitstatus)
         client.close
       }
 
     rescue => e
+      log "exception: #{e}"
       streams.each(&:close) if streams
       client.puts(1)
       client.close
