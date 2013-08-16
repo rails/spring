@@ -30,11 +30,17 @@ module Spring
 
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
-        fork {
+
+        pid = fork {
           require "spring/server"
           Spring::Server.boot
         }
-        sleep 0.1 until env.socket_path.exist?
+
+        until env.socket_path.exist?
+          _, status = Process.waitpid2(pid, Process::WNOHANG)
+          exit status.exitstatus if status
+          sleep 0.1
+        end
       end
 
       def verify_server_version

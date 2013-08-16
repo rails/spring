@@ -4,6 +4,7 @@
 * Global config file in `~/.spring.rb`
 * Added logging for debugging. Specify a log file with the
   `SPRING_LOG` environment variable.
+* Fix hang on "Run `bundle install` to install missing gems"
 
 ## 0.0.10
 
