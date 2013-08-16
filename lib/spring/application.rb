@@ -100,6 +100,7 @@ module Spring
         srand
 
         invoke_after_fork_callbacks
+        shush_backtraces
 
         if command.respond_to?(:call)
           command.call
@@ -165,6 +166,24 @@ module Spring
 
     def connect_database
       ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
+    end
+
+    # This feels very naughty
+    def shush_backtraces
+      Kernel.module_eval do
+        old_raise = Kernel.method(:raise)
+        remove_method :raise
+        define_method :raise do |*args|
+          begin
+            old_raise.call(*args)
+          ensure
+            if $!
+              lib = File.expand_path("..", __FILE__)
+              $!.backtrace.reject! { |line| line.start_with?(lib) }
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -5,6 +5,8 @@
 * Added logging for debugging. Specify a log file with the
   `SPRING_LOG` environment variable.
 * Fix hang on "Run `bundle install` to install missing gems"
+* Added hack to make backtraces generated when running a command
+  quieter (by stripping out all of the lines relating to spring)
 
 ## 0.0.10
 
