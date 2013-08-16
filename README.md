@@ -343,3 +343,14 @@ You may need to add the [`listen` gem](https://github.com/guard/listen) to your 
 
 Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
 You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
+
+## Troubleshooting
+
+If you want to get more information about what spring is doing, you can
+specify a log file with the `SPRING_LOG` environment variable:
+
+```
+spring stop # if spring is already running
+export SPRING_LOG=/tmp/spring.log
+spring rake -T
+```
