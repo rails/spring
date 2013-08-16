@@ -34,11 +34,12 @@ module Spring
     end
 
     def boot
+      Spring.verify_environment
+
       write_pidfile
       set_pgid
       ignore_signals
       set_exit_hook
-      redirect_output
       set_process_title
       watch_bundle
       start_server
@@ -72,6 +73,8 @@ module Spring
       end
     rescue SocketError => e
       raise e unless client.eof?
+    ensure
+      redirect_output
     end
 
     def rails_env_for(args, default_rails_env)
@@ -124,18 +127,12 @@ module Spring
       end
     end
 
-    # We can't leave STDOUT, STDERR as they as because then they will
-    # never get closed for the lifetime of the server. This means that
-    # piping, e.g. "spring rake -T | grep db" won't work correctly
-    # because grep will hang while waiting for its stdin to reach EOF.
-    #
-    # However we do want server output to go to the terminal in case
-    # there are exceptions etc, so we just open the current terminal
-    # device directly.
+    # We need to redirect STDOUT and STDERR, otherwise the server will
+    # keep the original FDs open which would break piping. (e.g.
+    # `spring rake -T | grep db` would hang forever because the server
+    # would keep the stdout FD open.)
     def redirect_output
-      file = open(ttyname, "a")
-      STDOUT.reopen(file)
-      STDERR.reopen(file)
+      [STDOUT, STDERR].each { |stream| stream.reopen(env.log_file) }
     end
 
     def set_process_title
@@ -150,18 +147,6 @@ module Spring
 
     def application_starting
       @mutex.synchronize { exit if env.bundle_mtime != @bundle_mtime }
-    end
-
-    private
-
-    # Ruby doesn't expose ttyname()
-    # The SPRING_TTY env var is really just to support the tests
-    def ttyname
-      if STDIN.tty?
-        `tty`.chomp
-      else
-        ENV["SPRING_TTY"] || "/dev/null"
-      end
     end
   end
 end

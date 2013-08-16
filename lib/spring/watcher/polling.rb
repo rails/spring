@@ -5,7 +5,7 @@ module Spring
 
       def initialize(root, latency)
         super
-        @mtime  = nil
+        @mtime  = 0
         @poller = nil
       end
 

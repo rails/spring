@@ -32,9 +32,6 @@ module Spring
     end
 
     def restart
-      # Restarting is a background operation. If it fails, we don't want
-      # any terminal output. The user will see the output when they next
-      # try to run a command.
       start_child(true)
     end
 
@@ -69,7 +66,8 @@ module Spring
         child.gets
       end
 
-      pid = child.gets.chomp.to_i
+      pid = child.gets
+      pid = pid.chomp.to_i if pid
       log "got worker pid #{pid}"
       pid
     rescue Errno::ECONNRESET, Errno::EPIPE => e
@@ -85,13 +83,11 @@ module Spring
 
     private
 
-    def start_child(silence = false)
+    def start_child(preload = false)
       server.application_starting
 
       @child, child_socket = UNIXSocket.pair
       @pid = fork {
-        [STDOUT, STDERR].each { |s| s.reopen('/dev/null', 'w') } if silence
-
         (ObjectSpace.each_object(IO).to_a - [STDOUT, STDERR, STDIN, child_socket])
           .reject(&:closed?)
           .each(&:close)
@@ -102,7 +98,9 @@ module Spring
           "spring app    | #{spring_env.app_name} | started #{distance} ago | #{app_env} mode"
         }
 
-        Application.new(child_socket).start
+        app = Application.new(child_socket)
+        app.preload if preload
+        app.run
       }
       child_socket.close
     end

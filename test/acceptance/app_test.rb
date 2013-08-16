@@ -9,8 +9,6 @@ class AppTest < ActiveSupport::TestCase
   DEFAULT_SPEEDUP = 0.8
   DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
 
-  TTY = "/tmp/spring_test_tty"
-
   def app_root
     Pathname.new("#{TEST_ROOT}/apps/rails-3-2")
   end
@@ -39,15 +37,10 @@ class AppTest < ActiveSupport::TestCase
     @stderr ||= IO.pipe
   end
 
-  def tty
-    @tty ||= File.open(TTY, "w+")
-  end
-
   def env
     @env ||= {
       "GEM_HOME"   => gem_home.to_s,
       "GEM_PATH"   => "",
-      "SPRING_TTY" => tty.path,
       "HOME"       => user_home.to_s,
       "RAILS_ENV"  => nil,
       "RACK_ENV"   => nil
@@ -83,8 +76,7 @@ class AppTest < ActiveSupport::TestCase
   def read_streams
     {
       stdout: read_stream(stdout.first),
-      stderr: read_stream(stderr.first),
-      tty:    read_stream(tty)
+      stderr: read_stream(stderr.first)
     }
   end
 
@@ -118,8 +110,7 @@ class AppTest < ActiveSupport::TestCase
     dump_streams(
       artifacts[:command],
       stdout: artifacts[:stdout],
-      stderr: artifacts[:stderr],
-      tty:    artifacts[:tty]
+      stderr: artifacts[:stderr]
     )
   end
 
@@ -353,10 +344,7 @@ class AppTest < ActiveSupport::TestCase
     begin
       FileUtils.mv app_root.join("config/application.rb"), app_root.join("config/application.rb.bak")
 
-      assert_output(
-        app_run("#{spring} rake -T"),
-        tty: "unable to find your config/application.rb"
-      )
+      assert_failure "#{spring} rake -T", stderr: "unable to find your config/application.rb"
     ensure
       FileUtils.mv app_root.join("config/application.rb.bak"), app_root.join("config/application.rb")
     end

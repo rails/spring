@@ -42,6 +42,18 @@ module WatcherTests
     assert !watcher.stale?
   end
 
+  def test_starting_with_no_file
+    file = "#{@dir}/omg"
+    touch file, Time.now - 2.seconds
+
+    watcher.start
+    watcher.add file
+
+    assert_not_stale
+    touch file, Time.now
+    assert_stale
+  end
+
   def test_is_stale_when_a_watched_file_is_updated
     file = "#{@dir}/omg"
     touch file, Time.now - 2.seconds

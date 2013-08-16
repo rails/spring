@@ -3,13 +3,14 @@ require "spring/watcher"
 
 module Spring
   class Application
-    attr_reader :manager, :watcher
+    attr_reader :manager, :watcher, :spring_env
 
     def initialize(manager, watcher = Spring.watcher)
       @manager    = manager
       @watcher    = watcher
       @setup      = Set.new
       @spring_env = Env.new
+      @preloaded  = false
 
       # Workaround for GC bug in Ruby 2 which causes segfaults if watcher.to_io
       # instances get dereffed.
@@ -17,10 +18,16 @@ module Spring
     end
 
     def log(message)
-      @spring_env.log "[application:#{Rails.env}] #{message}"
+      spring_env.log "[application:#{ENV['RAILS_ENV']}] #{message}"
     end
 
-    def start
+    def preloaded?
+      @preloaded
+    end
+
+    def preload
+      log "preloading app"
+
       require Spring.application_root_path.join("config", "application")
 
       # config/environments/test.rb will have config.cache_classes = true. However
@@ -46,11 +53,11 @@ module Spring
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
       watcher.add Rails.application.paths["config/initializers"]
 
-      run
+      @preloaded = true
     end
 
     def run
-      log "started"
+      log "running"
       watcher.start
 
       loop do
@@ -70,6 +77,10 @@ module Spring
       manager.puts
 
       streams = 3.times.map { client.recv_io }
+      [STDOUT, STDERR].zip(streams).each { |a, b| a.reopen(b) }
+
+      preload unless preloaded?
+
       args    = JSON.load(client.read(client.gets.to_i))
       command = Spring.command(args.shift)
 
@@ -81,7 +92,7 @@ module Spring
 
       pid = fork {
         Process.setsid
-        [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
+        STDIN.reopen(streams.last)
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
 
         connect_database
@@ -103,6 +114,7 @@ module Spring
       }
 
       disconnect_database
+      [STDOUT, STDERR].each { |stream| stream.reopen(spring_env.log_file) }
 
       log "forked #{pid}"
       manager.puts pid

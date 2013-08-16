@@ -16,6 +16,10 @@ module Spring
       after_fork_callbacks << block
     end
 
+    def verify_environment
+      application_root_path
+    end
+
     def application_root_path
       @application_root_path ||= begin
         path = Pathname.new(File.expand_path(application_root || find_project_root))
