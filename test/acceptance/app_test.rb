@@ -265,10 +265,7 @@ class AppTest < ActiveSupport::TestCase
     File.write(@test, @test_contents.sub("get :index", "Foo.omg"))
 
     await_reload
-
-    assert_speedup do
-      2.times { assert_failure spring_test_command, stdout: "RuntimeError: omg" }
-    end
+    assert_failure spring_test_command, stdout: "RuntimeError: omg"
   ensure
     File.write(application, application_contents)
   end
