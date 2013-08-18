@@ -9,8 +9,12 @@ class AppTest < ActiveSupport::TestCase
   DEFAULT_SPEEDUP = 0.8
   DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
 
+  def rails_version
+    ENV['RAILS_VERSION'] || '~> 3.2.0'
+  end
+
   def app_root
-    Pathname.new("#{TEST_ROOT}/apps/rails-3-2")
+    Pathname.new("#{TEST_ROOT}/apps/rails-#{rails_version.scan(/\d/)[0..1].join("-")}")
   end
 
   def gem_home
@@ -150,16 +154,12 @@ class AppTest < ActiveSupport::TestCase
 
   def generate_app
     Bundler.with_clean_env do
-      system "gem list rails --installed --version '~> 3.2.0' || " \
-             "gem install rails --version '~> 3.2.0'"
+      system "(gem list rails --installed --version '#{rails_version}' || " \
+             "gem install rails --version '#{rails_version}') > /dev/null"
 
-      rails = `ruby -e 'puts Gem.bin_path("railties", "rails", "~> 3.2.0")'`.chomp
+      rails = `ruby -e 'puts Gem.bin_path("railties", "rails", "#{rails_version}")'`.chomp
 
-      system "#{rails} new #{app_root} " \
-             "--template=#{TEST_ROOT}/apps/template.rb " \
-             "--skip-bundle " \
-             "--skip-javascript " \
-             "> /dev/null"
+      system "#{rails} new #{app_root} --skip-bundle --skip-javascript --skip-sprockets > /dev/null"
     end
   end
 
@@ -170,6 +170,11 @@ class AppTest < ActiveSupport::TestCase
     app_run "gem install ../../../spring-#{Spring::VERSION}.gem"
     app_run "(gem list bundler | grep bundler) || gem install bundler", timeout: nil
     app_run "bundle check || bundle update", timeout: nil
+
+    unless File.exist?(@controller)
+      app_run "bundle exec rake rails:template LOCATION=#{TEST_ROOT}/apps/template.rb"
+    end
+
     app_run "bundle exec rake db:migrate db:test:clone"
     @@installed = true
   end
@@ -177,11 +182,12 @@ class AppTest < ActiveSupport::TestCase
   @@installed = false
 
   setup do
+    @test       = "#{app_root}/test/controllers/posts_controller_test.rb"
+    @controller = "#{app_root}/app/controllers/posts_controller.rb"
+
     install unless @@installed
 
-    @test                = "#{app_root}/test/functional/posts_controller_test.rb"
     @test_contents       = File.read(@test)
-    @controller          = "#{app_root}/app/controllers/posts_controller.rb"
     @controller_contents = File.read(@controller)
 
     FileUtils.rm_rf "#{app_root}/bin"
