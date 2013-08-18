@@ -157,22 +157,27 @@ class AppTest < ActiveSupport::TestCase
       system "(gem list rails --installed --version '#{rails_version}' || " \
              "gem install rails --version '#{rails_version}') > /dev/null"
 
-      rails = `ruby -e 'puts Gem.bin_path("railties", "rails", "#{rails_version}")'`.chomp
+      # Have to shell out otherwise bundler prevents us finding the gem
+      version = `ruby -e 'puts Gem::Specification.find_by_name("rails", "#{rails_version}").version'`.chomp
 
-      system "#{rails} new #{app_root} --skip-bundle --skip-javascript --skip-sprockets > /dev/null"
+      system "rails _#{version}_ new #{app_root} --skip-bundle --skip-javascript --skip-sprockets > /dev/null"
+
+      FileUtils.mkdir_p(gem_home)
+      FileUtils.mkdir_p(user_home)
+      FileUtils.rm_r("#{app_root}/test/performance/")
     end
   end
 
   def install
     generate_app unless app_root.exist?
-    FileUtils.mkdir_p(gem_home)
+
     system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
     app_run "gem install ../../../spring-#{Spring::VERSION}.gem"
     app_run "(gem list bundler | grep bundler) || gem install bundler", timeout: nil
     app_run "bundle check || bundle update", timeout: nil
 
     unless File.exist?(@controller)
-      app_run "bundle exec rake rails:template LOCATION=#{TEST_ROOT}/apps/template.rb"
+      app_run "bundle exec rails g scaffold post title:string"
     end
 
     app_run "bundle exec rake db:migrate db:test:clone"
@@ -182,7 +187,7 @@ class AppTest < ActiveSupport::TestCase
   @@installed = false
 
   setup do
-    @test       = "#{app_root}/test/controllers/posts_controller_test.rb"
+    @test       = "#{app_root}/test/functional/posts_controller_test.rb"
     @controller = "#{app_root}/app/controllers/posts_controller.rb"
 
     install unless @@installed
