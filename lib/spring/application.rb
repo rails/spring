@@ -1,5 +1,6 @@
 require "set"
 require "spring/watcher"
+require "thread"
 
 module Spring
   class Application
@@ -11,6 +12,9 @@ module Spring
       @setup      = Set.new
       @spring_env = Env.new
       @preloaded  = false
+      @mutex      = Mutex.new
+      @waiting    = 0
+      @exiting    = false
 
       # Workaround for GC bug in Ruby 2 which causes segfaults if watcher.to_io
       # instances get dereffed.
@@ -23,6 +27,10 @@ module Spring
 
     def preloaded?
       @preloaded
+    end
+
+    def exiting?
+      @exiting
     end
 
     def preload
@@ -65,11 +73,20 @@ module Spring
 
         if watcher.stale?
           log "watcher stale; exiting"
-          exit
+          manager.close
+          @exiting = true
+          try_exit
+          sleep
         else
           serve manager.recv_io(UNIXSocket)
         end
       end
+    end
+
+    def try_exit
+      @mutex.synchronize {
+        exit if exiting? && @waiting == 0
+      }
     end
 
     def serve(client)
@@ -122,11 +139,17 @@ module Spring
 
       # Wait in a separate thread so we can run multiple commands at once
       Thread.new {
+        @mutex.synchronize { @waiting += 1 }
+
         _, status = Process.wait2 pid
         log "#{pid} exited with #{status.exitstatus}"
+
         streams.each(&:close)
         client.puts(status.exitstatus)
         client.close
+
+        @mutex.synchronize { @waiting -= 1 }
+        try_exit
       }
 
     rescue => e
