@@ -7,13 +7,6 @@ problem as [spork](https://github.com/sporkrb/spork),
 [zeus](https://github.com/burke/zeus) and
 [commands](https://github.com/rails/commands).
 
-I made it because we are having a discussion on the rails core team
-about shipping something to solve this problem with rails. So this is my
-proposal, as working code.
-
-(At least I hope it's working code, but this is alpha software at the
-moment. Please do try it and let me know if you hit problems.)
-
 ## Features
 
 Spring is most similar to Zeus, but it's implemented in pure Ruby, and
