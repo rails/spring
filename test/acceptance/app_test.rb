@@ -10,7 +10,11 @@ class AppTest < ActiveSupport::TestCase
   DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
 
   def rails_version
-    ENV['RAILS_VERSION'] || '~> 3.2.0'
+    ENV['RAILS_VERSION'] || '~> 4.0.0'
+  end
+
+  def rails_3?
+    rails_version.split(" ").last =~ /^3/
   end
 
   def app_root
@@ -164,7 +168,7 @@ class AppTest < ActiveSupport::TestCase
 
       FileUtils.mkdir_p(gem_home)
       FileUtils.mkdir_p(user_home)
-      FileUtils.rm_r("#{app_root}/test/performance/")
+      FileUtils.rm_rf("#{app_root}/test/performance/")
     end
   end
 
@@ -187,15 +191,13 @@ class AppTest < ActiveSupport::TestCase
   @@installed = false
 
   setup do
-    @test       = "#{app_root}/test/functional/posts_controller_test.rb"
+    @test       = "#{app_root}/test/#{rails_3? ? 'functional' : 'controllers'}/posts_controller_test.rb"
     @controller = "#{app_root}/app/controllers/posts_controller.rb"
 
     install unless @@installed
 
     @test_contents       = File.read(@test)
     @controller_contents = File.read(@controller)
-
-    FileUtils.rm_rf "#{app_root}/bin"
   end
 
   teardown do
@@ -346,11 +348,20 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "binstubs" do
-    app_run "#{spring} binstub rake"
-    app_run "#{spring} binstub rails"
-    assert_success "bin/spring help"
-    assert_success "bin/rake -T", stdout: "rake db:migrate"
-    assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
+    begin
+      FileUtils.mv "#{app_root}/bin", "#{app_root}/bin~" if File.exist?("#{app_root}/bin")
+
+      app_run "#{spring} binstub rake"
+      app_run "#{spring} binstub rails"
+      assert_success "bin/spring help"
+      assert_success "bin/rake -T", stdout: "rake db:migrate"
+      assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
+    ensure
+      if File.exist?("#{app_root}/bin~")
+        FileUtils.rm_rf "#{app_root}/bin"
+        FileUtils.mv "#{app_root}/bin~", "#{app_root}/bin"
+      end
+    end
   end
 
   test "after fork callback" do
@@ -408,7 +419,7 @@ class AppTest < ActiveSupport::TestCase
       app_run "bundle check"
 
       await_reload
-      assert_failure %(#{spring} rails runner 'require "sqlite3"'), stderr: "Please install the sqlite3 adapter"
+      assert_failure %(#{spring} rails runner 'require "sqlite3"'), stderr: "sqlite3"
     ensure
       File.write(gemfile, gemfile_contents)
       assert_success "bundle check"

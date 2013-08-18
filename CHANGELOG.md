@@ -7,6 +7,7 @@
 * Fix hang on "Run `bundle install` to install missing gems"
 * Added hack to make backtraces generated when running a command
   quieter (by stripping out all of the lines relating to spring)
+* Rails 4 is officially supported
 
 ## 0.0.10
 
