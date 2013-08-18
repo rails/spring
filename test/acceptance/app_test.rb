@@ -150,12 +150,10 @@ class AppTest < ActiveSupport::TestCase
 
   def generate_app
     Bundler.with_clean_env do
-      begin
-        rails = `ruby -e 'puts Gem.bin_path("railties", "rails", "~> 3.2.0")'`.chomp
-      rescue Gem::GemNotFoundException
-        system "gem install rails --version='~> 3.2.0'"
-        retry
-      end
+      system "gem list rails --installed --version '~> 3.2.0' || " \
+             "gem install rails --version '~> 3.2.0'"
+
+      rails = `ruby -e 'puts Gem.bin_path("railties", "rails", "~> 3.2.0")'`.chomp
 
       system "#{rails} new #{app_root} " \
              "--template=#{TEST_ROOT}/apps/template.rb " \
