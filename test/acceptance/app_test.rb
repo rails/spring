@@ -247,6 +247,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "app gets reloaded when preloaded files change (polling watcher)" do
+    env["RAILS_ENV"] = "test"
     assert_success "#{spring} rails runner 'puts Spring.watcher.class'", stdout: "Polling"
     assert_app_reloaded
   end
@@ -263,6 +264,7 @@ class AppTest < ActiveSupport::TestCase
 
       app_run "bundle install", timeout: nil
 
+      env["RAILS_ENV"] = "test"
       assert_success "#{spring} rails runner 'puts Spring.watcher.class'", stdout: "Listen"
 
       # This randomly fails on the CI for unknown reasons. I've spent quite a bit of
