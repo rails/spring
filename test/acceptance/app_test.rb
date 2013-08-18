@@ -113,11 +113,9 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def debug(artifacts)
-    dump_streams(
-      artifacts[:command],
-      stdout: artifacts[:stdout],
-      stderr: artifacts[:stderr]
-    )
+    artifacts = artifacts.dup
+    artifacts.delete :status
+    dump_streams(artifacts.delete(:command), artifacts)
   end
 
   def assert_output(artifacts, expected)
