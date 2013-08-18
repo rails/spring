@@ -148,34 +148,52 @@ class AppTest < ActiveSupport::TestCase
     "#{spring} testunit #{@test}"
   end
 
+  def generate_app
+    Bundler.with_clean_env do
+      begin
+        rails = `ruby -e 'puts Gem.bin_path("railties", "rails", "~> 3.2.0")'`.chomp
+      rescue Gem::GemNotFoundException
+        system "gem install rails --version='~> 3.2.0'"
+        retry
+      end
+
+      system "#{rails} new #{app_root} " \
+             "--template=#{TEST_ROOT}/apps/template.rb " \
+             "--skip-bundle " \
+             "--skip-javascript " \
+             "> /dev/null"
+    end
+  end
+
+  def install
+    generate_app unless app_root.exist?
+    FileUtils.mkdir_p(gem_home)
+    system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
+    app_run "gem install ../../../spring-#{Spring::VERSION}.gem"
+    app_run "(gem list bundler | grep bundler) || gem install bundler", timeout: nil
+    app_run "bundle check || bundle update", timeout: nil
+    app_run "bundle exec rake db:migrate db:test:clone"
+    @@installed = true
+  end
+
   @@installed = false
 
   setup do
+    install unless @@installed
+
     @test                = "#{app_root}/test/functional/posts_controller_test.rb"
     @test_contents       = File.read(@test)
-    @spec                = "#{app_root}/spec/dummy_spec.rb"
-    @spec_contents       = File.read(@spec)
     @controller          = "#{app_root}/app/controllers/posts_controller.rb"
     @controller_contents = File.read(@controller)
-
-    unless @@installed
-      FileUtils.mkdir_p(gem_home)
-      system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
-      app_run "gem install ../../../spring-#{Spring::VERSION}.gem"
-      app_run "(gem list bundler | grep bundler) || gem install bundler #{'--pre' if RUBY_VERSION >= "2.0"}", timeout: nil
-      app_run "bundle check || bundle update", timeout: nil
-      app_run "bundle exec rake db:migrate db:test:clone"
-      @@installed = true
-    end
 
     FileUtils.rm_rf "#{app_root}/bin"
   end
 
   teardown do
     app_run "#{spring} stop"
-    File.write(@test,       @test_contents)
-    File.write(@spec,       @spec_contents)
+    File.write(@test, @test_contents)
     File.write(@controller, @controller_contents)
+    FileUtils.rm_f("#{app_root}/config/spring.rb")
   end
 
   test "basic" do
@@ -256,11 +274,9 @@ class AppTest < ActiveSupport::TestCase
     begin
       gemfile = app_root.join("Gemfile")
       gemfile_contents = gemfile.read
-      File.write(gemfile, gemfile_contents.sub(%{# gem 'listen'}, %{gem 'listen'}))
+      File.write(gemfile, gemfile_contents + "\ngem 'listen', '~> 1.0'")
 
-      config_path = "#{app_root}/config/spring.rb"
-      config_contents = File.read(config_path)
-      File.write(config_path,config_contents + "\nSpring.watch_method = :listen")
+      File.write("#{app_root}/config/spring.rb", "Spring.watch_method = :listen")
 
       app_run "bundle install", timeout: nil
 
@@ -275,7 +291,6 @@ class AppTest < ActiveSupport::TestCase
       # out.
       assert_app_reloaded unless ENV["CI"]
     ensure
-      File.write(config_path,config_contents)
       File.write(gemfile, gemfile_contents)
       assert_success "bundle check"
     end
@@ -311,6 +326,16 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "custom commands" do
+    File.write("#{app_root}/config/spring.rb", <<-CODE)
+      class CustomCommand
+        def call
+          puts "omg"
+        end
+      end
+
+      Spring.register_command "custom", CustomCommand.new
+    CODE
+
     assert_success "#{spring} custom", stdout: "omg"
   end
 
@@ -323,26 +348,16 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "after fork callback" do
-    begin
-      config_path = "#{app_root}/config/spring.rb"
-      config_contents = File.read(config_path)
-
-      File.write(config_path, config_contents + "\nSpring.after_fork { puts '!callback!' }")
-      assert_success "#{spring} rails runner 'puts 2'", stdout: "!callback!\n2"
-    ensure
-      File.write(config_path, config_contents)
-    end
+    File.write("#{app_root}/config/spring.rb", "Spring.after_fork { puts '!callback!' }")
+    assert_success "#{spring} rails runner 'puts 2'", stdout: "!callback!\n2"
   end
 
   test "global config file evaluated" do
     begin
-      config_path = "#{user_home}/.spring.rb"
-      config_contents = File.read(config_path)
-
-      File.write(config_path, config_contents + "\nSpring.after_fork { puts '!global_config!' }")
-      assert_success "#{spring} rails runner 'puts 2'", stdout: "!global_config!\n2"
+      File.write("#{user_home}/.spring.rb", "Spring.after_fork { puts '!callback!' }")
+      assert_success "#{spring} rails runner 'puts 2'", stdout: "!callback!\n2"
     ensure
-      File.write(config_path, config_contents)
+      FileUtils.rm_r("#{user_home}/.spring.rb")
     end
   end
 
@@ -376,24 +391,18 @@ class AppTest < ActiveSupport::TestCase
     assert_success "#{spring} rake -p 'Rails.env'", stdout: "production"
   end
 
-  test "exit code for failing specs" do
-    assert_success "#{spring} rspec"
-    File.write(@spec, @spec_contents.sub("true.should be_true", "false.should be_true"))
-    assert_failure "#{spring} rspec"
-  end
-
   test "changing the Gemfile restarts the server" do
     begin
       gemfile = app_root.join("Gemfile")
       gemfile_contents = gemfile.read
 
-      assert_success %(#{spring} rails runner 'require "rspec"')
+      assert_success %(#{spring} rails runner 'require "sqlite3"')
 
-      File.write(gemfile, gemfile_contents.sub(%{gem 'rspec'}, %{# gem 'rspec'}))
+      File.write(gemfile, gemfile_contents.sub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
       app_run "bundle check"
 
       await_reload
-      assert_failure %(#{spring} rails runner 'require "rspec"'), stderr: "cannot load such file -- rspec"
+      assert_failure %(#{spring} rails runner 'require "sqlite3"'), stderr: "Please install the sqlite3 adapter"
     ensure
       File.write(gemfile, gemfile_contents)
       assert_success "bundle check"
