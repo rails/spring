@@ -37,13 +37,18 @@ class AppTest < ActiveSupport::TestCase
     @stderr ||= IO.pipe
   end
 
+  def log_file
+    @log_file ||= File.open("/tmp/spring.log", "w+")
+  end
+
   def env
     @env ||= {
       "GEM_HOME"   => gem_home.to_s,
       "GEM_PATH"   => "",
       "HOME"       => user_home.to_s,
       "RAILS_ENV"  => nil,
-      "RACK_ENV"   => nil
+      "RACK_ENV"   => nil,
+      "SPRING_LOG" => log_file.path
     }
   end
 
@@ -76,7 +81,8 @@ class AppTest < ActiveSupport::TestCase
   def read_streams
     {
       stdout: read_stream(stdout.first),
-      stderr: read_stream(stderr.first)
+      stderr: read_stream(stderr.first),
+      log:    read_stream(log_file)
     }
   end
 
