@@ -151,7 +151,7 @@ Note: Don't use spring binstubs with `bundle install --binstubs`.  If
 you do this, spring and bundler will overwrite each other. If _you will_
 not be using a command with spring, use `bundle binstub [GEM]` to
 generate a bundler binstub for that specific gem.  If you _will_ be
-using a command with spring, generate a spring binstub _instaed of_ a
+using a command with spring, generate a spring binstub _instead of_ a
 bundler binstub; spring will run your command inside the bundle anyway.
 
 If we edit any of the application files, or test files, the change will
