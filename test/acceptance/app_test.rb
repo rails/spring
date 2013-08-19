@@ -163,10 +163,14 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def assert_speedup(ratio = DEFAULT_SPEEDUP)
-    @times = []
-    yield
-    assert (@times.last / @times.first) < ratio, "#{@times.last} was not less than #{ratio} of #{@times.first}"
-    @times = nil
+    if ENV['CI']
+      yield
+    else
+      @times = []
+      yield
+      assert (@times.last / @times.first) < ratio, "#{@times.last} was not less than #{ratio} of #{@times.first}"
+      @times = nil
+    end
   end
 
   def spring_test_command
