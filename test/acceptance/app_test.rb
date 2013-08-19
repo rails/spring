@@ -76,6 +76,12 @@ class AppTest < ActiveSupport::TestCase
 
     _, status = Timeout.timeout(opts.fetch(:timeout, DEFAULT_TIMEOUT)) { Process.wait2 }
 
+    if pid = spring_env.pid
+      @server_pid = pid
+      lines = `ps -a -x -o ppid= -o pid= | egrep '^#{@server_pid}'`.lines
+      @application_pids = lines.map { |l| l.split.last.to_i }
+    end
+
     output = read_streams
     puts dump_streams(command, output) if ENV["SPRING_DEBUG"]
 
@@ -116,8 +122,19 @@ class AppTest < ActiveSupport::TestCase
     output
   end
 
+  def alive?(pid)
+    Process.kill 0, pid
+    true
+  rescue Errno::ESRCH
+    false
+  end
+
   def await_reload
-    sleep 0.4
+    raise "no pid" if @application_pids.nil? || @application_pids.empty?
+
+    Timeout.timeout(DEFAULT_TIMEOUT) do
+      sleep 0.1 while @application_pids.any? { |p| alive?(p) }
+    end
   end
 
   def debug(artifacts)
@@ -317,8 +334,6 @@ class AppTest < ActiveSupport::TestCase
       assert_failure spring_test_command
 
       File.write(application, application_contents)
-      await_reload
-
       assert_success spring_test_command
     ensure
       File.write(application, application_contents)
