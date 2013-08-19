@@ -22,7 +22,11 @@ module Spring
         if COMMANDS.include?(command_name)
           Run.call(["rails_#{command_name}", *args.drop(2)])
         else
-          exec "bundle", "exec", *args
+          require "spring/configuration"
+          ARGV.shift
+          Object.const_set(:APP_PATH, Spring.application_root_path.join("config/application").to_s)
+          require Spring.application_root_path.join("config/boot")
+          require "rails/commands"
         end
       end
     end
