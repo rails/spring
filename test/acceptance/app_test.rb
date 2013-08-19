@@ -78,7 +78,7 @@ class AppTest < ActiveSupport::TestCase
 
     if pid = spring_env.pid
       @server_pid = pid
-      lines = `ps -a -x -o ppid= -o pid= | egrep '^#{@server_pid}'`.lines
+      lines = `ps -A -o ppid= -o pid= | egrep '^#{@server_pid}'`.lines
       @application_pids = lines.map { |l| l.split.last.to_i }
     end
 
