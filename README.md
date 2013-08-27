@@ -245,6 +245,10 @@ If your spec helper file takes a while to load, consider preloading it
 
 Runs a cucumber feature.
 
+### `spinach`
+
+Runs a spinach feature.
+
 ### `rake`
 
 Runs a rake task. Rake tasks run in the `development` environment by
