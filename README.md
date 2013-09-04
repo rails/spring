@@ -41,6 +41,7 @@ Ruby versions supported:
 Rails versions supported:
 
 * 3.2
+* 4.0
 
 Spring makes extensive use of `Process#fork`, so won't be able to run on
 any platform which doesn't support that (Windows, JRuby).
