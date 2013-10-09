@@ -1,4 +1,5 @@
 require "spring/watcher/abstract"
+require "spring/configuration"
 
 module Spring
   class << self
