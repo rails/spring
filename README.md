@@ -43,7 +43,7 @@ Rails versions supported:
 * 3.2
 * 4.0
 
-Spring makes extensive use of `Process#fork`, so won't be able to run on
+Spring makes extensive use of `Process#fork`, so won't be useful on
 any platform which doesn't support that (Windows, JRuby).
 
 ## Usage
@@ -144,9 +144,9 @@ user    0m0.077s
 sys     0m0.059s
 ```
 
-You can add "./bin" to your `PATH` when in your application's directory
-[with direnv](https://github.com/zimbatm/direnv), but you should
-recognise and understand the security implications of using that.
+If you don't want to prefix every command you type with `./bin`, you
+can [use direnv](https://github.com/zimbatm/direnv) to automatically add
+`./bin` to your `PATH` when you `cd` into your application.
 
 Note: Don't use spring binstubs with `bundle install --binstubs`.  If
 you do this, spring and bundler will overwrite each other. If _you will_
