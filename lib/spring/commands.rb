@@ -24,6 +24,7 @@ module Spring
   require "spring/commands/testunit"
   require "spring/commands/rspec"
   require "spring/commands/cucumber"
+  require "spring/commands/spinach"
 
   # If the config/spring.rb contains requires for commands from other gems,
   # then we need to be under bundler.
