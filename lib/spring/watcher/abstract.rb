@@ -46,9 +46,9 @@ module Spring
               files << item.realpath.to_s
             end
           end
-        }
 
-        subjects_changed
+          subjects_changed
+        }
       end
 
       def stale?
