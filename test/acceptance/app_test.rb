@@ -151,13 +151,13 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def assert_success(command, expected_output = nil)
-    artifacts = app_run(command)
+    artifacts = app_run(*Array(command))
     assert artifacts[:status].success?, "expected successful exit status\n\n#{debug(artifacts)}"
     assert_output artifacts, expected_output if expected_output
   end
 
   def assert_failure(command, expected_output = nil)
-    artifacts = app_run(command)
+    artifacts = app_run(*Array(command))
     assert !artifacts[:status].success?, "expected unsuccessful exit status\n\n#{debug(artifacts)}"
     assert_output artifacts, expected_output if expected_output
   end
@@ -197,15 +197,16 @@ class AppTest < ActiveSupport::TestCase
     generate_app unless app_root.exist?
 
     system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
-    app_run "gem install ../../../spring-#{Spring::VERSION}.gem"
-    app_run "(gem list bundler | grep bundler) || gem install bundler", timeout: nil
-    app_run "bundle check || bundle update", timeout: nil
+
+    assert_success "gem install ../../../spring-#{Spring::VERSION}.gem"
+    assert_success ["(gem list bundler | grep bundler) || gem install bundler", timeout: nil]
+    assert_success ["bundle check || bundle update", timeout: nil]
 
     unless File.exist?(@controller)
-      app_run "bundle exec rails g scaffold post title:string"
+      assert_success "bundle exec rails g scaffold post title:string"
     end
 
-    app_run "bundle exec rake db:migrate db:test:clone"
+    assert_success "bundle exec rake db:migrate db:test:clone"
     @@installed = true
   end
 
@@ -307,7 +308,7 @@ class AppTest < ActiveSupport::TestCase
 
       File.write("#{app_root}/config/spring.rb", "Spring.watch_method = :listen")
 
-      app_run "bundle install", timeout: nil
+      assert_success ["bundle install", timeout: nil]
 
       env["RAILS_ENV"] = "test"
       assert_success "#{spring} rails runner 'puts Spring.watcher.class'", stdout: "Listen"
