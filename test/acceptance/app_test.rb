@@ -179,13 +179,13 @@ class AppTest < ActiveSupport::TestCase
 
   def generate_app
     Bundler.with_clean_env do
-      system "(gem list rails --installed --version '#{rails_version}' || " \
-             "gem install rails --version '#{rails_version}') > /dev/null"
+      assert system("(gem list rails --installed --version '#{rails_version}' || " \
+                      "gem install rails --version '#{rails_version}') > /dev/null")
 
       # Have to shell out otherwise bundler prevents us finding the gem
       version = `ruby -e 'puts Gem::Specification.find_by_name("rails", "#{rails_version}").version'`.chomp
 
-      system "rails _#{version}_ new #{app_root} --skip-bundle --skip-javascript --skip-sprockets > /dev/null"
+      assert system("rails _#{version}_ new #{app_root} --skip-bundle --skip-javascript --skip-sprockets > /dev/null")
 
       FileUtils.mkdir_p(gem_home)
       FileUtils.mkdir_p(user_home)
@@ -196,7 +196,7 @@ class AppTest < ActiveSupport::TestCase
   def install
     generate_app unless app_root.exist?
 
-    system "gem build spring.gemspec 2>/dev/null 1>/dev/null"
+    assert system("gem build spring.gemspec 2>/dev/null 1>/dev/null")
 
     assert_success "gem install ../../../spring-#{Spring::VERSION}.gem"
     assert_success ["(gem list bundler | grep bundler) || gem install bundler", timeout: nil]
