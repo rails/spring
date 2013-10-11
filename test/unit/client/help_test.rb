@@ -41,6 +41,8 @@ class HelpTest < ActiveSupport::TestCase
 
   test "formatted_help generates expected output" do
     expected_output = <<-EOF
+Version: #{Spring::VERSION}
+
 Usage: spring COMMAND [ARGS]
 
 Commands for spring itself:

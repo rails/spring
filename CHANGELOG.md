@@ -1,3 +1,7 @@
+## Next release
+
+* Display spring version in the help message
+
 ## 0.0.11
 
 * Added the `rails destroy` command.
