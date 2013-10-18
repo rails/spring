@@ -179,8 +179,10 @@ class AppTest < ActiveSupport::TestCase
 
   def generate_app
     Bundler.with_clean_env do
+      # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
+
       assert system("(gem list rails --installed --version '#{rails_version}' || " \
-                      "gem install rails --version '#{rails_version}') > /dev/null")
+                      "gem install rails --clear-sources --source http://rubygems.org --version '#{rails_version}') > /dev/null")
 
       # Have to shell out otherwise bundler prevents us finding the gem
       version = `ruby -e 'puts Gem::Specification.find_by_name("rails", "#{rails_version}").version'`.chomp
@@ -191,7 +193,6 @@ class AppTest < ActiveSupport::TestCase
       FileUtils.mkdir_p(user_home)
       FileUtils.rm_rf("#{app_root}/test/performance/")
 
-      # Sporadic SSL errors keep causing test failures
       File.write(
         "#{app_root}/Gemfile",
         File.read("#{app_root}/Gemfile").sub("https://rubygems.org", "http://rubygems.org")
@@ -204,7 +205,7 @@ class AppTest < ActiveSupport::TestCase
 
     assert system("gem build spring.gemspec 2>/dev/null 1>/dev/null")
 
-    assert_success "gem install ../../../spring-#{Spring::VERSION}.gem"
+    assert_success ["gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil]
     assert_success ["(gem list bundler | grep bundler) || gem install bundler", timeout: nil]
     assert_success ["bundle check || bundle update", timeout: nil]
 
