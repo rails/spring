@@ -190,6 +190,12 @@ class AppTest < ActiveSupport::TestCase
       FileUtils.mkdir_p(gem_home)
       FileUtils.mkdir_p(user_home)
       FileUtils.rm_rf("#{app_root}/test/performance/")
+
+      # Sporadic SSL errors keep causing test failures
+      File.write(
+        "#{app_root}/Gemfile",
+        File.read("#{app_root}/Gemfile").sub("https://rubygems.org", "http://rubygems.org")
+      )
     end
   end
 
