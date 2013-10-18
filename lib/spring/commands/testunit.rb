@@ -25,6 +25,10 @@ module Spring
       def description
         "Execute a Test::Unit test."
       end
+
+      def fallback
+        %{exec "bundle", "exec", "ruby", "-Itest", *ARGV}
+      end
     end
 
     Spring.register_command "testunit", TestUnit.new

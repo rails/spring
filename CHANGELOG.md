@@ -7,6 +7,9 @@
   perf fix (e.g. if they are not on 2.1, or haven't run `gem pristine
   --all`). To upgrade, delete your `bin/spring` and re-run `spring
   binstub` for each of your binstubs.
+* Binstubs now fall back to non-spring execution of a command if the
+  spring gem is not present. This might be useful for production
+  environments.
 
 ## 0.0.11
 
