@@ -374,7 +374,7 @@ class AppTest < ActiveSupport::TestCase
 
       app_run "#{spring} binstub rake"
       app_run "#{spring} binstub rails"
-      assert_success "bin/spring help"
+
       assert_success "bin/rake -T", stdout: "rake db:migrate"
       assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
       assert_success "bin/rails server --help", stdout: "Usage: rails server"
