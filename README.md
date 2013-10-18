@@ -111,21 +111,15 @@ sys     0m0.059s
 ```
 
 Running `spring testunit`, `spring rake`, `spring rails`, etc gets a bit
-tedious. It also suffers from a performance issue in Rubygems ([which I
-am actively working on](https://github.com/rubygems/rubygems/pull/435))
-which means the `spring` command takes a while to start up. The more
-gems you have, the longer it takes.
-
-Spring binstubs solve both of these problems. If you will be running the
+tedious. Spring binstubs solve this. If you will be running the
 `testunit` command regularly, run:
 
 ```
 $ spring binstub testunit
 ```
 
-This generates a `bin/spring` and a `bin/testunit`, which allows you to run
-`spring` and `spring testunit` in a way that doesn't trigger the Rubygems
-performance bug:
+This generates a `bin/testunit` which will run the testunit command
+under spring.
 
 ```
 $ time bin/testunit test/functional/posts_controller_test.rb
@@ -149,11 +143,8 @@ can [use direnv](https://github.com/zimbatm/direnv) to automatically add
 `./bin` to your `PATH` when you `cd` into your application.
 
 Note: Don't use spring binstubs with `bundle install --binstubs`.  If
-you do this, spring and bundler will overwrite each other. If _you will_
-not be using a command with spring, use `bundle binstub [GEM]` to
-generate a bundler binstub for that specific gem.  If you _will_ be
-using a command with spring, generate a spring binstub _instead of_ a
-bundler binstub; spring will run your command inside the bundle anyway.
+you do this, spring and bundler will overwrite each other. Spring runs
+commands inside your bundle anyway.
 
 If we edit any of the application files, or test files, the change will
 be picked up on the next run, without the background process

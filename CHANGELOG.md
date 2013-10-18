@@ -1,6 +1,12 @@
 ## Next release
 
 * Display spring version in the help message
+* Remove workaround for Rubygems performance issue. This issue is solved
+  with Rubygems 2.1, so we no longer need to generate a "spring" binstub
+  file. We warn users if they are not taking advantage of the Rubygems
+  perf fix (e.g. if they are not on 2.1, or haven't run `gem pristine
+  --all`). To upgrade, delete your `bin/spring` and re-run `spring
+  binstub` for each of your binstubs.
 
 ## 0.0.11
 

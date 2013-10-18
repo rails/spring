@@ -1,5 +1,29 @@
 #!/usr/bin/env ruby
 
+if defined?(Gem)
+  if Gem::Version.new(Gem::VERSION) < Gem::Version.new("2.1.0")
+    warn "Warning: You're using Rubygems #{Gem::VERSION} with Spring. " \
+         "Upgrade to at least Rubygems 2.1.0 and run `gem pristine --all` for better " \
+         "startup performance."
+  else
+    # stubbed? method added in https://github.com/rubygems/rubygems/pull/694
+    if Gem::Specification.stubs.first.respond_to?(:stubbed?)
+      unstubbed = Gem::Specification.stubs.reject(&:stubbed?)
+    else
+      unstubbed = Gem::Specification.stubs.reject { |s| s.send(:data).is_a?(Gem::StubSpecification::StubLine) }
+    end
+
+    # `gem pristine --all` ignores default gems. it doesn't really matter,
+    # as there are probably not many of them on the system.
+    unstubbed.reject!(&:default_gem?)
+
+    if unstubbed.any?
+      warn "Warning: Running `gem pristine --all` to regenerate your installed gemspecs " \
+           "will improve the startup performance of Spring."
+    end
+  end
+end
+
 if Process.respond_to?(:fork)
   $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
   require 'spring/client'
