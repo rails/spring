@@ -98,8 +98,8 @@ module Spring
 
       preload unless preloaded?
 
-      args    = JSON.load(client.read(client.gets.to_i))
-      command = Spring.command(args.shift)
+      args, env = JSON.load(client.read(client.gets.to_i)).values_at("args", "env")
+      command   = Spring.command(args.shift)
 
       connect_database
       setup command
@@ -112,8 +112,10 @@ module Spring
         STDIN.reopen(streams.last)
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
 
-        connect_database
         ARGV.replace(args)
+        ENV.replace(env)
+
+        connect_database
         srand
 
         invoke_after_fork_callbacks

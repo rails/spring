@@ -10,6 +10,9 @@
 * Binstubs now fall back to non-spring execution of a command if the
   spring gem is not present. This might be useful for production
   environments.
+* The ENV will be replaced on each run to match the ENV which exists
+  when the spring command is actually run (rather than the ENV which
+  exists when spring first starts).
 
 ## 0.0.11
 

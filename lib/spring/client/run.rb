@@ -69,7 +69,7 @@ ERROR
         application.send_io STDERR
         application.send_io STDIN
 
-        send_json application, args
+        send_json application, "args" => args, "env" => ENV.to_hash
 
         pid = server.gets
         pid = pid.chomp if pid

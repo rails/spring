@@ -447,4 +447,17 @@ class AppTest < ActiveSupport::TestCase
       assert_success "bundle check"
     end
   end
+
+  test "changing the environment between runs" do
+    env["OMG"] = "1"
+    env["FOO"] = "1"
+
+    assert_success %(#{spring} rails runner 'p ENV["OMG"]'), stdout: "1"
+
+    env["OMG"] = "2"
+    env.delete "FOO"
+
+    assert_success %(#{spring} rails runner 'p ENV["OMG"]'), stdout: "2"
+    assert_success %(#{spring} rails runner 'p ENV.key?("FOO")'), stdout: "false"
+  end
 end
