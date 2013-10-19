@@ -430,6 +430,25 @@ class AppTest < ActiveSupport::TestCase
     assert_success "#{spring} rake -p 'Rails.env'", stdout: "production"
   end
 
+  test "setting env vars with rake" do
+    begin
+      File.write("#{app_root}/lib/tasks/env.rake", <<-'CODE')
+      task :print_rails_env => :environment do
+        puts Rails.env
+      end
+
+      task :print_env do
+        ENV.each { |k, v| puts "#{k}=#{v}" }
+      end
+      CODE
+
+      assert_success "#{spring} rake RAILS_ENV=production print_rails_env", stdout: "production"
+      assert_success "#{spring} rake FOO=bar print_env", stdout: "FOO=bar"
+    ensure
+      FileUtils.rm_f("#{app_root}/lib/tasks/env.rake")
+    end
+  end
+
   test "changing the Gemfile restarts the server" do
     begin
       gemfile = app_root.join("Gemfile")

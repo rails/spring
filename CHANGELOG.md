@@ -13,6 +13,8 @@
 * The ENV will be replaced on each run to match the ENV which exists
   when the spring command is actually run (rather than the ENV which
   exists when spring first starts).
+* Specifying the rails env after the rake command (e.g. `rake
+  RAILS_ENV=test db:migrate`) now works as expected.
 
 ## 0.0.11
 
