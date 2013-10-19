@@ -127,12 +127,14 @@ module WatcherTests
     watcher.add file
     watcher.start
 
+    io = watcher.to_io
+
     Thread.new {
       sleep LATENCY * 3
       touch file, Time.now
     }
 
-    assert IO.select([watcher], [], [], 1), "IO.select timed out before watcher was readable"
+    assert IO.select([io], [], [], 1), "IO.select timed out before watcher was readable"
     assert watcher.stale?
   end
 
