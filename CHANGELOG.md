@@ -17,6 +17,9 @@
   RAILS_ENV=test db:migrate`) now works as expected.
 * Provide an explicit way to set the environment to use when running
   `rake` on its own.
+* The `rspec` and `cucumber` commands are no longer shipped by default.
+  They've been moved to the `spring-commands-rspec` and
+  `spring-commands-cucumber` gems.
 
 ## 0.0.11
 

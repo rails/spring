@@ -208,13 +208,13 @@ Spring stopped.
 The following commands are shipped by default.
 
 Custom commands can be specified in the Spring config file. See
-[`lib/spring/commands.rb`](https://github.com/jonleighton/spring/blob/master/lib/spring/commands.rb)
+[`lib/spring/commands/`](https://github.com/jonleighton/spring/blob/master/lib/spring/commands/)
 for examples.
 
-A bunch of different test frameworks are supported at the moment in
-order to make it easy for people to try spring. However in the future
-the code to use a specific test framework should not be contained in the
-spring repository.
+You can also install the following gems for additional commands:
+
+* [spring-commands-rspec](https://github.com/jonleighton/spring-commands-rspec)
+* [spring-commands-cucumber](https://github.com/jonleighton/spring-commands-cucumber)
 
 ### `testunit`
 
@@ -225,17 +225,6 @@ This command can also recursively run a directory of tests. For example,
 
 If your test helper file takes a while to load, consider preloading it
 (see "Running code before forking" below).
-
-### `rspec`
-
-Runs an rspec spec, exactly the same as the `rspec` executable.
-
-If your spec helper file takes a while to load, consider preloading it
-(see "Running code before forking" below).
-
-### `cucumber`
-
-Runs a cucumber feature.
 
 ### `rake`
 
