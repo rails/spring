@@ -15,6 +15,8 @@
   exists when spring first starts).
 * Specifying the rails env after the rake command (e.g. `rake
   RAILS_ENV=test db:migrate`) now works as expected.
+* Provide an explicit way to set the environment to use when running
+  `rake` on its own.
 
 ## 0.0.11
 

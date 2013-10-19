@@ -249,6 +249,9 @@ environment, you'd do it like this:
 ``` ruby
 Spring::Commands::Rake.environment_matchers["perf_test"] = "test"
 Spring::Commands::Rake.environment_matchers[/^perf/]     = "test"
+
+# To change the environment when you run `rake` with no arguments
+Spring::Commands::Rake.environment_matchers[:default] = "development"
 ```
 
 ### `rails console`, `rails generate`, `rails runner`

@@ -6,6 +6,7 @@ module Spring
       end
 
       self.environment_matchers = {
+        :default                     => "test",
         /^(test|spec|cucumber)($|:)/ => "test"
       }
 
@@ -17,7 +18,7 @@ module Spring
         end
 
         self.class.environment_matchers.each do |matcher, environment|
-          return environment if matcher === args.first
+          return environment if matcher === (args.first || :default)
         end
 
         nil

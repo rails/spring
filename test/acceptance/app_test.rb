@@ -440,10 +440,13 @@ class AppTest < ActiveSupport::TestCase
       task :print_env do
         ENV.each { |k, v| puts "#{k}=#{v}" }
       end
+
+      task(:default).clear.enhance [:print_rails_env]
       CODE
 
-      assert_success "#{spring} rake RAILS_ENV=production print_rails_env", stdout: "production"
+      assert_success "#{spring} rake RAILS_ENV=test print_rails_env", stdout: "test"
       assert_success "#{spring} rake FOO=bar print_env", stdout: "FOO=bar"
+      assert_success "#{spring} rake", stdout: "test"
     ensure
       FileUtils.rm_f("#{app_root}/lib/tasks/env.rake")
     end
