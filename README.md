@@ -11,7 +11,7 @@ boot it every time you run a test, rake task or migration.
 * Totally automatic; no need to explicitly start and stop the background process
 * Reloads your application code on each run
 * Restarts your application when configs / initializers / gem
-  dependencies are change
+  dependencies are changed
 
 ## Compatibility
 
@@ -86,8 +86,7 @@ user    0m0.276s
 sys     0m0.059s
 ```
 
-Running `spring testunit`, `spring rake`, `spring rails`, etc gets a bit
-tedious. Spring binstubs solve this:
+Writing `spring` before every command gets a bit tedious. Spring binstubs solve this:
 
 ```
 $ spring binstub testunit
@@ -103,14 +102,14 @@ If you don't want to prefix every command you type with `bin/`, you
 can [use direnv](https://github.com/zimbatm/direnv) to automatically add
 `./bin` to your `PATH` when you `cd` into your application.
 
-If we edit any of the application files, or test files, the change will
+If we edit any of the application files, or test files, the changes will
 be picked up on the next run without the background process having to
 restart. This works in exactly the same way as the code reloading
 which allows you to refresh your browser and instantly see changes during
 development.
 
 But if we edit any of the files which were used to start the application
-(configs, initializers, your Gemfile), the application needs to be fully
+(configs, initializers, your gemfile), the application needs to be fully
 restarted. This happens automatically.
 
 Let's "edit" `config/application.rb`:
