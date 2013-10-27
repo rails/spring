@@ -1,4 +1,4 @@
-## Next release
+## 0.9.0
 
 * Display spring version in the help message
 * Remove workaround for Rubygems performance issue. This issue is solved
