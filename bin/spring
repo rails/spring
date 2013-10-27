@@ -6,11 +6,13 @@ if defined?(Gem)
          "Upgrade to at least Rubygems 2.1.0 and run `gem pristine --all` for better " \
          "startup performance."
   else
+    stubs = Gem::Specification.stubs.grep(Gem::StubSpecification)
+
     # stubbed? method added in https://github.com/rubygems/rubygems/pull/694
     if Gem::Specification.stubs.first.respond_to?(:stubbed?)
-      unstubbed = Gem::Specification.stubs.reject(&:stubbed?)
+      unstubbed = stubs.reject(&:stubbed?)
     else
-      unstubbed = Gem::Specification.stubs.reject { |s| s.send(:data).is_a?(Gem::StubSpecification::StubLine) }
+      unstubbed = stubs.reject { |s| s.send(:data).is_a?(Gem::StubSpecification::StubLine) }
     end
 
     # `gem pristine --all` ignores default gems. it doesn't really matter,
