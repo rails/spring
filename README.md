@@ -2,63 +2,42 @@
 
 [![Build Status](https://travis-ci.org/jonleighton/spring.png?branch=master)](https://travis-ci.org/jonleighton/spring)
 
-Spring is a Rails application preloader. It's trying to solve the same
-problem as [spork](https://github.com/sporkrb/spork),
-[zeus](https://github.com/burke/zeus) and
-[commands](https://github.com/rails/commands).
+Spring is a Rails application preloader. It speeds up development by
+keeping your application running in the background so you don't need to
+boot it every time you run a test, rake task or migration.
 
 ## Features
 
-Spring is most similar to Zeus, but it's implemented in pure Ruby, and
-is more tightly integrated with Rails (it makes use of Rails' built-in
-code reloader).
-
-Spring tries to be totally automatic.
-It boots up in the background the first time you run a
-command. Then it speeds up subsequent commands. If it detects that your
-pre-loaded environment has changed (maybe `config/application.rb` has
-been edited) then it will reload your environment in the background,
-ready for the next command. When you close your terminal session, Spring
-will automatically shut down. There's no "server" to manually start and
-stop.
-
-Spring operates via a command line interface. Other solutions (e.g.
-commands) take the approach of using a special console to run commands
-from. This means we will have to re-implement shell features such as
-history, completion, etc. Whilst it's not impossible to re-implement
-those features, it's unnecessary work and our re-implementation
-won't be as feature complete as a real shell. Using a real shell also
-prevents the user having to constantly jump between a terminal with a
-real shell and a terminal running the rails "commands console".
+* Totally automatic; no need to explicitly start and stop the background process
+* Reloads your application code on each run
+* Restarts your application when configs / initializers / gem
+  dependencies are change
 
 ## Compatibility
 
-Ruby versions supported:
+* Ruby versions: MRI 1.9.3, MRI 2.0.0
+* Rails versions: 3.2, 4.0
 
-* MRI 1.9.3
-* MRI 2.0.0
+Spring makes extensive use of `Process#fork`, so won't be able to
+provide a speed up on platforms which don't support forking (Windows, JRuby).
 
-Rails versions supported:
+## Walkthrough
 
-* 3.2
-* 4.0
+Either `gem install spring` or add it to your Gemfile:
 
-Spring makes extensive use of `Process#fork`, so won't be useful on
-any platform which doesn't support that (Windows, JRuby).
-
-## Usage
-
-Install the `spring` gem. You can add it to your Gemfile if you like but
-it's optional. You now have a `spring` command. Don't use it with
-`bundle exec` or it will be extremely slow.
-
-For this walkthrough, I'm using the test app in the Spring repository:
-
-```
-cd /path/to/spring/test/apps/rails-3-2
+``` ruby
+group :development do
+  gem "spring"
+end
 ```
 
-We can run a test:
+Spring is designed to be used *without* bundle exec, so use `spring
+[command]` rather than `bundle exec spring [command]`.
+
+For this walkthrough I've generated a new Rails application, and run
+`rails generate scaffold posts name:string`.
+
+Let's run a test:
 
 ```
 $ time spring testunit test/functional/posts_controller_test.rb
@@ -77,21 +56,18 @@ user    0m0.281s
 sys     0m0.066s
 ```
 
-That booted our app in the background:
+That wasn't particularly fast because it was the first run, so spring
+had to boot the application. It's now running:
 
 ```
 $ spring status
 Spring is running:
 
-26150 spring server | rails-3-2 | started 3 secs ago
-26155 spring app    | rails-3-2 | started 3 secs ago | test mode
+26150 spring server | spring-demo-app | started 3 secs ago
+26155 spring app    | spring-demo-app | started 3 secs ago | test mode
 ```
 
-We can see two processes, one is the Spring server, the other is the
-application running in the test environment. When we close the terminal,
-the processes will be killed automatically.
-
-Running the test is faster next time:
+The next run is faster:
 
 ```
 $ time spring testunit test/functional/posts_controller_test.rb
@@ -111,69 +87,50 @@ sys     0m0.059s
 ```
 
 Running `spring testunit`, `spring rake`, `spring rails`, etc gets a bit
-tedious. Spring binstubs solve this. If you will be running the
-`testunit` command regularly, run:
+tedious. Spring binstubs solve this:
 
 ```
 $ spring binstub testunit
+$ spring binstub rake
+$ spring binstub rails
 ```
 
-This generates a `bin/testunit` which will run the testunit command
-under spring.
+This will generate `bin/testunit`, `bin/rake` and `bin/rails`. They
+replace any binstubs that you might already have in your `bin/`
+directory. Check them in to source control.
 
-```
-$ time bin/testunit test/functional/posts_controller_test.rb
-Run options:
-
-# Running tests:
-
-.......
-
-Finished tests in 0.166585s, 42.0207 tests/s, 60.0296 assertions/s.
-
-7 tests, 10 assertions, 0 failures, 0 errors, 0 skips
-
-real    0m0.407s
-user    0m0.077s
-sys     0m0.059s
-```
-
-If you don't want to prefix every command you type with `./bin`, you
+If you don't want to prefix every command you type with `bin/`, you
 can [use direnv](https://github.com/zimbatm/direnv) to automatically add
 `./bin` to your `PATH` when you `cd` into your application.
 
-Note: Don't use spring binstubs with `bundle install --binstubs`.  If
-you do this, spring and bundler will overwrite each other. Spring runs
-commands inside your bundle anyway.
-
 If we edit any of the application files, or test files, the change will
-be picked up on the next run, without the background process
-having to be restarted.
+be picked up on the next run without the background process having to
+restart. This works in exactly the same way as the code reloading
+which allows you to refresh your browser and instantly see changes during
+development.
 
-If we edit any of the preloaded files, the application needs to restart
-automatically. Let's "edit" `config/application.rb`:
+But if we edit any of the files which were used to start the application
+(configs, initializers, your Gemfile), the application needs to be fully
+restarted. This happens automatically.
+
+Let's "edit" `config/application.rb`:
 
 ```
 $ touch config/application.rb
 $ spring status
 Spring is running:
 
-26150 spring server | rails-3-2 | started 36 secs ago
-26556 spring app    | rails-3-2 | started 1 sec ago | test mode
+26150 spring server | spring-demo-app | started 36 secs ago
+26556 spring app    | spring-demo-app | started 1 sec ago | test mode
 ```
 
-The application process detected the change and exited. The server process
-then detected that the application process exited, so it started a new application.
-All of this happened automatically. Next time we run a
-command we'll be running against a fresh application. We can see that
-the start time and PID of the app process has changed.
+The application detected that `config/application.rb` changed and
+automatically restarted itself.
 
-If we run a command that uses a different environment, then it gets
-booted up. For example, the `rake` command uses the `development`
-environment by default:
+If we run a command that uses a different environment, then that
+environment gets booted up:
 
 ```
-$ spring binstub rake
 $ bin/rake routes
     posts GET    /posts(.:format)          posts#index
           POST   /posts(.:format)          posts#create
@@ -182,24 +139,21 @@ edit_post GET    /posts/:id/edit(.:format) posts#edit
      post GET    /posts/:id(.:format)      posts#show
           PUT    /posts/:id(.:format)      posts#update
           DELETE /posts/:id(.:format)      posts#destroy
-```
 
-We now have 3 processes: the server, and application in test mode and
-the application in development mode.
-
-```
-$ bin/spring status
+$ spring status
 Spring is running:
 
-26150 spring server | rails-3-2 | started 1 min ago
-26556 spring app    | rails-3-2 | started 42 secs ago | test mode
-26707 spring app    | rails-3-2 | started 2 secs ago | development mode
+26150 spring server | spring-demo-app | started 1 min ago
+26556 spring app    | spring-demo-app | started 42 secs ago | test mode
+26707 spring app    | spring-demo-app | started 2 secs ago | development mode
 ```
 
-To stop the background processes:
+There's no need to "shut down" spring. This will happen automatically
+when you close your terminal. However if you do want to do a manual shut
+down, use the `stop` command:
 
 ```
-$ bin/spring stop
+$ spring stop
 Spring stopped.
 ```
 
