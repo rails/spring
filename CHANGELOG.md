@@ -1,3 +1,8 @@
+## Next release
+
+* Environment variables which were created during application startup are no
+  longer overwritten.
+
 ## 0.9.0
 
 * Display spring version in the help message

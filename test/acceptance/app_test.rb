@@ -471,15 +471,25 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "changing the environment between runs" do
-    env["OMG"] = "1"
-    env["FOO"] = "1"
+    begin
+      application = "#{app_root}/config/application.rb"
+      application_contents = File.read(application)
 
-    assert_success %(#{spring} rails runner 'p ENV["OMG"]'), stdout: "1"
+      File.write(application, "#{application_contents}\nENV['BAR'] = 'bar'")
 
-    env["OMG"] = "2"
-    env.delete "FOO"
+      env["OMG"] = "1"
+      env["FOO"] = "1"
 
-    assert_success %(#{spring} rails runner 'p ENV["OMG"]'), stdout: "2"
-    assert_success %(#{spring} rails runner 'p ENV.key?("FOO")'), stdout: "false"
+      assert_success %(#{spring} rails runner 'p ENV["OMG"]'), stdout: "1"
+      assert_success %(#{spring} rails runner 'p ENV["BAR"]'), stdout: "bar"
+
+      env["OMG"] = "2"
+      env.delete "FOO"
+
+      assert_success %(#{spring} rails runner 'p ENV["OMG"]'), stdout: "2"
+      assert_success %(#{spring} rails runner 'p ENV.key?("FOO")'), stdout: "false"
+    ensure
+      File.write(application, application_contents)
+    end
   end
 end
