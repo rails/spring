@@ -2,6 +2,9 @@
 
 * Environment variables which were created during application startup are no
   longer overwritten.
+* Support for generating multiple binstubs at once. Use --all to
+  generate all, otherwise you can pass multiple command names to the
+  binstub command.
 
 ## 0.9.0
 

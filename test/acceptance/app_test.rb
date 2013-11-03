@@ -373,11 +373,14 @@ class AppTest < ActiveSupport::TestCase
       FileUtils.mv "#{app_root}/bin", "#{app_root}/bin~" if File.exist?("#{app_root}/bin")
 
       app_run "#{spring} binstub rake"
-      app_run "#{spring} binstub rails"
-
       assert_success "bin/rake -T", stdout: "rake db:migrate"
+
+      app_run "#{spring} binstub rake rails"
       assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
       assert_success "bin/rails server --help", stdout: "Usage: rails server"
+
+      app_run "#{spring} binstub --all"
+      assert_success "bin/testunit #{@test}", stdout: "0 failures"
     ensure
       if File.exist?("#{app_root}/bin~")
         FileUtils.rm_rf "#{app_root}/bin"
