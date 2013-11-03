@@ -5,6 +5,9 @@
 * Support for generating multiple binstubs at once. Use --all to
   generate all, otherwise you can pass multiple command names to the
   binstub command.
+* The `testunit` command has been extracted to the
+  `spring-commands-testunit` gem, because it's not necessary in Rails 4,
+  where you can just run `rake test path/to/test`.
 
 ## 0.9.0
 

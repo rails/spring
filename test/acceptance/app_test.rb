@@ -174,7 +174,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   def spring_test_command
-    "#{spring} testunit #{@test}"
+    "#{spring} #{rails_3? ? 'testunit' : 'rake test'} #{@test}"
   end
 
   def generate_app
@@ -190,6 +190,15 @@ class AppTest < ActiveSupport::TestCase
       FileUtils.mkdir_p(gem_home)
       FileUtils.mkdir_p(user_home)
       FileUtils.rm_rf("#{app_root}/test/performance/")
+
+      if rails_3?
+        File.write(
+          "#{app_root}/Gemfile",
+          File.read("#{app_root}/Gemfile") + "gem 'spring-commands-testunit', require: false\n"
+        )
+
+        File.write("#{app_root}/config/spring.rb", "require 'spring/commands/testunit'\n")
+      end
     end
   end
 
@@ -215,18 +224,25 @@ class AppTest < ActiveSupport::TestCase
   setup do
     @test       = "#{app_root}/test/#{rails_3? ? 'functional' : 'controllers'}/posts_controller_test.rb"
     @controller = "#{app_root}/app/controllers/posts_controller.rb"
+    @springrb   = "#{app_root}/config/spring.rb"
 
     install unless @@installed
 
     @test_contents       = File.read(@test)
     @controller_contents = File.read(@controller)
+    @springrb_contents   = File.read(@springrb) if File.exist?(@springrb)
   end
 
   teardown do
     app_run "#{spring} stop"
     File.write(@test, @test_contents)
     File.write(@controller, @controller_contents)
-    FileUtils.rm_f("#{app_root}/config/spring.rb")
+
+    if @springrb_contents
+      File.write(@springrb, @springrb_contents)
+    else
+      FileUtils.rm_f("#{app_root}/config/spring.rb")
+    end
   end
 
   test "basic" do
@@ -306,7 +322,7 @@ class AppTest < ActiveSupport::TestCase
       gemfile_contents = gemfile.read
       File.write(gemfile, gemfile_contents + "\ngem 'listen', '~> 1.0'")
 
-      File.write("#{app_root}/config/spring.rb", "Spring.watch_method = :listen")
+      File.write("#{app_root}/config/spring.rb", "#{@springrb_contents}Spring.watch_method = :listen")
 
       assert_success ["bundle install", timeout: nil]
 
@@ -372,8 +388,11 @@ class AppTest < ActiveSupport::TestCase
       assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
       assert_success "bin/rails server --help", stdout: "Usage: rails server"
 
+      FileUtils.rm ["#{app_root}/bin/rails", "#{app_root}/bin/rake"]
+
       app_run "#{spring} binstub --all"
-      assert_success "bin/testunit #{@test}", stdout: "0 failures"
+      assert_success "bin/rake -T", stdout: "rake db:migrate"
+      assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
     ensure
       if File.exist?("#{app_root}/bin~")
         FileUtils.rm_rf "#{app_root}/bin"

@@ -40,7 +40,7 @@ For this walkthrough I've generated a new Rails application, and run
 Let's run a test:
 
 ```
-$ time spring testunit test/functional/posts_controller_test.rb
+$ time spring rake test test/functional/posts_controller_test.rb
 Run options:
 
 # Running tests:
@@ -70,7 +70,7 @@ Spring is running:
 The next run is faster:
 
 ```
-$ time spring testunit test/functional/posts_controller_test.rb
+$ time spring rake test test/functional/posts_controller_test.rb
 Run options:
 
 # Running tests:
@@ -89,12 +89,10 @@ sys     0m0.059s
 Writing `spring` before every command gets a bit tedious. Spring binstubs solve this:
 
 ```
-$ spring binstub testunit
-$ spring binstub rake
-$ spring binstub rails
+$ spring binstub rake rails
 ```
 
-This will generate `bin/testunit`, `bin/rake` and `bin/rails`. They
+This will generate `bin/rake` and `bin/rails`. They
 replace any binstubs that you might already have in your `bin/`
 directory. Check them in to source control.
 
@@ -168,16 +166,9 @@ You can also install the following gems for additional commands:
 
 * [spring-commands-rspec](https://github.com/jonleighton/spring-commands-rspec)
 * [spring-commands-cucumber](https://github.com/jonleighton/spring-commands-cucumber)
-
-### `testunit`
-
-Runs a test (e.g. Test::Unit, MiniTest::Unit, etc.)
-
-This command can also recursively run a directory of tests. For example,
-`spring testunit test/functional` will run `test/functional/**/*_test.rb`.
-
-If your test helper file takes a while to load, consider preloading it
-(see "Running code before forking" below).
+* [spring-commands-testunit](https://github.com/jonleighton/spring-commands-testunit) - useful for
+  running `Test::Unit` tests on Rails 3, since only Rails 4 allows you
+  to use `rake test path/to/test` to run a particular test/directory.
 
 ### `rake`
 
