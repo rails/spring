@@ -194,10 +194,8 @@ class AppTest < ActiveSupport::TestCase
       if rails_3?
         File.write(
           "#{app_root}/Gemfile",
-          File.read("#{app_root}/Gemfile") + "gem 'spring-commands-testunit', require: false\n"
+          File.read("#{app_root}/Gemfile") + "gem 'spring-commands-testunit'\n"
         )
-
-        File.write("#{app_root}/config/spring.rb", "require 'spring/commands/testunit'\n")
       end
     end
   end
@@ -224,25 +222,18 @@ class AppTest < ActiveSupport::TestCase
   setup do
     @test       = "#{app_root}/test/#{rails_3? ? 'functional' : 'controllers'}/posts_controller_test.rb"
     @controller = "#{app_root}/app/controllers/posts_controller.rb"
-    @springrb   = "#{app_root}/config/spring.rb"
 
     install unless @@installed
 
     @test_contents       = File.read(@test)
     @controller_contents = File.read(@controller)
-    @springrb_contents   = File.read(@springrb) if File.exist?(@springrb)
   end
 
   teardown do
     app_run "#{spring} stop"
     File.write(@test, @test_contents)
     File.write(@controller, @controller_contents)
-
-    if @springrb_contents
-      File.write(@springrb, @springrb_contents)
-    else
-      FileUtils.rm_f("#{app_root}/config/spring.rb")
-    end
+    FileUtils.rm_f("#{app_root}/config/spring.rb")
   end
 
   test "basic" do
@@ -322,7 +313,7 @@ class AppTest < ActiveSupport::TestCase
       gemfile_contents = gemfile.read
       File.write(gemfile, gemfile_contents + "\ngem 'listen', '~> 1.0'")
 
-      File.write("#{app_root}/config/spring.rb", "#{@springrb_contents}Spring.watch_method = :listen")
+      File.write("#{app_root}/config/spring.rb", "Spring.watch_method = :listen")
 
       assert_success ["bundle install", timeout: nil]
 
