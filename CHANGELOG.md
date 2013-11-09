@@ -1,4 +1,4 @@
-## Next release
+## 0.9.1
 
 * Environment variables which were created during application startup are no
   longer overwritten.
