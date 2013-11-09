@@ -31,7 +31,7 @@ module Spring
   # then we need to be under bundler.
   require "bundler/setup"
 
-  Gem::Specification.stubs.map(&:name).grep(/^spring-commands-/).each do |command|
+  Gem::Specification.map(&:name).grep(/^spring-commands-/).each do |command|
     require command
   end
 
