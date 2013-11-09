@@ -196,7 +196,11 @@ speed-up).
 
 ## Configuration
 
-Spring will read `~/.spring.rb` and `config/spring.rb` for custom settings, described below.
+Spring will read `~/.spring.rb` and `config/spring.rb` for custom
+settings. Note that `~/.spring.rb` is loaded *before* bundler, but
+`config/spring.rb` is loaded *after* bundler. This means that in
+`~/.spring.rb` you are able to load extra commands without them having
+to be in the bundle of the project you are working on.
 
 ### Application root
 

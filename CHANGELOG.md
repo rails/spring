@@ -8,6 +8,10 @@
 * The `testunit` command has been extracted to the
   `spring-commands-testunit` gem, because it's not necessary in Rails 4,
   where you can just run `rake test path/to/test`.
+* The `~/.spring.rb` config file is loaded before bundler, so it's a good
+  place to require extra commands which you want to use in all projects,
+  without having to add those commands to the Gemfile of each individual
+  project.
 
 ## 0.9.0
 

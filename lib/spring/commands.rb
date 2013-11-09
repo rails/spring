@@ -22,14 +22,14 @@ module Spring
   require "spring/commands/rails"
   require "spring/commands/rake"
 
-  # If the config/spring.rb contains requires for commands from other gems,
-  # then we need to be under bundler.
-  require "bundler/setup"
-
   # Load custom commands, if any.
   # needs to be at the end to allow modification of existing commands.
   config = File.expand_path("~/.spring.rb")
   require config if File.exist?(config)
+
+  # If the config/spring.rb contains requires for commands from other gems,
+  # then we need to be under bundler.
+  require "bundler/setup"
 
   config = File.expand_path("./config/spring.rb")
   require config if File.exist?(config)
