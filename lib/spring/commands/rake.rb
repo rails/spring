@@ -6,8 +6,8 @@ module Spring
       end
 
       self.environment_matchers = {
-        :default                     => "test",
-        /^(test|spec|cucumber)($|:)/ => "test"
+        :default     => "test",
+        /^test($|:)/ => "test"
       }
 
       def env(args)
