@@ -12,6 +12,9 @@
   place to require extra commands which you want to use in all projects,
   without having to add those commands to the Gemfile of each individual
   project.
+* Any gems in the bundle with names which start with "spring-commands-"
+  are now autoloaded. This makes it less faffy to add additional
+  commands.
 
 ## 0.9.0
 

@@ -31,6 +31,10 @@ module Spring
   # then we need to be under bundler.
   require "bundler/setup"
 
+  Gem::Specification.stubs.map(&:name).grep(/^spring-commands-/).each do |command|
+    require command
+  end
+
   config = File.expand_path("./config/spring.rb")
   require config if File.exist?(config)
 end
