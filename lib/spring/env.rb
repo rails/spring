@@ -9,11 +9,15 @@ module Spring
   IGNORE_SIGNALS = %w(INT QUIT)
 
   class Env
-    attr_reader :root, :log_file
+    attr_reader :log_file
 
-    def initialize(root = Spring.application_root_path)
+    def initialize(root = nil)
       @root     = root
       @log_file = File.open(ENV["SPRING_LOG"] || "/dev/null", "a")
+    end
+
+    def root
+      @root ||= Spring.application_root_path
     end
 
     def version
