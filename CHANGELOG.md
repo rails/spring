@@ -2,6 +2,10 @@
 
 * Bugfix: environment variables set by bundler (`BUNDLE_GEMFILE`,
   `RUBYOPT`, etc...) were being removed from the environment.
+* Ensure we only run the code reloader when files have actually changed.
+  This issue became more prominent with Rails 4, since Rails 4 will now
+  reload routes whenever the code is reloaded (see
+  https://github.com/rails/rails/commit/b9b06daa915fdc4d11e8cfe11a7175e5cd8f104f).
 
 ## 0.9.1
 

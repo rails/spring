@@ -98,8 +98,10 @@ module Spring
       connect_database
       setup command
 
-      ActionDispatch::Reloader.cleanup!
-      ActionDispatch::Reloader.prepare!
+      if Rails.application.reloaders.any?(&:updated?)
+        ActionDispatch::Reloader.cleanup!
+        ActionDispatch::Reloader.prepare!
+      end
 
       pid = fork {
         Process.setsid
