@@ -55,9 +55,6 @@ module Spring
     def start_server
       server = UNIXServer.open(env.socket_name)
       log "started on #{env.socket_name}"
-    rescue Errno::EPERM
-      raise TmpUnwritable.new(env.tmp_path)
-    else
       loop { serve server.accept }
     end
 

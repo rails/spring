@@ -1,5 +1,7 @@
 require "pathname"
 require "fileutils"
+require "digest/md5"
+require "tmpdir"
 
 require "spring/version"
 require "spring/sid"
@@ -25,13 +27,17 @@ module Spring
     end
 
     def tmp_path
-      path = default_tmp_path
+      path = Pathname.new(Dir.tmpdir + "/spring")
       FileUtils.mkdir_p(path) unless path.exist?
       path
     end
 
+    def application_id
+      Digest::MD5.hexdigest(root.to_s)
+    end
+
     def socket_path
-      tmp_path.join("spring")
+      tmp_path.join(application_id)
     end
 
     def socket_name
@@ -39,7 +45,7 @@ module Spring
     end
 
     def pidfile_path
-      tmp_path.join("spring.pid")
+      tmp_path.join("#{application_id}.pid")
     end
 
     def pid
@@ -72,16 +78,6 @@ module Spring
     def log(message)
       log_file.puts "[#{Time.now}] #{message}"
       log_file.flush
-    end
-
-    private
-
-    def default_tmp_path
-      if ENV['SPRING_TMP_PATH']
-        Pathname.new(ENV['SPRING_TMP_PATH'])
-      else
-        root.join('tmp/spring')
-      end
     end
   end
 end

@@ -8,6 +8,15 @@
   https://github.com/rails/rails/commit/b9b06daa915fdc4d11e8cfe11a7175e5cd8f104f).
 * Allow spring to be used in a descendant directory of the application
   root
+* Use the system tmpdir for our temporary files. Previously we used
+  `APP_ROOT/tmp/spring`, which caused problems on filesystems which did
+  not support sockets, and also caused problems if `APP_ROOT` was
+  sufficiently deep in the filesystem to exhaust the operating system's
+  socket name limit. Hence we had a `SPRING_TMP_PATH` environment
+  variable for configuration. We now use `/tmp/spring/[md5(APP_ROOT)]`
+  for the socket and `/tmp/spring/[md5(APP_ROOT)].pid` for the pid file.
+  Thanks @Kriechi for the suggestion. Setting `SPRING_TMP_PATH` no longer
+  has any effect.
 
 ## 0.9.1
 

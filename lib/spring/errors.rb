@@ -15,20 +15,6 @@ module Spring
     end
   end
 
-  class TmpUnwritable < StandardError
-    attr_reader :tmp_path
-
-    def initialize(tmp_path)
-      @tmp_path = tmp_path
-    end
-
-    def message
-      "Spring is unable to create a socket file at #{tmp_path}. You may need to " \
-        "set the SPRING_TMP_PATH environment variable to use a different path. See " \
-        "the documentation for details."
-    end
-  end
-
   class MissingApplication < ClientError
     attr_reader :project_root
 

@@ -264,11 +264,6 @@ Spring.watch_method = :listen
 
 You may need to add the [`listen` gem](https://github.com/guard/listen) to your `Gemfile`.
 
-### tmp directory
-
-Spring needs a tmp directory. This will default to `Rails.root.join('tmp', 'spring')`.
-You can set your own configuration directory by setting the `SPRING_TMP_PATH` environment variable.
-
 ## Troubleshooting
 
 If you want to get more information about what spring is doing, you can
