@@ -3,6 +3,7 @@ require "fileutils"
 
 require "spring/version"
 require "spring/sid"
+require "spring/configuration"
 
 module Spring
   IGNORE_SIGNALS = %w(INT QUIT)
@@ -10,8 +11,8 @@ module Spring
   class Env
     attr_reader :root, :log_file
 
-    def initialize(root = nil)
-      @root     = root || Pathname.new(File.expand_path('.'))
+    def initialize(root = Spring.application_root_path)
+      @root     = root
       @log_file = File.open(ENV["SPRING_LOG"] || "/dev/null", "a")
     end
 

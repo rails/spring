@@ -6,6 +6,8 @@
   This issue became more prominent with Rails 4, since Rails 4 will now
   reload routes whenever the code is reloaded (see
   https://github.com/rails/rails/commit/b9b06daa915fdc4d11e8cfe11a7175e5cd8f104f).
+* Allow spring to be used in a descendant directory of the application
+  root
 
 ## 0.9.1
 
