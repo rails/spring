@@ -1,3 +1,8 @@
+## Next release
+
+* Bugfix: environment variables set by bundler (`BUNDLE_GEMFILE`,
+  `RUBYOPT`, etc...) were being removed from the environment.
+
 ## 0.9.1
 
 * Environment variables which were created during application startup are no

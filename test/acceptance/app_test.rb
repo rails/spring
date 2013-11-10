@@ -485,9 +485,12 @@ class AppTest < ActiveSupport::TestCase
 
       env["OMG"] = "1"
       env["FOO"] = "1"
+      env["RUBYOPT"] = "-rubygems"
 
       assert_success %(#{spring} rails runner 'p ENV["OMG"]'), stdout: "1"
       assert_success %(#{spring} rails runner 'p ENV["BAR"]'), stdout: "bar"
+      assert_success %(#{spring} rails runner 'p ENV.key?("BUNDLE_GEMFILE")'), stdout: "true"
+      assert_success %(#{spring} rails runner 'p ENV["RUBYOPT"]'), stdout: "bundler"
 
       env["OMG"] = "2"
       env.delete "FOO"

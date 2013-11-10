@@ -15,7 +15,6 @@ module Spring
       @mutex      = Mutex.new
       @waiting    = 0
       @exiting    = false
-      @env_keys   = ENV.keys
 
       # Workaround for GC bug in Ruby 2 which causes segfaults if watcher.to_io
       # instances get dereffed.
@@ -108,8 +107,12 @@ module Spring
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
 
         ARGV.replace(args)
-        @env_keys.each { |k| ENV.delete k }
-        ENV.update(env)
+
+        # Delete all env vars which are unchanged from before spring started
+        Spring.original_env.each { |k, v| ENV.delete k if ENV[k] == v }
+
+        # Load in the current env vars, except those which *were* changed when spring started
+        env.each { |k, v| ENV[k] ||= v }
 
         connect_database
         srand

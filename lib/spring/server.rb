@@ -1,3 +1,10 @@
+module Spring
+  class << self
+    attr_reader :original_env
+  end
+  @original_env = ENV.to_hash
+end
+
 require "socket"
 require "thread"
 
