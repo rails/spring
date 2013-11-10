@@ -1,4 +1,4 @@
-## Next release
+## 0.9.2
 
 * Bugfix: environment variables set by bundler (`BUNDLE_GEMFILE`,
   `RUBYOPT`, etc...) were being removed from the environment.
