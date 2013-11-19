@@ -162,7 +162,7 @@ Custom commands can be specified in the Spring config file. See
 [`lib/spring/commands/`](https://github.com/jonleighton/spring/blob/master/lib/spring/commands/)
 for examples.
 
-You can also install the following gems for additional commands:
+You can add the following gems to your Gemfile for additional commands:
 
 * [spring-commands-rspec](https://github.com/jonleighton/spring-commands-rspec)
 * [spring-commands-cucumber](https://github.com/jonleighton/spring-commands-cucumber)
@@ -198,9 +198,10 @@ speed-up).
 
 Spring will read `~/.spring.rb` and `config/spring.rb` for custom
 settings. Note that `~/.spring.rb` is loaded *before* bundler, but
-`config/spring.rb` is loaded *after* bundler. This means that in
-`~/.spring.rb` you are able to load extra commands without them having
-to be in the bundle of the project you are working on.
+`config/spring.rb` is loaded *after* bundler. So if you have any
+`spring-commands-*` gems installed that you want to be available in all
+projects without having to be added to the project's Gemfile, require
+them in your `~/.spring.rb`.
 
 ### Application root
 
