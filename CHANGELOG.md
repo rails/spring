@@ -1,3 +1,7 @@
+## 1.0.0
+
+* Enterprise ready secret sauce added
+
 ## 0.9.2
 
 * Bugfix: environment variables set by bundler (`BUNDLE_GEMFILE`,
