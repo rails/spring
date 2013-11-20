@@ -223,9 +223,14 @@ which get run when your application initializers, such as
 `config/initializers/*.rb`.
 
 For example, if loading your test helper is slow, you might like to
-preload it to speed up your test runs. To do this you could put a
-`require Rails.root.join("test/helper")` in
-`config/environments/test.rb`.
+preload it to speed up your test runs. To do this you could add the
+following to your `config/environments/test.rb`:
+
+``` ruby
+config.after_initialize do
+  require Rails.root.join("test/helper")
+end
+```
 
 ### Running code after forking
 
