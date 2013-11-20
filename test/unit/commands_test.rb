@@ -1,4 +1,5 @@
 require "helper"
+require "minitest/stub_any_instance"
 require "spring/commands"
 
 class CommandsTest < ActiveSupport::TestCase
@@ -34,4 +35,16 @@ class CommandsTest < ActiveSupport::TestCase
     assert_equal "test", command.env(["test:models"])
     assert_nil command.env(["test_foo"])
   end
+
+  test "Spring.require_commands correctly requires commands from gems" do
+    mock = MiniTest::Mock.new
+    mock.expect :call, true, ["spring/commands/rspec"]
+    Object.stub_any_instance :require, mock do
+      Gem::Specification.stub :map, ['spring-commands-rspec'] do
+        Spring.require_commands
+      end
+    end
+    mock.verify
+  end
+
 end

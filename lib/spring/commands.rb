@@ -19,6 +19,16 @@ module Spring
     commands.fetch name
   end
 
+  class << self
+
+    def require_commands
+      Gem::Specification.map(&:name).grep(/^spring-commands-/).each do |command|
+        require command.gsub('-', '/')
+      end
+    end
+
+  end
+
   require "spring/commands/rails"
   require "spring/commands/rake"
 
@@ -31,9 +41,7 @@ module Spring
   # then we need to be under bundler.
   require "bundler/setup"
 
-  Gem::Specification.map(&:name).grep(/^spring-commands-/).each do |command|
-    require command
-  end
+  require_commands
 
   config = File.expand_path("./config/spring.rb")
   require config if File.exist?(config)
