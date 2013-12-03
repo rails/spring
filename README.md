@@ -158,11 +158,8 @@ Spring stopped.
 
 The following commands are shipped by default.
 
-Custom commands can be specified in the Spring config file. See
-[`lib/spring/commands/`](https://github.com/jonleighton/spring/blob/master/lib/spring/commands/)
-for examples.
-
-You can add the following gems to your Gemfile for additional commands:
+You can add these to your Gemfile for additional commands (run `spring stop` afterwards
+to pick up the changes):
 
 * [spring-commands-rspec](https://github.com/jonleighton/spring-commands-rspec)
 * [spring-commands-cucumber](https://github.com/jonleighton/spring-commands-cucumber)
