@@ -156,7 +156,7 @@ Spring stopped.
 
 ## Commands
 
-The following commands are shipped by default.
+The `rake` and `rails` commands are shipped by default.
 
 You can add these to your Gemfile for additional commands (run `spring stop` afterwards
 to pick up the changes):
