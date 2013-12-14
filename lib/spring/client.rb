@@ -8,15 +8,18 @@ require "spring/client/binstub"
 require "spring/client/stop"
 require "spring/client/status"
 require "spring/client/rails"
+require "spring/client/version"
 
 module Spring
   module Client
     COMMANDS = {
-      "help"    => Client::Help,
-      "binstub" => Client::Binstub,
-      "stop"    => Client::Stop,
-      "status"  => Client::Status,
-      "rails"   => Client::Rails
+      "help"      => Client::Help,
+      "binstub"   => Client::Binstub,
+      "stop"      => Client::Stop,
+      "status"    => Client::Status,
+      "rails"     => Client::Rails,
+      "-v"        => Client::Version,
+      "--version" => Client::Version
     }
 
     def self.run(args)
