@@ -19,7 +19,7 @@ boot it every time you run a test, rake task or migration.
 * Ruby versions: MRI 1.9.3, MRI 2.0.0
 * Rails versions: 3.2, 4.0
 
-Spring makes extensive use of `Process#fork`, so won't be able to
+Spring makes extensive use of `Process.fork`, so won't be able to
 provide a speed up on platforms which don't support forking (Windows, JRuby).
 
 ## Walkthrough
@@ -32,8 +32,9 @@ group :development do
 end
 ```
 
-Spring is designed to be used *without* bundle exec, so use `spring
-[command]` rather than `bundle exec spring [command]`.
+In order to be as fast as possible, Spring is intended to be used
+*without* bundle exec, so use `spring [command]` rather than `bundle
+exec spring [command]`.
 
 For this walkthrough I've generated a new Rails application, and run
 `rails generate scaffold posts name:string`.
@@ -87,13 +88,16 @@ user    0m0.276s
 sys     0m0.059s
 ```
 
-Writing `spring` before every command gets a bit tedious. Spring binstubs solve this:
+Writing `spring` before every command gets a bit tedious. It also
+doesn't work without `bundle exec` if you install your bundle with
+`bundle install --path` and don't have spring installed globally.
+Binstubs solve this:
 
 ```
-$ spring binstub rake rails
+$ bundle exec spring binstub --all
 ```
 
-This will generate `bin/rake` and `bin/rails`. They
+This will generate `bin/spring`, `bin/rake` and `bin/rails`. They
 replace any binstubs that you might already have in your `bin/`
 directory. Check them in to source control.
 
@@ -115,7 +119,7 @@ Let's "edit" `config/application.rb`:
 
 ```
 $ touch config/application.rb
-$ spring status
+$ bin/spring status
 Spring is running:
 
 26150 spring server | spring-demo-app | started 36 secs ago
@@ -138,7 +142,7 @@ edit_post GET    /posts/:id/edit(.:format) posts#edit
           PUT    /posts/:id(.:format)      posts#update
           DELETE /posts/:id(.:format)      posts#destroy
 
-$ spring status
+$ bin/spring status
 Spring is running:
 
 26150 spring server | spring-demo-app | started 1 min ago
@@ -151,7 +155,7 @@ when you close your terminal. However if you do want to do a manual shut
 down, use the `stop` command:
 
 ```
-$ spring stop
+$ bin/spring stop
 Spring stopped.
 ```
 

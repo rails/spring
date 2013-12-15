@@ -50,18 +50,53 @@ CODE
 
       def call
         bindir.mkdir unless bindir.exist?
+        generate_spring_binstub
         commands.each { |name, command| generate_binstub(name, command) }
+      end
+
+      def generate_spring_binstub
+        File.write(bindir.join("spring"), <<CODE)
+#!/usr/bin/env ruby
+
+require "rubygems"
+require "bundler"
+
+ENV["GEM_HOME"] = ""
+ENV["GEM_PATH"] = ([Bundler.bundle_path.to_s] + Gem.path).join(File::PATH_SEPARATOR)
+Gem.paths = ENV
+
+if Process.respond_to?(:fork) && !Gem::Specification.find_all_by_name("spring").empty?
+  module Spring
+    def self.invoke
+      load Gem.bin_path("spring", "spring")
+    end
+  end
+end
+
+if $0 == __FILE__
+  if defined?(Spring.invoke)
+    Spring.invoke
+  else
+    $stderr.puts "Spring is not available. Ensure the gem is installed and your Ruby implementation supports Process.fork."
+    exit 1
+  end
+end
+CODE
+
+        bindir.join("spring").chmod 0755
       end
 
       def generate_binstub(name, command)
         File.write(bindir.join(name), <<CODE)
 #!/usr/bin/env ruby
 
-if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?
-#{fallback(name, command).strip.gsub(/^/, "  ")}
-else
+load File.expand_path('../spring', __FILE__)
+
+if defined?(Spring.invoke)
   ARGV.unshift "#{name}"
-  load Gem.bin_path("spring", "spring")
+  Spring.invoke
+else
+#{fallback(name, command).strip.gsub(/^/, "  ")}
 end
 CODE
 

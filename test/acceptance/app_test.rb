@@ -391,6 +391,8 @@ class AppTest < ActiveSupport::TestCase
       app_run "#{spring} binstub --all"
       assert_success "bin/rake -T", stdout: "rake db:migrate"
       assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
+
+      assert_success "bin/spring status", stdout: "Spring is running"
     ensure
       if File.exist?("#{app_root}/bin~")
         FileUtils.rm_rf "#{app_root}/bin"
