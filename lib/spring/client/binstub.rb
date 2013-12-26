@@ -13,7 +13,7 @@ module Spring
       end
 
       class RailsCommand
-        def fallback
+        def fallback(name)
           <<CODE
 APP_PATH = File.expand_path('../../config/application',  __FILE__)
 require_relative '../config/boot'
@@ -96,19 +96,11 @@ if defined?(Spring.invoke)
   ARGV.unshift "#{name}"
   Spring.invoke
 else
-#{fallback(name, command).strip.gsub(/^/, "  ")}
+#{command.fallback(name).strip.gsub(/^/, "  ")}
 end
 CODE
 
         bindir.join(name).chmod 0755
-      end
-
-      def fallback(name, command)
-        if command.respond_to?(:fallback)
-          command.fallback
-        else
-          %{exec "bundle", "exec", "#{name}", *ARGV}
-        end
       end
     end
   end

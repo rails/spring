@@ -20,6 +20,8 @@ module Spring
         @spring_commands      = spring_commands      || Spring::Client::COMMANDS.dup
         @application_commands = application_commands || Spring.commands.dup
 
+        @spring_commands.delete_if { |k, v| k.start_with?("-") }
+
         @application_commands["rails"] = @spring_commands.delete("rails")
       end
 
@@ -46,19 +48,9 @@ module Spring
         spring_commands.merge application_commands
       end
 
-      def description_for_command(command)
-        if command.respond_to?(:description)
-          command.description
-        elsif command.respond_to?(:exec_name)
-          "Runs the #{command.exec_name} command"
-        else
-          "No description given."
-        end
-      end
-
       def display(name, command)
-        if description = description_for_command(command)
-          "  #{name.ljust(max_name_width)}  #{description}"
+        if command.description
+          "  #{name.ljust(max_name_width)}  #{command.description}"
         end
       end
 

@@ -1,4 +1,5 @@
 require "spring/watcher"
+require "spring/command_wrapper"
 
 module Spring
   @commands = {}
@@ -7,8 +8,8 @@ module Spring
     attr_reader :commands
   end
 
-  def self.register_command(name, klass)
-    commands[name] = klass
+  def self.register_command(name, command)
+    commands[name] = CommandWrapper.new(command)
   end
 
   def self.command?(name)

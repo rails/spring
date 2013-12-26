@@ -9,7 +9,6 @@ module Spring
     def initialize(manager, watcher = Spring.watcher)
       @manager    = manager
       @watcher    = watcher
-      @setup      = Set.new
       @spring_env = Env.new
       @preloaded  = false
       @mutex      = Mutex.new
@@ -122,16 +121,7 @@ module Spring
         invoke_after_fork_callbacks
         shush_backtraces
 
-        if command.respond_to?(:call)
-          command.call
-        else
-          exec_name = command.exec_name
-          gem_name  = command.gem_name if command.respond_to?(:gem_name)
-
-          exec = Gem.bin_path(gem_name || exec_name, exec_name)
-          $0 = exec
-          load exec
-        end
+        command.call
       }
 
       disconnect_database
@@ -167,11 +157,7 @@ module Spring
     # main process so that they are cached. For example a test command wants to
     # load the helper file once and have it cached.
     def setup(command)
-      return if @setup.include?(command.class)
-      @setup << command.class
-
-      if command.respond_to?(:setup)
-        command.setup
+      if command.setup
         watcher.add loaded_application_features # loaded features may have changed
       end
     end

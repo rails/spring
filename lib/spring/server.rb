@@ -82,13 +82,7 @@ module Spring
     end
 
     def rails_env_for(args, default_rails_env)
-      command = Spring.command(args.first)
-
-      if command.respond_to?(:env)
-        env = command.env(args.drop(1))
-      end
-
-      env || default_rails_env
+      Spring.command(args.first).env(args.drop(1)) || default_rails_env
     end
 
     # Boot the server into the process group of the current session.
