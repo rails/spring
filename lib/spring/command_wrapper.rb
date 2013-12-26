@@ -1,8 +1,11 @@
+require "spring/configuration"
+
 module Spring
   class CommandWrapper
-    attr_reader :command
+    attr_reader :name, :command
 
-    def initialize(command)
+    def initialize(name, command)
+      @name    = name
       @command = command
       @setup   = false
     end
@@ -10,18 +13,8 @@ module Spring
     def description
       if command.respond_to?(:description)
         command.description
-      elsif command.respond_to?(:exec_name)
-        "Runs the #{command.exec_name} command"
       else
-        "No description given."
-      end
-    end
-
-    def fallback(name)
-      if command.respond_to?(:fallback)
-        command.fallback
-      else
-        %{exec "bundle", "exec", "#{name}", *ARGV}
+        "Runs the #{name} command"
       end
     end
 
@@ -58,11 +51,19 @@ module Spring
     end
 
     def exec_name
-      command.exec_name
+      if command.respond_to?(:exec_name)
+        command.exec_name
+      else
+        name
+      end
     end
 
     def binstub
-      Rails.root.join("bin/#{exec_name}")
+      Spring.application_root_path.join(binstub_name)
+    end
+
+    def binstub_name
+      "bin/#{name}"
     end
 
     def exec

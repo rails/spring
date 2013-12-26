@@ -165,29 +165,38 @@ class AppTest < ActiveSupport::TestCase
         def call
           puts "omg"
         end
+
+        def exec_name
+          "rake"
+        end
       end
 
       Spring.register_command "custom", CustomCommand.new
     CODE
 
     assert_success "#{app.spring} custom", stdout: "omg"
+
+    assert_success "#{app.spring} binstub custom"
+    assert_success "bin/custom", stdout: "omg"
+
+    app.env["DISABLE_SPRING"] = "1"
+    assert_success %{bin/custom -e 'puts "foo"'}, stdout: "foo"
   end
 
-  test "binstubs" do
-    assert_success "#{app.spring} binstub rake"
+  test "binstub" do
+    assert_success "#{app.spring} binstub rake rails", stdout: "spring inserted"
     assert_success "bin/rake -T", stdout: "rake db:migrate"
-
-    assert_success "#{app.spring} binstub rake rails"
     assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
     assert_success "bin/rails server --help", stdout: "Usage: rails server"
+    assert_success "bin/spring status", stdout: "Spring is running"
 
-    FileUtils.rm ["#{app.root}/bin/rails", "#{app.root}/bin/rake"]
+    assert_success "#{app.spring} binstub rake", stdout: "bin/rake: spring already present"
+  end
 
+  test "binstub --all" do
     assert_success "#{app.spring} binstub --all"
     assert_success "bin/rake -T", stdout: "rake db:migrate"
     assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
-
-    assert_success "bin/spring status", stdout: "Spring is running"
   end
 
   test "after fork callback" do

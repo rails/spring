@@ -9,7 +9,7 @@ module Spring
   end
 
   def self.register_command(name, command)
-    commands[name] = CommandWrapper.new(command)
+    commands[name] = CommandWrapper.new(name, command)
   end
 
   def self.command?(name)

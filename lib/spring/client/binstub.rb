@@ -1,10 +1,69 @@
+require 'set'
+
 module Spring
   module Client
     class Binstub < Command
-      attr_reader :bindir, :commands
+      SHEBANG = /\#\!.*\n/
+
+      LOADER = <<CODE
+begin
+  load File.expand_path("../spring", __FILE__)
+rescue LoadError
+end
+CODE
+
+      class Item
+        attr_reader :command, :existing
+
+        def initialize(command)
+          @command = command
+
+          if command.binstub.exist?
+            @existing = command.binstub.read
+          end
+        end
+
+        def status(text, stream = $stdout)
+          stream.puts "* #{command.binstub_name}: #{text}"
+        end
+
+        def add
+          if existing
+            if existing =~ /load .*spring/
+              status "spring already present"
+            else
+              head, shebang, tail = existing.partition(SHEBANG)
+
+              if shebang.include?("ruby")
+                File.write(command.binstub.to_s, "#{head}#{shebang}#{LOADER}#{tail}")
+                status "spring inserted"
+              else
+                status "doesn't appear to be ruby, so cannot use spring", $stderr
+                exit 1
+              end
+            end
+          else
+            File.write(
+              command.binstub.to_s,
+              "#!/usr/bin/env ruby\n" +
+              LOADER +
+              "require 'bundler/setup'\n" +
+              "load Gem.bin_path('#{command.gem_name}', '#{command.exec_name}')\n"
+            )
+            command.binstub.chmod 0755
+            status "generated with spring"
+          end
+        end
+      end
+
+      attr_reader :bindir, :items
 
       def self.description
         "Generate spring based binstubs. Use --all to generate a binstub for all known commands."
+      end
+
+      def self.rails_command
+        @rails_command ||= CommandWrapper.new("rails", Object.new)
       end
 
       def self.call(args)
@@ -12,35 +71,27 @@ module Spring
         super
       end
 
-      class RailsCommand
-        def fallback(name)
-          <<CODE
-APP_PATH = File.expand_path('../../config/application',  __FILE__)
-require_relative '../config/boot'
-require 'rails/commands'
-CODE
-        end
-      end
-
       def initialize(args)
         super
 
-        @bindir   = env.root.join("bin")
-        @commands = args.drop(1).inject({}) { |mem, name| mem.merge(find_commands(name)) }
+        @bindir = env.root.join("bin")
+        @items  = args.drop(1)
+                      .map { |name| find_commands name }
+                      .inject(Set.new, :|)
+                      .map { |command| Item.new(command) }
       end
 
       def find_commands(name)
         case name
         when "--all"
-          commands = Spring.commands
+          commands = Spring.commands.dup
           commands.delete_if { |name, _| name.start_with?("rails_") }
-          commands["rails"] = RailsCommand.new
-          commands
+          commands.values + [self.class.rails_command]
         when "rails"
-          { name => RailsCommand.new }
+          [self.class.rails_command]
         else
           if command = Spring.commands[name]
-            { name => command }
+            [command]
           else
             $stderr.puts "The '#{name}' command is not known to spring."
             exit 1
@@ -51,7 +102,7 @@ CODE
       def call
         bindir.mkdir unless bindir.exist?
         generate_spring_binstub
-        commands.each { |name, command| generate_binstub(name, command) }
+        items.each(&:add)
       end
 
       def generate_spring_binstub
@@ -71,21 +122,6 @@ end
 CODE
 
         bindir.join("spring").chmod 0755
-      end
-
-      def generate_binstub(name, command)
-        File.write(bindir.join(name), <<CODE)
-#!/usr/bin/env ruby
-
-begin
-  load File.expand_path("../spring", __FILE__)
-rescue LoadError
-end
-
-#{command.fallback(name).strip.gsub(/^/, "  ")}
-CODE
-
-        bindir.join(name).chmod 0755
       end
     end
   end
