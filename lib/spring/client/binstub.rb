@@ -5,6 +5,12 @@ module Spring
     class Binstub < Command
       SHEBANG = /\#\!.*\n/
 
+      # If loading the bin/spring file works, it'll run spring which will
+      # eventually call Kernel.exit. This means that in the client process
+      # we will never execute the lines after this block. But if the spring
+      # client is not invoked for whatever reason, then the Kernel.exit won't
+      # happen, and so we'll fall back to the lines after this block, which
+      # should cause the "unsprung" version of the command to run.
       LOADER = <<CODE
 begin
   load File.expand_path("../spring", __FILE__)
@@ -12,6 +18,15 @@ rescue LoadError
 end
 CODE
 
+      # The defined? check ensures these lines don't execute when we load the
+      # binstub from the application process. Which means that in the application
+      # process we'll execute the lines which come after the LOADER block, which
+      # is what we want.
+      #
+      # Gem.try_activate would be called inside rubygems due to the #require.
+      # However, when that happens $! gets set and it appears that there is a
+      # LoadError, which can cause problems. So we activate the gem separately
+      # to requiring the file.
       SPRING = <<CODE
 #!/usr/bin/env ruby
 
@@ -23,6 +38,7 @@ unless defined?(Spring)
   ENV["GEM_PATH"] = Bundler.bundle_path.to_s
   Gem.paths = ENV
 
+  Gem.try_activate("spring/binstub")
   require "spring/binstub"
 end
 CODE

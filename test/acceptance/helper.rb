@@ -68,11 +68,12 @@ module Spring
       end
 
       def spring_test_command
-        "#{spring} #{rails_3? ? 'testunit' : 'rake test'} #{test}"
+        "#{rails_3? ? 'bin/testunit' : 'bin/rake test'} #{test}"
       end
 
       def stop_spring
         run "#{spring} stop"
+      rescue Errno::ENOENT
       end
 
       def test
@@ -230,10 +231,12 @@ module Spring
           FileUtils.rm_rf(application.path("test/performance"))
 
           if application.rails_3?
-            File.write(application.gemfile.to_s, "#{application.gemfile.read}gem 'spring-commands-testunit'\n")
+            File.write(application.gemfile, "#{application.gemfile.read}gem 'spring-commands-testunit'\n")
           end
 
-          File.write(application.gemfile.to_s, application.gemfile.read.sub("https://rubygems.org", "http://rubygems.org"))
+          File.write(application.gemfile, application.gemfile.read.sub("https://rubygems.org", "http://rubygems.org"))
+
+          FileUtils.cp_r(application.path("bin"), application.path("bin_original"))
         end
 
         application.bundle
@@ -249,6 +252,9 @@ module Spring
         unless @installed
           system("gem build spring.gemspec 2>/dev/null 1>/dev/null")
           application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
+          FileUtils.rm_rf application.path("bin")
+          FileUtils.cp_r application.path("bin_original"), application.path("bin")
+          application.run! "#{application.spring} binstub --all"
           @installed = true
         end
       end

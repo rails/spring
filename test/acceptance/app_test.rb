@@ -90,7 +90,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "help message when called without arguments" do
-    assert_success app.spring, stdout: 'Usage: spring COMMAND [ARGS]'
+    assert_success "bin/spring", stdout: 'Usage: spring COMMAND [ARGS]'
   end
 
   test "test changes are picked up" do
@@ -124,7 +124,7 @@ class AppTest < ActiveSupport::TestCase
 
   test "app gets reloaded when preloaded files change (polling watcher)" do
     app.env["RAILS_ENV"] = "test"
-    assert_success "#{app.spring} rails runner 'puts Spring.watcher.class'", stdout: "Polling"
+    assert_success "bin/rails runner 'puts Spring.watcher.class'", stdout: "Polling"
     assert_app_reloaded
   end
 
@@ -134,7 +134,7 @@ class AppTest < ActiveSupport::TestCase
     app.bundle
 
     app.env["RAILS_ENV"] = "test"
-    assert_success "#{app.spring} rails runner 'puts Spring.watcher.class'", stdout: "Listen"
+    assert_success "bin/rails runner 'puts Spring.watcher.class'", stdout: "Listen"
     assert_app_reloaded
   end
 
@@ -156,7 +156,7 @@ class AppTest < ActiveSupport::TestCase
     app.run app.spring_test_command
     assert app.spring_env.server_running?, "The server should be running but it isn't"
 
-    assert_success "#{app.spring} stop"
+    assert_success "bin/spring stop"
     assert !app.spring_env.server_running?, "The server should not be running but it is"
   end
 
@@ -175,9 +175,9 @@ class AppTest < ActiveSupport::TestCase
       Spring.register_command "custom", CustomCommand.new
     CODE
 
-    assert_success "#{app.spring} custom", stdout: "omg"
+    assert_success "bin/spring custom", stdout: "omg"
 
-    assert_success "#{app.spring} binstub custom"
+    assert_success "bin/spring binstub custom"
     assert_success "bin/custom", stdout: "omg"
 
     app.env["DISABLE_SPRING"] = "1"
@@ -185,11 +185,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "binstub" do
-    assert_success "#{app.spring} binstub rake rails", stdout: "spring inserted"
-    assert_success "bin/rake -T", stdout: "rake db:migrate"
-    assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
-    assert_success "bin/rails server --help", stdout: "Usage: rails server"
-    assert_success "bin/spring status", stdout: "Spring is running"
+    assert_success "bin/rails server --help", stdout: "Usage: rails server" # rails command fallback
 
     assert_success "#{app.spring} binstub rake", stdout: "bin/rake: spring already present"
 
@@ -198,10 +194,9 @@ class AppTest < ActiveSupport::TestCase
     assert_success "bin/rake -T", stdout: "rake db:migrate"
   end
 
-  test "binstub --all" do
-    assert_success "#{app.spring} binstub --all"
+  test "binstub when spring is uninstalled" do
+    app.run! "gem uninstall spring"
     assert_success "bin/rake -T", stdout: "rake db:migrate"
-    assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
   end
 
   test "binstub upgrade" do
@@ -229,7 +224,7 @@ else
 end
 CODE
 
-    assert_success "#{app.spring} binstub rake rails", stdout: "upgraded"
+    assert_success "bin/spring binstub --all", stdout: "upgraded"
 
     assert_equal app.path("bin/rake").read, <<CODE
 #!/usr/bin/env ruby
@@ -249,37 +244,37 @@ CODE
 
   test "after fork callback" do
     File.write(app.spring_config, "Spring.after_fork { puts '!callback!' }")
-    assert_success "#{app.spring} rails runner 'puts 2'", stdout: "!callback!\n2"
+    assert_success "bin/rails runner 'puts 2'", stdout: "!callback!\n2"
   end
 
   test "global config file evaluated" do
     File.write("#{app.user_home}/.spring.rb", "Spring.after_fork { puts '!callback!' }")
-    assert_success "#{app.spring} rails runner 'puts 2'", stdout: "!callback!\n2"
+    assert_success "bin/rails runner 'puts 2'", stdout: "!callback!\n2"
   end
 
   test "missing config/application.rb" do
     app.application_config.delete
-    assert_failure "#{app.spring} rake -T", stderr: "unable to find your config/application.rb"
+    assert_failure "bin/rake -T", stderr: "unable to find your config/application.rb"
   end
 
   test "piping" do
-    assert_success "#{app.spring} rake -T | grep db", stdout: "rake db:migrate"
+    assert_success "bin/rake -T | grep db", stdout: "rake db:migrate"
   end
 
   test "status" do
-    assert_success "#{app.spring} status", stdout: "Spring is not running"
-    assert_success "#{app.spring} rails runner ''"
-    assert_success "#{app.spring} status", stdout: "Spring is running"
+    assert_success "bin/spring status", stdout: "Spring is not running"
+    assert_success "bin/rails runner ''"
+    assert_success "bin/spring status", stdout: "Spring is running"
   end
 
   test "runner command sets Rails environment from command-line options" do
-    assert_success "#{app.spring} rails runner -e production 'puts Rails.env'", stdout: "production"
-    assert_success "#{app.spring} rails runner --environment=production 'puts Rails.env'", stdout: "production"
+    assert_success "bin/rails runner -e production 'puts Rails.env'", stdout: "production"
+    assert_success "bin/rails runner --environment=production 'puts Rails.env'", stdout: "production"
   end
 
   test "forcing rails env via environment variable" do
     app.env['RAILS_ENV'] = 'production'
-    assert_success "#{app.spring} rake -p 'Rails.env'", stdout: "production"
+    assert_success "bin/rake -p 'Rails.env'", stdout: "production"
   end
 
   test "setting env vars with rake" do
@@ -295,19 +290,19 @@ CODE
       task(:default).clear.enhance [:print_rails_env]
     CODE
 
-    assert_success "#{app.spring} rake RAILS_ENV=test print_rails_env", stdout: "test"
-    assert_success "#{app.spring} rake FOO=bar print_env", stdout: "FOO=bar"
-    assert_success "#{app.spring} rake", stdout: "test"
+    assert_success "bin/rake RAILS_ENV=test print_rails_env", stdout: "test"
+    assert_success "bin/rake FOO=bar print_env", stdout: "FOO=bar"
+    assert_success "bin/rake", stdout: "test"
   end
 
   test "changing the Gemfile restarts the server" do
-    assert_success %(#{app.spring} rails runner 'require "sqlite3"')
+    assert_success %(bin/rails runner 'require "sqlite3"')
 
     File.write(app.gemfile, app.gemfile.read.sub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
     app.bundle
 
     app.await_reload
-    assert_failure %(#{app.spring} rails runner 'require "sqlite3"'), stderr: "sqlite3"
+    assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
   end
 
   test "changing the environment between runs" do
@@ -317,15 +312,15 @@ CODE
     app.env["FOO"] = "1"
     app.env["RUBYOPT"] = "-rubygems"
 
-    assert_success %(#{app.spring} rails runner 'p ENV["OMG"]'), stdout: "1"
-    assert_success %(#{app.spring} rails runner 'p ENV["BAR"]'), stdout: "bar"
-    assert_success %(#{app.spring} rails runner 'p ENV.key?("BUNDLE_GEMFILE")'), stdout: "true"
-    assert_success %(#{app.spring} rails runner 'p ENV["RUBYOPT"]'), stdout: "bundler"
+    assert_success %(bin/rails runner 'p ENV["OMG"]'), stdout: "1"
+    assert_success %(bin/rails runner 'p ENV["BAR"]'), stdout: "bar"
+    assert_success %(bin/rails runner 'p ENV.key?("BUNDLE_GEMFILE")'), stdout: "true"
+    assert_success %(bin/rails runner 'p ENV["RUBYOPT"]'), stdout: "bundler"
 
     app.env["OMG"] = "2"
     app.env.delete "FOO"
 
-    assert_success %(#{app.spring} rails runner 'p ENV["OMG"]'), stdout: "2"
-    assert_success %(#{app.spring} rails runner 'p ENV.key?("FOO")'), stdout: "false"
+    assert_success %(bin/rails runner 'p ENV["OMG"]'), stdout: "2"
+    assert_success %(bin/rails runner 'p ENV.key?("FOO")'), stdout: "false"
   end
 end
