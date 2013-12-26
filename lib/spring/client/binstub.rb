@@ -53,6 +53,9 @@ CODE
 
           if command.binstub.exist?
             @existing = command.binstub.read
+          elsif command.name == "rails"
+            scriptfile = Spring.application_root_path.join("script/rails")
+            @existing = scriptfile.read if scriptfile.exist?
           end
         end
 
@@ -74,6 +77,11 @@ CODE
               head, shebang, tail = existing.partition(SHEBANG)
 
               if shebang.include?("ruby")
+                unless command.binstub.exist?
+                  FileUtils.touch command.binstub
+                  command.binstub.chmod 0755
+                end
+
                 File.write(command.binstub, "#{head}#{shebang}#{LOADER}#{tail}")
                 status "spring inserted"
               else

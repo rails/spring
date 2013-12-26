@@ -236,7 +236,9 @@ module Spring
 
           File.write(application.gemfile, application.gemfile.read.sub("https://rubygems.org", "http://rubygems.org"))
 
-          FileUtils.cp_r(application.path("bin"), application.path("bin_original"))
+          if application.path("bin").exist?
+            FileUtils.cp_r(application.path("bin"), application.path("bin_original"))
+          end
         end
 
         application.bundle
@@ -252,8 +254,13 @@ module Spring
         unless @installed
           system("gem build spring.gemspec 2>/dev/null 1>/dev/null")
           application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
+
           FileUtils.rm_rf application.path("bin")
-          FileUtils.cp_r application.path("bin_original"), application.path("bin")
+
+          if application.path("bin_original").exist?
+            FileUtils.cp_r application.path("bin_original"), application.path("bin")
+          end
+
           application.run! "#{application.spring} binstub --all"
           @installed = true
         end

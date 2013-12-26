@@ -195,7 +195,8 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "binstub when spring is uninstalled" do
-    app.run! "gem uninstall spring"
+    app.run! "gem uninstall --ignore-dependencies spring"
+    File.write(app.gemfile, app.gemfile.read.sub("gem 'spring-commands-testunit'\n", ""))
     assert_success "bin/rake -T", stdout: "rake db:migrate"
   end
 
