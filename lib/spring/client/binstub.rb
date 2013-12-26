@@ -63,7 +63,7 @@ CODE
       end
 
       def self.rails_command
-        @rails_command ||= CommandWrapper.new("rails", Object.new)
+        @rails_command ||= CommandWrapper.new("rails")
       end
 
       def self.call(args)

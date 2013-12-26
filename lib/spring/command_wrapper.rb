@@ -4,7 +4,7 @@ module Spring
   class CommandWrapper
     attr_reader :name, :command
 
-    def initialize(name, command)
+    def initialize(name, command = nil)
       @name    = name
       @command = command
       @setup   = false

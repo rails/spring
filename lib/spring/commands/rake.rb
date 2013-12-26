@@ -23,10 +23,6 @@ module Spring
 
         nil
       end
-
-      def exec_name
-        "rake"
-      end
     end
 
     Spring.register_command "rake", Rake.new

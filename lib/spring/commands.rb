@@ -8,7 +8,7 @@ module Spring
     attr_reader :commands
   end
 
-  def self.register_command(name, command)
+  def self.register_command(name, command = nil)
     commands[name] = CommandWrapper.new(name, command)
   end
 
