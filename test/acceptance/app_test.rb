@@ -4,6 +4,7 @@ require "acceptance/helper"
 require "io/wait"
 require "timeout"
 require "spring/sid"
+require "spring/client"
 
 class AppTest < ActiveSupport::TestCase
   DEFAULT_SPEEDUP = 0.8
@@ -197,6 +198,49 @@ class AppTest < ActiveSupport::TestCase
     assert_success "#{app.spring} binstub --all"
     assert_success "bin/rake -T", stdout: "rake db:migrate"
     assert_success "bin/rails runner 'puts %(omg)'", stdout: "omg"
+  end
+
+  test "binstub upgrade" do
+    File.write(app.path("bin/rake").to_s, <<CODE)
+#!/usr/bin/env ruby
+
+if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?
+  exec "bundle", "exec", "rake", *ARGV
+else
+  ARGV.unshift "rake"
+  load Gem.bin_path("spring", "spring")
+end
+CODE
+
+    File.write(app.path("bin/rails").to_s, <<CODE)
+#!/usr/bin/env ruby
+
+if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?
+  APP_PATH = File.expand_path('../../config/application',  __FILE__)
+  require_relative '../config/boot'
+  require 'rails/commands'
+else
+  ARGV.unshift "rails"
+  load Gem.bin_path("spring", "spring")
+end
+CODE
+
+    assert_success "#{app.spring} binstub rake rails", stdout: "upgraded"
+
+    assert_equal app.path("bin/rake").read, <<CODE
+#!/usr/bin/env ruby
+#{Spring::Client::Binstub::LOADER.strip}
+require 'bundler/setup'
+load Gem.bin_path('rake', 'rake')
+CODE
+
+    assert_equal app.path("bin/rails").read, <<CODE
+#!/usr/bin/env ruby
+#{Spring::Client::Binstub::LOADER.strip}
+APP_PATH = File.expand_path('../../config/application',  __FILE__)
+require_relative '../config/boot'
+require 'rails/commands'
+CODE
   end
 
   test "after fork callback" do

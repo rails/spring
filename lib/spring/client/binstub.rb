@@ -12,6 +12,8 @@ rescue LoadError
 end
 CODE
 
+      OLD_BINSTUB = %{if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?}
+
       class Item
         attr_reader :command, :existing
 
@@ -29,7 +31,13 @@ CODE
 
         def add
           if existing
-            if existing =~ /load .*spring/
+            if existing.include?(OLD_BINSTUB)
+              fallback = existing.match(/#{Regexp.escape OLD_BINSTUB}\n(.*)else/m)[1]
+              fallback.gsub!(/^  /, "")
+              fallback = nil if fallback.include?("exec")
+              generate(fallback)
+              status "upgraded"
+            elsif existing =~ /load .*spring/
               status "spring already present"
             else
               head, shebang, tail = existing.partition(SHEBANG)
@@ -43,16 +51,19 @@ CODE
               end
             end
           else
-            File.write(
-              command.binstub.to_s,
-              "#!/usr/bin/env ruby\n" +
-              LOADER +
-              "require 'bundler/setup'\n" +
-              "load Gem.bin_path('#{command.gem_name}', '#{command.exec_name}')\n"
-            )
-            command.binstub.chmod 0755
+            generate
             status "generated with spring"
           end
+        end
+
+        def generate(fallback = nil)
+          unless fallback
+            fallback = "require 'bundler/setup'\n" \
+                       "load Gem.bin_path('#{command.gem_name}', '#{command.exec_name}')\n"
+          end
+
+          File.write(command.binstub.to_s, "#!/usr/bin/env ruby\n#{LOADER}#{fallback}")
+          command.binstub.chmod 0755
         end
       end
 

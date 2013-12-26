@@ -5,6 +5,9 @@
   it's no longer necessary to install spring system-wide. Note that you
   still can't have spring in your Gemfile as a git repository or local
   path; it must be a proper gem.
+* Various changes to how springified binstubs are implemented. Existing
+  binstubs will continue to work, but it's recommended to run `spring binstub`
+  again to upgrade them to the new format.
 
 ## 1.0.0
 
