@@ -58,28 +58,15 @@ CODE
         File.write(bindir.join("spring"), <<CODE)
 #!/usr/bin/env ruby
 
-require "rubygems"
-require "bundler"
+unless defined?(Spring)
+  require "rubygems"
+  require "bundler"
 
-ENV["GEM_HOME"] = ""
-ENV["GEM_PATH"] = Bundler.bundle_path.to_s
-Gem.paths = ENV
+  ENV["GEM_HOME"] = ""
+  ENV["GEM_PATH"] = Bundler.bundle_path.to_s
+  Gem.paths = ENV
 
-if Process.respond_to?(:fork) && !Gem::Specification.find_all_by_name("spring").empty?
-  module Spring
-    def self.invoke
-      load Gem.bin_path("spring", "spring")
-    end
-  end
-end
-
-if $0 == __FILE__
-  if defined?(Spring.invoke)
-    Spring.invoke
-  else
-    $stderr.puts "Spring is not available. Ensure the gem is installed and your Ruby implementation supports Process.fork."
-    exit 1
-  end
+  require "spring/binstub"
 end
 CODE
 
@@ -90,14 +77,12 @@ CODE
         File.write(bindir.join(name), <<CODE)
 #!/usr/bin/env ruby
 
-load File.expand_path('../spring', __FILE__)
-
-if defined?(Spring.invoke)
-  ARGV.unshift "#{name}"
-  Spring.invoke
-else
-#{command.fallback(name).strip.gsub(/^/, "  ")}
+begin
+  load File.expand_path("../spring", __FILE__)
+rescue LoadError
 end
+
+#{command.fallback(name).strip.gsub(/^/, "  ")}
 CODE
 
         bindir.join(name).chmod 0755

@@ -3,8 +3,7 @@ module Spring
     class Rails
       def call
         ARGV.unshift command_name
-        Object.const_set(:APP_PATH, ::Rails.root.join('config/application'))
-        require "rails/commands"
+        load Dir.glob(::Rails.root.join("{bin,script}/rails")).first
       end
 
       def description

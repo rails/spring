@@ -24,9 +24,7 @@ module Spring
         else
           require "spring/configuration"
           ARGV.shift
-          Object.const_set(:APP_PATH, Spring.application_root_path.join("config/application").to_s)
-          require Spring.application_root_path.join("config/boot")
-          require "rails/commands"
+          load Dir.glob(Spring.application_root_path.join("{bin,script}/rails")).first
         end
       end
     end

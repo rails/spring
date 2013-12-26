@@ -61,8 +61,16 @@ module Spring
       command.exec_name
     end
 
+    def binstub
+      Rails.root.join("bin/#{exec_name}")
+    end
+
     def exec
-      Gem.bin_path(gem_name, exec_name)
+      if binstub.exist?
+        binstub.to_s
+      else
+        Gem.bin_path(gem_name, exec_name)
+      end
     end
 
     def env(args)
