@@ -12,6 +12,21 @@ rescue LoadError
 end
 CODE
 
+      SPRING = <<CODE
+#!/usr/bin/env ruby
+
+unless defined?(Spring)
+  require "rubygems"
+  require "bundler"
+
+  ENV["GEM_HOME"] = ""
+  ENV["GEM_PATH"] = Bundler.bundle_path.to_s
+  Gem.paths = ENV
+
+  require "spring/binstub"
+end
+CODE
+
       OLD_BINSTUB = %{if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?}
 
       class Item
@@ -43,7 +58,7 @@ CODE
               head, shebang, tail = existing.partition(SHEBANG)
 
               if shebang.include?("ruby")
-                File.write(command.binstub.to_s, "#{head}#{shebang}#{LOADER}#{tail}")
+                File.write(command.binstub, "#{head}#{shebang}#{LOADER}#{tail}")
                 status "spring inserted"
               else
                 status "doesn't appear to be ruby, so cannot use spring", $stderr
@@ -62,8 +77,15 @@ CODE
                        "load Gem.bin_path('#{command.gem_name}', '#{command.exec_name}')\n"
           end
 
-          File.write(command.binstub.to_s, "#!/usr/bin/env ruby\n#{LOADER}#{fallback}")
+          File.write(command.binstub, "#!/usr/bin/env ruby\n#{LOADER}#{fallback}")
           command.binstub.chmod 0755
+        end
+
+        def remove
+          if existing
+            File.write(command.binstub, existing.sub(LOADER, ""))
+            status "spring removed"
+          end
         end
       end
 
@@ -86,6 +108,8 @@ CODE
         super
 
         @bindir = env.root.join("bin")
+        @all    = false
+        @mode   = :add
         @items  = args.drop(1)
                       .map { |name| find_commands name }
                       .inject(Set.new, :|)
@@ -95,9 +119,13 @@ CODE
       def find_commands(name)
         case name
         when "--all"
+          @all = true
           commands = Spring.commands.dup
           commands.delete_if { |name, _| name.start_with?("rails_") }
           commands.values + [self.class.rails_command]
+        when "--remove"
+          @mode = :remove
+          []
         when "rails"
           [self.class.rails_command]
         else
@@ -111,28 +139,26 @@ CODE
       end
 
       def call
-        bindir.mkdir unless bindir.exist?
-        generate_spring_binstub
-        items.each(&:add)
+        case @mode
+        when :add
+          bindir.mkdir unless bindir.exist?
+
+          unless spring_binstub.exist?
+            File.write(spring_binstub, SPRING)
+            spring_binstub.chmod 0755
+          end
+
+          items.each(&:add)
+        when :remove
+          spring_binstub.delete if @all
+          items.each(&:remove)
+        else
+          raise ArgumentError
+        end
       end
 
-      def generate_spring_binstub
-        File.write(bindir.join("spring"), <<CODE)
-#!/usr/bin/env ruby
-
-unless defined?(Spring)
-  require "rubygems"
-  require "bundler"
-
-  ENV["GEM_HOME"] = ""
-  ENV["GEM_PATH"] = Bundler.bundle_path.to_s
-  Gem.paths = ENV
-
-  require "spring/binstub"
-end
-CODE
-
-        bindir.join("spring").chmod 0755
+      def spring_binstub
+        bindir.join("spring")
       end
     end
   end

@@ -60,14 +60,14 @@ class AppTest < ActiveSupport::TestCase
   def assert_app_reloaded
     assert_success app.spring_test_command
 
-    File.write(app.application_config.to_s, app.application_config.read + <<-CODE)
+    File.write(app.application_config, app.application_config.read + <<-CODE)
       class Foo
         def self.omg
           raise "omg"
         end
       end
     CODE
-    File.write(app.test.to_s, app.test.read.sub("get :index", "Foo.omg"))
+    File.write(app.test, app.test.read.sub("get :index", "Foo.omg"))
 
     app.await_reload
     assert_failure app.spring_test_command, stdout: "RuntimeError: omg"
@@ -97,7 +97,7 @@ class AppTest < ActiveSupport::TestCase
     assert_speedup do
       assert_success app.spring_test_command, stdout: "0 failures"
 
-      File.write(app.test.to_s, app.test.read.sub("get :index", "raise 'omg'"))
+      File.write(app.test, app.test.read.sub("get :index", "raise 'omg'"))
       assert_failure app.spring_test_command, stdout: "RuntimeError: omg"
     end
   end
@@ -106,18 +106,18 @@ class AppTest < ActiveSupport::TestCase
     assert_speedup do
       assert_success app.spring_test_command, stdout: "0 failures"
 
-      File.write(app.controller.to_s, app.controller.read.sub("@posts = Post.all", "raise 'omg'"))
+      File.write(app.controller, app.controller.read.sub("@posts = Post.all", "raise 'omg'"))
       assert_failure app.spring_test_command, stdout: "RuntimeError: omg"
     end
   end
 
   test "code changes in pre-referenced app files are picked up" do
-    File.write(app.path("config/initializers/load_posts_controller.rb").to_s, "PostsController\n")
+    File.write(app.path("config/initializers/load_posts_controller.rb"), "PostsController\n")
 
     assert_speedup do
       assert_success app.spring_test_command, stdout: "0 failures"
 
-      File.write(app.controller.to_s, app.controller.read.sub("@posts = Post.all", "raise 'omg'"))
+      File.write(app.controller, app.controller.read.sub("@posts = Post.all", "raise 'omg'"))
       assert_failure app.spring_test_command, stdout: "RuntimeError: omg"
     end
   end
@@ -129,8 +129,8 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "app gets reloaded when preloaded files change (listen watcher)" do
-    File.write(app.gemfile.to_s, "#{app.gemfile.read}gem 'listen', '~> 1.0'")
-    File.write(app.spring_config.to_s, "Spring.watch_method = :listen")
+    File.write(app.gemfile, "#{app.gemfile.read}gem 'listen', '~> 1.0'")
+    File.write(app.spring_config, "Spring.watch_method = :listen")
     app.bundle
 
     app.env["RAILS_ENV"] = "test"
@@ -143,12 +143,12 @@ class AppTest < ActiveSupport::TestCase
 
     assert_success app.spring_test_command
 
-    File.write(app.application_config.to_s, "#{config}\nomg")
+    File.write(app.application_config, "#{config}\nomg")
     app.await_reload
 
     assert_failure app.spring_test_command
 
-    File.write(app.application_config.to_s, config)
+    File.write(app.application_config, config)
     assert_success app.spring_test_command
   end
 
@@ -161,7 +161,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "custom commands" do
-    File.write(app.spring_config.to_s, <<-CODE)
+    File.write(app.spring_config, <<-CODE)
       class CustomCommand
         def call
           puts "omg"
@@ -192,6 +192,10 @@ class AppTest < ActiveSupport::TestCase
     assert_success "bin/spring status", stdout: "Spring is running"
 
     assert_success "#{app.spring} binstub rake", stdout: "bin/rake: spring already present"
+
+    assert_success "#{app.spring} binstub --remove rake", stdout: "bin/rake: spring removed"
+    assert !app.path("bin/rake").read.include?(Spring::Client::Binstub::LOADER)
+    assert_success "bin/rake -T", stdout: "rake db:migrate"
   end
 
   test "binstub --all" do
@@ -201,7 +205,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "binstub upgrade" do
-    File.write(app.path("bin/rake").to_s, <<CODE)
+    File.write(app.path("bin/rake"), <<CODE)
 #!/usr/bin/env ruby
 
 if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?
@@ -212,7 +216,7 @@ else
 end
 CODE
 
-    File.write(app.path("bin/rails").to_s, <<CODE)
+    File.write(app.path("bin/rails"), <<CODE)
 #!/usr/bin/env ruby
 
 if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?
@@ -244,7 +248,7 @@ CODE
   end
 
   test "after fork callback" do
-    File.write(app.spring_config.to_s, "Spring.after_fork { puts '!callback!' }")
+    File.write(app.spring_config, "Spring.after_fork { puts '!callback!' }")
     assert_success "#{app.spring} rails runner 'puts 2'", stdout: "!callback!\n2"
   end
 
@@ -279,7 +283,7 @@ CODE
   end
 
   test "setting env vars with rake" do
-    File.write(app.path("lib/tasks/env.rake").to_s, <<-'CODE')
+    File.write(app.path("lib/tasks/env.rake"), <<-'CODE')
       task :print_rails_env => :environment do
         puts Rails.env
       end
@@ -299,7 +303,7 @@ CODE
   test "changing the Gemfile restarts the server" do
     assert_success %(#{app.spring} rails runner 'require "sqlite3"')
 
-    File.write(app.gemfile.to_s, app.gemfile.read.sub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
+    File.write(app.gemfile, app.gemfile.read.sub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
     app.bundle
 
     app.await_reload
@@ -307,7 +311,7 @@ CODE
   end
 
   test "changing the environment between runs" do
-    File.write(app.application_config.to_s, "#{app.application_config.read}\nENV['BAR'] = 'bar'")
+    File.write(app.application_config, "#{app.application_config.read}\nENV['BAR'] = 'bar'")
 
     app.env["OMG"] = "1"
     app.env["FOO"] = "1"

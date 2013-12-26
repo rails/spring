@@ -8,6 +8,9 @@
 * Various changes to how springified binstubs are implemented. Existing
   binstubs will continue to work, but it's recommended to run `spring binstub`
   again to upgrade them to the new format.
+* `spring binstub --remove` option added for removing spring from
+  binstubs. This won't work unless you have upgraded your binstubs to
+  the new format.
 
 ## 1.0.0
 
