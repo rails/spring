@@ -62,7 +62,7 @@ require "rubygems"
 require "bundler"
 
 ENV["GEM_HOME"] = ""
-ENV["GEM_PATH"] = ([Bundler.bundle_path.to_s] + Gem.path).join(File::PATH_SEPARATOR)
+ENV["GEM_PATH"] = Bundler.bundle_path.to_s
 Gem.paths = ENV
 
 if Process.respond_to?(:fork) && !Gem::Specification.find_all_by_name("spring").empty?
