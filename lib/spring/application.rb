@@ -115,6 +115,10 @@ module Spring
         # Load in the current env vars, except those which *were* changed when spring started
         env.each { |k, v| ENV[k] ||= v }
 
+        # requiring is faster, and we don't need constant reloading in this process
+        ActiveSupport::Dependencies.mechanism = :require
+        Rails.application.config.cache_classes = true
+
         connect_database
         srand
 
