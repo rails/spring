@@ -252,6 +252,10 @@ module Spring
 
       def install_spring
         unless @installed
+          # Need to do this here too because the app may have been generated with
+          # a different ruby
+          application.bundle
+
           system("gem build spring.gemspec 2>/dev/null 1>/dev/null")
           application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
 
