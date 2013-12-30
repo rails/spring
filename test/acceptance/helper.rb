@@ -2,6 +2,39 @@ require "spring/env"
 
 module Spring
   module Test
+    class RailsVersion
+      attr_reader :version
+
+      def initialize(string)
+        @version = Gem::Version.new(string)
+      end
+
+      def rails_3?
+        version < Gem::Version.new("4.0.0")
+      end
+      alias needs_testunit? rails_3?
+
+      def test_command
+        needs_testunit? ? 'bin/testunit' : 'bin/rake test'
+      end
+
+      def controller_tests_dir
+        rails_3? ? 'functional' : 'controllers'
+      end
+
+      def bundles_spring?
+        version >= Gem::Version.new("4.1.0.beta1")
+      end
+
+      def major
+        version.segments[0]
+      end
+
+      def minor
+        version.segments[1]
+      end
+    end
+
     class Application
       DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
 
@@ -59,16 +92,12 @@ module Spring
         gem_home.join "bin/spring"
       end
 
-      def rails_3?
-        rails_version < Gem::Version.new("4.0.0")
-      end
-
       def rails_version
-        @rails_version ||= Gem::Version.new(gemfile.read.match(/gem 'rails', '(.*)'/)[1])
+        @rails_version ||= RailsVersion.new(gemfile.read.match(/gem 'rails', '(.*)'/)[1])
       end
 
       def spring_test_command
-        "#{rails_3? ? 'bin/testunit' : 'bin/rake test'} #{test}"
+        "#{rails_version.test_command} #{test}"
       end
 
       def stop_spring
@@ -77,7 +106,7 @@ module Spring
       end
 
       def test
-        path "test/#{rails_3? ? 'functional' : 'controllers'}/posts_controller_test.rb"
+        path "test/#{rails_version.controller_tests_dir}/posts_controller_test.rb"
       end
 
       def controller
@@ -203,34 +232,38 @@ module Spring
     end
 
     class ApplicationGenerator
-      attr_reader :version_constraint, :application
+      attr_reader :version_constraint, :version, :application
 
       def initialize(version_constraint)
         @version_constraint = version_constraint
+        @version            = RailsVersion.new(version_constraint.split(' ').last)
         @application        = Application.new(root)
       end
 
       def root
-        "#{TEST_ROOT}/apps/rails-#{version_constraint.scan(/\d/)[0..1].join("-")}"
+        "#{TEST_ROOT}/apps/rails-#{version.major}-#{version.minor}"
       end
 
       def system(command)
-        Kernel.system(command) or raise "command failed: #{command}"
+        Kernel.system("#{command} > /dev/null") or raise "command failed: #{command}"
       end
 
       # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
       def generate
         Bundler.with_clean_env do
           system("(gem list rails --installed --version '#{version_constraint}' || " \
-                    "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}') > /dev/null")
+                    "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}')")
 
-          system("rails '_#{version_constraint}_' new #{application.root} --skip-bundle --skip-javascript --skip-sprockets > /dev/null")
+          skips = %w(--skip-bundle --skip-javascript --skip-sprockets)
+          skips << "--skip-spring" if version.bundles_spring?
+
+          system("rails '_#{version_constraint}_' new #{application.root} #{skips.join(' ')}")
 
           FileUtils.mkdir_p(application.gem_home)
           FileUtils.mkdir_p(application.user_home)
           FileUtils.rm_rf(application.path("test/performance"))
 
-          if application.rails_3?
+          if version.needs_testunit?
             File.write(application.gemfile, "#{application.gemfile.read}gem 'spring-commands-testunit'\n")
           end
 
@@ -256,7 +289,7 @@ module Spring
           # a different ruby
           application.bundle
 
-          system("gem build spring.gemspec 2>/dev/null 1>/dev/null")
+          system("gem build spring.gemspec 2>/dev/null")
           application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
 
           FileUtils.rm_rf application.path("bin")
