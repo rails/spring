@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["j@jonathanleighton.com"]
   gem.description   = %q{Rails application preloader}
   gem.summary       = %q{Rails application preloader}
-  gem.homepage      = "http://github.com/jonleighton/spring"
+  gem.homepage      = "http://github.com/rails/spring"
   gem.license       = "MIT"
 
   gem.files         = `git ls-files`.split($/)
