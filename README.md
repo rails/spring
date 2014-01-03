@@ -260,6 +260,9 @@ $ bin/rails runner 'puts User == USER_CLASS'
 false
 ```
 
+So to avoid this problem, don't save off references to application
+constants in your initialization code.
+
 ## Configuration
 
 Spring will read `~/.spring.rb` and `config/spring.rb` for custom
