@@ -53,6 +53,7 @@ module Spring
       watcher.add loaded_application_features
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
       watcher.add Rails.application.paths["config/initializers"]
+      watcher.add Rails.application.paths["config/database"]
 
       @preloaded = true
     end

@@ -11,6 +11,7 @@
 * `spring binstub --remove` option added for removing spring from
   binstubs. This won't work unless you have upgraded your binstubs to
   the new format.
+* `config/database.yml` is watched
 
 ## 1.0.0
 
