@@ -222,6 +222,44 @@ To use spring like this, do a `gem install spring` and then prefix
 commands with `spring`. For example, rather than running `bin/rake -T`,
 you'd run `spring rake -T`.
 
+## Class reloading
+
+Spring uses Rails' class reloading mechanism
+(`ActiveSupport::Dependencies`) to keep your code up to date between
+test runs. This is the same mechanism which allows you to see changes
+during development when you refresh the page. However, you may never
+have used this mechanism with your `test` environment before, and this
+can cause problems.
+
+It's important to realise that code reloading means that the constants
+in your application are *different objects* after files have changed:
+
+```
+$ bin/rails runner 'puts User.object_id'
+70127987886040
+$ touch app/models/user.rb
+$ bin/rails runner 'puts User.object_id'
+70127976764620
+```
+
+Suppose you have an initializer `config/initializers/save_user_class.rb`
+like so:
+
+``` ruby
+USER_CLASS = User
+```
+
+This saves off the *first* version of the `User` class, which will not
+be the same object as `User` after the code has been reloaded:
+
+```
+$ bin/rails runner 'puts User == USER_CLASS'
+true
+$ touch app/models/user.rb
+$ bin/rails runner 'puts User == USER_CLASS'
+false
+```
+
 ## Configuration
 
 Spring will read `~/.spring.rb` and `config/spring.rb` for custom
