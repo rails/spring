@@ -218,7 +218,7 @@ module Spring
 
       def bundle
         run! "(gem list bundler | grep bundler) || gem install bundler", timeout: nil
-        run! "bundle check || bundle update", timeout: nil
+        run! "bundle update", timeout: nil
       end
 
       private
@@ -238,14 +238,21 @@ module Spring
         @version_constraint = version_constraint
         @version            = RailsVersion.new(version_constraint.split(' ').last)
         @application        = Application.new(root)
+        @bundled            = false
       end
 
       def root
-        "#{TEST_ROOT}/apps/rails-#{version.major}-#{version.minor}"
+        "#{TEST_ROOT}/apps/rails-#{version.major}-#{version.minor}-spring-#{Spring::VERSION}"
       end
 
       def system(command)
         Kernel.system("#{command} > /dev/null") or raise "command failed: #{command}"
+      end
+
+      def bundle
+        return if @bundled
+        application.bundle
+        @bundled = true
       end
 
       # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
@@ -263,6 +270,8 @@ module Spring
           FileUtils.mkdir_p(application.user_home)
           FileUtils.rm_rf(application.path("test/performance"))
 
+          File.write(application.gemfile, "#{application.gemfile.read}gem 'spring', '#{Spring::VERSION}'\n")
+
           if version.needs_testunit?
             File.write(application.gemfile, "#{application.gemfile.read}gem 'spring-commands-testunit'\n")
           end
@@ -274,7 +283,7 @@ module Spring
           end
         end
 
-        application.bundle
+        bundle
         application.run! "bundle exec rails g scaffold post title:string"
         application.run! "bundle exec rake db:migrate db:test:clone"
       end
@@ -287,7 +296,7 @@ module Spring
         unless @installed
           # Need to do this here too because the app may have been generated with
           # a different ruby
-          application.bundle
+          bundle
 
           system("gem build spring.gemspec 2>/dev/null")
           application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
