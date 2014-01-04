@@ -67,7 +67,7 @@ module Spring
 
         if watcher.stale?
           log "watcher stale; exiting"
-          manager.close
+          manager.shutdown(:RDWR)
           @exiting = true
           try_exit
           sleep
