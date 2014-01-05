@@ -20,6 +20,7 @@ module Spring
     end
 
     def state(val)
+      return if exiting?
       log "#{@state} -> #{val}"
       @state = val
     end
