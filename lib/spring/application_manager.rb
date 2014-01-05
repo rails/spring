@@ -14,7 +14,7 @@ module Spring
     end
 
     def log(message)
-      server.log(message)
+      spring_env.log "[application_manager:#{app_env}] #{message}"
     end
 
     # We're not using @mutex.synchronize to avoid the weird "<internal:prelude>:10"
