@@ -13,11 +13,20 @@ module Spring
       @preloaded  = false
       @mutex      = Mutex.new
       @waiting    = 0
-      @exiting    = false
+      @state      = :initialized
+      @interrupt  = IO.pipe
 
-      # Workaround for GC bug in Ruby 2 which causes segfaults if watcher.to_io
-      # instances get dereffed.
-      @fds = [manager, watcher.to_io]
+      watcher.on_stale { state! :watcher_stale }
+    end
+
+    def state(val)
+      log "#{@state} -> #{val}"
+      @state = val
+    end
+
+    def state!(val)
+      state val
+      @interrupt.last.write "."
     end
 
     def log(message)
@@ -29,7 +38,15 @@ module Spring
     end
 
     def exiting?
-      @exiting
+      @state == :exiting
+    end
+
+    def terminating?
+      @state == :terminating
+    end
+
+    def watcher_stale?
+      @state == :watcher_stale
     end
 
     def preload
@@ -59,28 +76,19 @@ module Spring
     end
 
     def run
-      log "running"
+      state :running
       watcher.start
+      Signal.trap("TERM") { terminate }
 
       loop do
-        IO.select(@fds)
+        IO.select [manager, @interrupt.first]
 
-        if watcher.stale?
-          log "watcher stale; exiting"
-          manager.shutdown(:RDWR)
-          @exiting = true
-          try_exit
-          sleep
+        if terminating? || watcher_stale?
+          exit
         else
           serve manager.recv_io(UNIXSocket)
         end
       end
-    end
-
-    def try_exit
-      @mutex.synchronize {
-        exit if exiting? && @waiting == 0
-      }
     end
 
     def serve(client)
@@ -107,6 +115,7 @@ module Spring
         Process.setsid
         STDIN.reopen(streams.last)
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
+        trap("TERM", "DEFAULT")
 
         ARGV.replace(args)
 
@@ -147,7 +156,7 @@ module Spring
         client.close
 
         @mutex.synchronize { @waiting -= 1 }
-        try_exit
+        exit_if_finished
       }
 
     rescue => e
@@ -156,6 +165,23 @@ module Spring
       client.puts(1)
       client.close
       raise
+    end
+
+    def terminate
+      state! :terminating
+    end
+
+    def exit
+      state :exiting
+      manager.shutdown(:RDWR)
+      exit_if_finished
+      sleep
+    end
+
+    def exit_if_finished
+      @mutex.synchronize {
+        Kernel.exit if exiting? && @waiting == 0
+      }
     end
 
     # The command might need to require some files in the

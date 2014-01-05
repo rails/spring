@@ -1,6 +1,7 @@
 require "helper"
 require "tmpdir"
 require "fileutils"
+require "timeout"
 require "active_support/core_ext/numeric/time"
 require "spring/watcher"
 require "spring/watcher/polling"
@@ -120,22 +121,20 @@ module WatcherTests
     assert_stale
   end
 
-  def test_can_io_select
+  def test_on_stale
     file = "#{@dir}/omg"
     touch file, Time.now - 2.seconds
 
     watcher.add file
     watcher.start
 
-    io = watcher.to_io
+    stale = false
+    watcher.on_stale { stale = true }
 
-    Thread.new {
-      sleep LATENCY * 3
-      touch file, Time.now
-    }
+    touch file, Time.now
 
-    assert IO.select([io], [], [], 1), "IO.select timed out before watcher was readable"
-    assert watcher.stale?
+    Timeout.timeout(1) { sleep 0.01 until stale }
+    assert stale
   end
 
   def test_add_relative_path

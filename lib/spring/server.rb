@@ -95,7 +95,7 @@ module Spring
     # Ignore SIGINT and SIGQUIT otherwise the user typing ^C or ^\ on the command line
     # will kill the server/application.
     def ignore_signals
-      IGNORE_SIGNALS.each { |sig| trap(sig,  "IGNORE") }
+      IGNORE_SIGNALS.each { |sig| trap(sig, "IGNORE") }
     end
 
     def set_exit_hook

@@ -22,7 +22,7 @@ module Spring
         @files       = Set.new
         @directories = Set.new
         @stale       = false
-        @io_listener = nil
+        @listeners   = []
       end
 
       def add(*items)
@@ -55,15 +55,13 @@ module Spring
         @stale
       end
 
-      def mark_stale
-        @stale = true
-        @io_listener.write "." if @io_listener
+      def on_stale(&block)
+        @listeners << block
       end
 
-      def to_io
-        read, write = IO.pipe
-        @io_listener = write
-        read
+      def mark_stale
+        @stale = true
+        @listeners.each(&:call)
       end
 
       def restart
