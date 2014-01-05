@@ -135,6 +135,11 @@ module WatcherTests
 
     Timeout.timeout(1) { sleep 0.01 until stale }
     assert stale
+
+    # Check that we only get notified once
+    stale = false
+    sleep LATENCY * 3
+    assert !stale
   end
 
   def test_add_relative_path

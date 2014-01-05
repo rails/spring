@@ -60,6 +60,7 @@ module Spring
       end
 
       def mark_stale
+        return if stale?
         @stale = true
         @listeners.each(&:call)
       end
