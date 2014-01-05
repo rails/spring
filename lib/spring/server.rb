@@ -144,7 +144,12 @@ module Spring
     end
 
     def application_starting
-      @mutex.synchronize { exit if env.bundle_mtime != @bundle_mtime }
+      @mutex.synchronize {
+        if env.bundle_mtime != @bundle_mtime
+          log "bundle is stale; exiting"
+          Kernel.exit
+        end
+      }
     end
   end
 end

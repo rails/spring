@@ -4,7 +4,7 @@ require "spring/application"
 
 module Spring
   class ApplicationManager
-    attr_reader :pid, :child, :app_env, :spring_env, :server
+    attr_reader :pid, :child, :app_env, :spring_env, :server, :status
 
     def initialize(server, app_env)
       @server     = server
@@ -106,16 +106,26 @@ module Spring
     end
 
     def start_wait_thread
-      @wait_thread = Thread.new {
+      Thread.new {
         Thread.current.abort_on_exception = true
 
         while alive?
-          _, status = Process.wait2(pid)
+          while IO.select([child]) && !child.recv(1, Socket::MSG_PEEK).empty?
+            sleep 0.01
+          end
+
+          log "child socket got shutdown"
+
+          # Record status, but don't block for it because the process might be
+          # waiting around for its own children before exiting
+          pid = @pid
+          Thread.new { _, @status = Process.wait2(pid) }
           @pid = nil
+          sleep 0.1 # allow a small amount of time to get status
 
           # In the forked child, this will block forever, so we won't
           # return to the next iteration of the loop.
-          synchronize { restart if !alive? && status.success? }
+          synchronize { restart if !alive? && (status.nil? || status.success?) }
         end
       }
     end

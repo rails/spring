@@ -306,6 +306,20 @@ CODE
     assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
   end
 
+  test "changing the Gemfile works when spring calls into itself" do
+    File.write(app.path("script.rb"), <<-CODE)
+      gemfile = Rails.root.join("Gemfile")
+      File.write(gemfile, "\#{gemfile.read}gem 'devise'\\n")
+      Bundler.with_clean_env do
+        system(#{app.env.inspect}, "bundle install")
+      end
+      output = `\#{Rails.root.join('bin/rails')} runner 'require "devise"; puts "done";'`
+      exit output == "done\n"
+    CODE
+
+    assert_success [%(bin/rails runner 'load Rails.root.join("script.rb")'), timeout: nil]
+  end
+
   test "changing the environment between runs" do
     File.write(app.application_config, "#{app.application_config.read}\nENV['BAR'] = 'bar'")
 
