@@ -23,22 +23,27 @@ CODE
       # process we'll execute the lines which come after the LOADER block, which
       # is what we want.
       #
-      # Gem.try_activate would be called inside rubygems due to the #require.
-      # However, when that happens $! gets set and it appears that there is a
-      # LoadError, which can cause problems. So we activate the gem separately
-      # to requiring the file.
-      SPRING = <<CODE
+      # Parsing the lockfile in this way is pretty nasty but reliable enough
+      # The regex ensures that the match must be between a GEM line and an empty
+      # line, so it won't go on to the next section.
+      SPRING = <<'CODE'
 #!/usr/bin/env ruby
+
+# This file loads spring without using Bundler, in order to be fast
+# It gets overwritten when you run the `spring binstub` command
 
 unless defined?(Spring)
   require "rubygems"
   require "bundler"
 
+  match = Bundler.default_lockfile.read.match(/^GEM$.*?^    spring \((.*?)\)$.*?^$/m)
+  version = match && match[1]
+
   ENV["GEM_HOME"] = ""
-  ENV["GEM_PATH"] = Bundler.bundle_path.to_s
+  ENV["GEM_PATH"] = ([Bundler.bundle_path.to_s] + Gem.path).join(File::PATH_SEPARATOR)
   Gem.paths = ENV
 
-  Gem.try_activate("spring/binstub")
+  Gem::Specification.find_by_name("spring", version).activate
   require "spring/binstub"
 end
 CODE

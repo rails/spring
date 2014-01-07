@@ -2,7 +2,8 @@
 
 * A `bin/spring` binstub is now generated. This allows us to load spring
   correctly if you have it installed locally with a `BUNDLE_PATH`, so
-  it's no longer necessary to install spring system-wide. Note that you
+  it's no longer necessary to install spring system-wide. We also
+  activate the correct version from your Gemfile.lock. Note that you
   still can't have spring in your Gemfile as a git repository or local
   path; it must be a proper gem.
 * Various changes to how springified binstubs are implemented. Existing
