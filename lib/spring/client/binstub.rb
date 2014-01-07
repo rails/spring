@@ -167,10 +167,8 @@ CODE
         when :add
           bindir.mkdir unless bindir.exist?
 
-          unless spring_binstub.exist?
-            File.write(spring_binstub, SPRING)
-            spring_binstub.chmod 0755
-          end
+          File.write(spring_binstub, SPRING)
+          spring_binstub.chmod 0755
 
           items.each(&:add)
         when :remove
