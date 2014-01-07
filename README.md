@@ -222,6 +222,11 @@ To use spring like this, do a `gem install spring` and then prefix
 commands with `spring`. For example, rather than running `bin/rake -T`,
 you'd run `spring rake -T`.
 
+## Temporarily disabling Spring
+
+If you're using Spring binstubs, but temporarily don't want commands to
+run through Spring, set the `DISABLE_SPRING` environment variable.
+
 ## Class reloading
 
 Spring uses Rails' class reloading mechanism
