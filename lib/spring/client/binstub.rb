@@ -39,8 +39,8 @@ unless defined?(Spring)
   match = Bundler.default_lockfile.read.match(/^GEM$.*?^    spring \((.*?)\)$.*?^$/m)
   version = match && match[1]
 
-  ENV["GEM_HOME"] = ""
   ENV["GEM_PATH"] = ([Bundler.bundle_path.to_s] + Gem.path).join(File::PATH_SEPARATOR)
+  ENV["GEM_HOME"] = ""
   Gem.paths = ENV
 
   Gem::Specification.find_by_name("spring", version).activate
