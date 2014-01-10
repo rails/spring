@@ -1,23 +1,22 @@
+require "spring/boot"
 require "set"
-require "spring/watcher"
-require "thread"
 
 module Spring
   class Application
-    attr_reader :manager, :watcher, :spring_env
+    attr_reader :manager, :watcher, :spring_env, :original_env
 
-    def initialize(manager, watcher = Spring.watcher)
-      @manager    = manager
-      @watcher    = watcher
-      @spring_env = Env.new
-      @mutex      = Mutex.new
-      @waiting    = 0
-      @preloaded  = false
-      @state      = :initialized
-      @interrupt  = IO.pipe
+    def initialize(manager, original_env)
+      @manager      = manager
+      @original_env = original_env
+      @watcher      = Spring.watcher
+      @spring_env   = Env.new
+      @mutex        = Mutex.new
+      @waiting      = 0
+      @preloaded    = false
+      @state        = :initialized
+      @interrupt    = IO.pipe
 
       watcher.on_stale { state! :watcher_stale }
-      Signal.trap("TERM") { terminate }
     end
 
     def state(val)
@@ -31,8 +30,12 @@ module Spring
       @interrupt.last.write "."
     end
 
+    def app_env
+      ENV['RAILS_ENV']
+    end
+
     def log(message)
-      spring_env.log "[application:#{ENV['RAILS_ENV']}] #{message}"
+      spring_env.log "[application:#{app_env}] #{message}"
     end
 
     def preloaded?
@@ -94,6 +97,7 @@ module Spring
 
     def run
       state :running
+      update_process_title
       watcher.start
 
       loop do
@@ -136,7 +140,7 @@ module Spring
         ARGV.replace(args)
 
         # Delete all env vars which are unchanged from before spring started
-        Spring.original_env.each { |k, v| ENV.delete k if ENV[k] == v }
+        original_env.each { |k, v| ENV.delete k if ENV[k] == v }
 
         # Load in the current env vars, except those which *were* changed when spring started
         env.each { |k, v| ENV[k] ||= v }
@@ -254,6 +258,12 @@ module Spring
       first, rest = error.backtrace.first, error.backtrace.drop(1)
       stream.puts("#{first}: #{error} (#{error.class})")
       rest.each { |line| stream.puts("\tfrom #{line}") }
+    end
+
+    def update_process_title
+      ProcessTitleUpdater.run { |distance|
+        "spring app    | #{spring_env.app_name} | started #{distance} ago | #{app_env} mode"
+      }
     end
   end
 end

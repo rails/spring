@@ -43,7 +43,7 @@ unless defined?(Spring)
   ENV["GEM_HOME"] = ""
   Gem.paths = ENV
 
-  Gem::Specification.find_by_name("spring", version).activate
+  gem "spring", version
   require "spring/binstub"
 end
 CODE

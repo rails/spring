@@ -1,7 +1,3 @@
-require "socket"
-require "thread"
-require "spring/application"
-
 module Spring
   class ApplicationManager
     attr_reader :pid, :child, :app_env, :spring_env, :server, :status
@@ -90,21 +86,22 @@ module Spring
       server.application_starting
 
       @child, child_socket = UNIXSocket.pair
-      @pid = fork {
-        (ObjectSpace.each_object(IO).to_a - [STDOUT, STDERR, STDIN, child_socket])
-          .reject(&:closed?)
-          .each(&:close)
 
-        ENV['RAILS_ENV'] = ENV['RACK_ENV'] = app_env
+      Bundler.with_clean_env do
+        @pid = Process.spawn(
+          {
+            "RAILS_ENV"           => app_env,
+            "RACK_ENV"            => app_env,
+            "SPRING_ORIGINAL_ENV" => JSON.dump(Spring::ORIGINAL_ENV),
+            "SPRING_PRELOAD"      => preload ? "1" : "0"
+          },
+          "ruby",
+          "-I", File.expand_path("../..", __FILE__),
+          "-e", "require 'spring/application/boot'",
+          3 => child_socket
+        )
+      end
 
-        ProcessTitleUpdater.run { |distance|
-          "spring app    | #{spring_env.app_name} | started #{distance} ago | #{app_env} mode"
-        }
-
-        app = Application.new(child_socket)
-        app.preload if preload
-        app.run
-      }
       start_wait_thread(pid, child)
       child_socket.close
     end
