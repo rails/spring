@@ -28,7 +28,6 @@ module Spring
 
     def start
       start_child
-      start_wait_thread
     end
 
     def restart
@@ -63,12 +62,16 @@ module Spring
     def run(client)
       with_child do
         child.send_io client
-        child.gets
+        child.gets or raise Errno::EPIPE
       end
 
       pid = child.gets
-      pid = pid.chomp.to_i if pid
-      log "got worker pid #{pid}"
+
+      if pid && !pid.chomp.empty?
+        pid = pid.chomp.to_i
+        log "got worker pid #{pid}"
+      end
+
       pid
     rescue Errno::ECONNRESET, Errno::EPIPE => e
       log "#{e} while reading from child; returning no pid"
@@ -102,31 +105,28 @@ module Spring
         app.preload if preload
         app.run
       }
+      start_wait_thread(pid, child)
       child_socket.close
     end
 
-    def start_wait_thread
+    def start_wait_thread(pid, child)
       Thread.new {
         Thread.current.abort_on_exception = true
 
-        while alive?
-          while IO.select([child]) && !child.recv(1, Socket::MSG_PEEK).empty?
-            sleep 0.01
-          end
-
-          log "child socket got shutdown"
-
-          # Record status, but don't block for it because the process might be
-          # waiting around for its own children before exiting
-          pid = @pid
-          Thread.new { _, @status = Process.wait2(pid) }
-          @pid = nil
-          sleep 0.1 # allow a small amount of time to get status
-
-          # In the forked child, this will block forever, so we won't
-          # return to the next iteration of the loop.
-          synchronize { restart if !alive? && (status.nil? || status.success?) }
+        while IO.select([child]) && !child.recv(1, Socket::MSG_PEEK).empty?
+          sleep 0.01
         end
+
+        log "child #{pid} shutdown"
+
+        synchronize {
+          if @pid == pid
+            @pid = nil
+            restart
+          end
+        }
+
+        Process.wait(pid)
       }
     end
   end

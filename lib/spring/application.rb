@@ -10,13 +10,14 @@ module Spring
       @manager    = manager
       @watcher    = watcher
       @spring_env = Env.new
-      @preloaded  = false
       @mutex      = Mutex.new
       @waiting    = 0
+      @preloaded  = false
       @state      = :initialized
       @interrupt  = IO.pipe
 
       watcher.on_stale { state! :watcher_stale }
+      Signal.trap("TERM") { terminate }
     end
 
     def state(val)
@@ -38,6 +39,10 @@ module Spring
       @preloaded
     end
 
+    def preload_failed?
+      @preloaded == :failure
+    end
+
     def exiting?
       @state == :exiting
     end
@@ -48,6 +53,10 @@ module Spring
 
     def watcher_stale?
       @state == :watcher_stale
+    end
+
+    def initialized?
+      @state == :initialized
     end
 
     def preload
@@ -68,23 +77,29 @@ module Spring
       Rails.application.config.cache_classes = false
       disconnect_database
 
+      @preloaded = :success
+    rescue Exception => e
+      @preloaded = :failure
+      watcher.add e.backtrace.map { |line| line.match(/^(.*)\:\d+\:in /)[1] }
+      raise e unless initialized?
+    ensure
       watcher.add loaded_application_features
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
-      watcher.add Rails.application.paths["config/initializers"]
-      watcher.add Rails.application.paths["config/database"]
 
-      @preloaded = true
+      if defined?(Rails)
+        watcher.add Rails.application.paths["config/initializers"]
+        watcher.add Rails.application.paths["config/database"]
+      end
     end
 
     def run
       state :running
       watcher.start
-      Signal.trap("TERM") { terminate }
 
       loop do
         IO.select [manager, @interrupt.first]
 
-        if terminating? || watcher_stale?
+        if terminating? || watcher_stale? || preload_failed?
           exit
         else
           serve manager.recv_io(UNIXSocket)
@@ -96,8 +111,8 @@ module Spring
       log "got client"
       manager.puts
 
-      streams = 3.times.map { client.recv_io }
-      [STDOUT, STDERR].zip(streams).each { |a, b| a.reopen(b) }
+      stdout, stderr, stdin = streams = 3.times.map { client.recv_io }
+      [STDOUT, STDERR].zip([stdout, stderr]).each { |a, b| a.reopen(b) }
 
       preload unless preloaded?
 
@@ -114,7 +129,7 @@ module Spring
 
       pid = fork {
         Process.setsid
-        STDIN.reopen(streams.last)
+        STDIN.reopen(stdin)
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         trap("TERM", "DEFAULT")
 
@@ -162,10 +177,15 @@ module Spring
 
     rescue => e
       log "exception: #{e}"
-      streams.each(&:close) if streams
-      client.puts(1)
+      manager.puts unless pid
+
+      if streams
+        print_exception(stderr, e)
+        streams.each(&:close)
+      end
+
+      client.puts(1) if pid
       client.close
-      raise
     end
 
     def terminate
@@ -228,6 +248,12 @@ module Spring
           end
         end
       end
+    end
+
+    def print_exception(stream, error)
+      first, rest = error.backtrace.first, error.backtrace.drop(1)
+      stream.puts("#{first}: #{error} (#{error.class})")
+      rest.each { |line| stream.puts("\tfrom #{line}") }
     end
   end
 end

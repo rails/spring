@@ -13,6 +13,12 @@
   binstubs. This won't work unless you have upgraded your binstubs to
   the new format.
 * `config/database.yml` is watched
+* Better application restarts - if you introduce an error, for example
+  by editing `config/application.rb`, spring will now continue to watch
+  your files and will immediately try to restart the application when
+  you edit `config/application.rb` again (hopefully to correct the error).
+  This means that by the time you come to run a command the application
+  may well already be running.
 
 ## 1.0.0
 
