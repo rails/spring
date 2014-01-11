@@ -60,7 +60,7 @@ module Spring
     end
 
     def server_running?
-      pidfile = pidfile_path.open('r')
+      pidfile = pidfile_path.open('r+')
       !pidfile.flock(File::LOCK_EX | File::LOCK_NB)
     rescue Errno::ENOENT
       false
