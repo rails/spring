@@ -8,15 +8,12 @@ module Spring
     def initialize(manager, original_env)
       @manager      = manager
       @original_env = original_env
-      @watcher      = Spring.watcher
       @spring_env   = Env.new
       @mutex        = Mutex.new
       @waiting      = 0
       @preloaded    = false
       @state        = :initialized
       @interrupt    = IO.pipe
-
-      watcher.on_stale { state! :watcher_stale }
     end
 
     def state(val)
@@ -62,8 +59,17 @@ module Spring
       @state == :initialized
     end
 
+    def start_watcher
+      @watcher = Spring.watcher
+      @watcher.on_stale { state! :watcher_stale }
+      @watcher.start
+    end
+
     def preload
       log "preloading app"
+
+      require "spring/commands"
+      start_watcher
 
       require Spring.application_root_path.join("config", "application")
 
@@ -97,8 +103,8 @@ module Spring
 
     def run
       state :running
+      manager.puts
       update_process_title
-      watcher.start
 
       loop do
         IO.select [manager, @interrupt.first]
@@ -179,11 +185,11 @@ module Spring
         exit_if_finished
       }
 
-    rescue => e
+    rescue Exception => e
       log "exception: #{e}"
       manager.puts unless pid
 
-      if streams
+      if streams && !e.is_a?(SystemExit)
         print_exception(stderr, e)
         streams.each(&:close)
       end
@@ -225,7 +231,8 @@ module Spring
     end
 
     def loaded_application_features
-      $LOADED_FEATURES.select { |f| f.start_with?(File.realpath(Rails.root)) }
+      root = Spring.application_root_path.to_s
+      $LOADED_FEATURES.select { |f| f.start_with?(root) }
     end
 
     def disconnect_database

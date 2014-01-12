@@ -3,6 +3,10 @@ module Spring
 end
 
 require "spring/boot"
+require "spring/application_manager"
+
+# Must be last, as it requires bundler/setup, which alters the load path
+require "spring/commands"
 
 module Spring
   class Server
@@ -14,7 +18,7 @@ module Spring
 
     def initialize(env = Env.new)
       @env          = env
-      @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(self, k) }
+      @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(k) }
       @pidfile      = env.pidfile_path.open('a')
       @mutex        = Mutex.new
     end
@@ -31,7 +35,6 @@ module Spring
       ignore_signals
       set_exit_hook
       set_process_title
-      watch_bundle
       start_server
     end
 
@@ -119,19 +122,6 @@ module Spring
     def set_process_title
       ProcessTitleUpdater.run { |distance|
         "spring server | #{env.app_name} | started #{distance} ago"
-      }
-    end
-
-    def watch_bundle
-      @bundle_mtime = env.bundle_mtime
-    end
-
-    def application_starting
-      @mutex.synchronize {
-        if env.bundle_mtime != @bundle_mtime
-          log "bundle is stale; exiting"
-          Kernel.exit
-        end
       }
     end
   end

@@ -19,6 +19,10 @@
   you edit `config/application.rb` again (hopefully to correct the error).
   This means that by the time you come to run a command the application
   may well already be running.
+* Gemfile changes are now gracefully handled. Previously they would
+  cause spring to simply quit, meaning that you'd incur the full startup
+  penalty on the next run. Now spring doesn't quit, and will try to load
+  up your new bundle in the background.
 
 ## 1.0.0
 

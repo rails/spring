@@ -71,10 +71,6 @@ module Spring
       end
     end
 
-    def bundle_mtime
-      [Bundler.default_lockfile, Bundler.default_gemfile].select(&:exist?).map(&:mtime).max
-    end
-
     def log(message)
       log_file.puts "[#{Time.now}] [#{Process.pid}] #{message}"
       log_file.flush

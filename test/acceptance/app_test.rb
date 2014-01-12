@@ -296,13 +296,12 @@ CODE
     assert_success "bin/rake", stdout: "test"
   end
 
-  test "changing the Gemfile restarts the server" do
+  test "changing the Gemfile works" do
     assert_success %(bin/rails runner 'require "sqlite3"')
 
     File.write(app.gemfile, app.gemfile.read.sub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
-    app.bundle
-
     app.await_reload
+
     assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
   end
 

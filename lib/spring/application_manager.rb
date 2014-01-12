@@ -1,9 +1,8 @@
 module Spring
   class ApplicationManager
-    attr_reader :pid, :child, :app_env, :spring_env, :server, :status
+    attr_reader :pid, :child, :app_env, :spring_env, :status
 
-    def initialize(server, app_env)
-      @server     = server
+    def initialize(app_env)
       @app_env    = app_env
       @spring_env = Env.new
       @mutex      = Mutex.new
@@ -61,14 +60,12 @@ module Spring
         child.gets or raise Errno::EPIPE
       end
 
-      pid = child.gets
+      pid = child.gets.to_i
 
-      if pid && !pid.chomp.empty?
-        pid = pid.chomp.to_i
+      unless pid.zero?
         log "got worker pid #{pid}"
+        pid
       end
-
-      pid
     rescue Errno::ECONNRESET, Errno::EPIPE => e
       log "#{e} while reading from child; returning no pid"
       nil
@@ -83,8 +80,6 @@ module Spring
     private
 
     def start_child(preload = false)
-      server.application_starting
-
       @child, child_socket = UNIXSocket.pair
 
       Bundler.with_clean_env do
@@ -102,15 +97,19 @@ module Spring
         )
       end
 
-      start_wait_thread(pid, child)
+      start_wait_thread(pid, child) if child.gets
       child_socket.close
     end
 
     def start_wait_thread(pid, child)
-      Thread.new {
-        Thread.current.abort_on_exception = true
+      Process.detach(pid)
 
-        while IO.select([child]) && !child.recv(1, Socket::MSG_PEEK).empty?
+      Thread.new {
+        # The recv can raise an ECONNRESET, killing the thread, but that's ok
+        # as if it does we're no longer interested in the child
+        loop do
+          IO.select([child])
+          break if child.recv(1, Socket::MSG_PEEK).empty?
           sleep 0.01
         end
 
@@ -122,8 +121,6 @@ module Spring
             restart
           end
         }
-
-        Process.wait(pid)
       }
     end
   end
