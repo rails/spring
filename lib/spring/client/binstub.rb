@@ -36,15 +36,14 @@ unless defined?(Spring)
   require "rubygems"
   require "bundler"
 
-  match = Bundler.default_lockfile.read.match(/^GEM$.*?^    spring \((.*?)\)$.*?^$/m)
-  version = match && match[1]
+  if match = Bundler.default_lockfile.read.match(/^GEM$.*?^    spring \((.*?)\)$.*?^$/m)
+    ENV["GEM_PATH"] = ([Bundler.bundle_path.to_s] + Gem.path).join(File::PATH_SEPARATOR)
+    ENV["GEM_HOME"] = ""
+    Gem.paths = ENV
 
-  ENV["GEM_PATH"] = ([Bundler.bundle_path.to_s] + Gem.path).join(File::PATH_SEPARATOR)
-  ENV["GEM_HOME"] = ""
-  Gem.paths = ENV
-
-  gem "spring", version
-  require "spring/binstub"
+    gem "spring", match[1]
+    require "spring/binstub"
+  end
 end
 CODE
 
