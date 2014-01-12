@@ -316,7 +316,7 @@ CODE
       exit output == "done\n"
     CODE
 
-    assert_success [%(bin/rails runner 'load Rails.root.join("script.rb")'), timeout: nil]
+    assert_success [%(bin/rails runner 'load Rails.root.join("script.rb")'), timeout: 60]
   end
 
   test "changing the environment between runs" do
