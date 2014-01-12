@@ -33,7 +33,7 @@ module Spring
     end
 
     def application_id
-      Digest::MD5.hexdigest(root.to_s)
+      Digest::MD5.hexdigest(Spring.project_root_path.to_s)
     end
 
     def socket_path

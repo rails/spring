@@ -23,6 +23,7 @@
   cause spring to simply quit, meaning that you'd incur the full startup
   penalty on the next run. Now spring doesn't quit, and will try to load
   up your new bundle in the background.
+* Fix support for using spring with Rails engines/plugins
 
 ## 1.0.0
 
