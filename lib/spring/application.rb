@@ -68,8 +68,11 @@ module Spring
     def preload
       log "preloading app"
 
-      require "spring/commands"
-      start_watcher
+      begin
+        require "spring/commands"
+      ensure
+        start_watcher
+      end
 
       require Spring.application_root_path.join("config", "application")
 
