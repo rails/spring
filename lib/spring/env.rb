@@ -14,12 +14,17 @@ module Spring
     attr_reader :log_file
 
     def initialize(root = nil)
-      @root     = root
-      @log_file = File.open(ENV["SPRING_LOG"] || "/dev/null", "a")
+      @root         = root
+      @project_root = root
+      @log_file     = File.open(ENV["SPRING_LOG"] || "/dev/null", "a")
     end
 
     def root
       @root ||= Spring.application_root_path
+    end
+
+    def project_root
+      @project_root ||= Spring.project_root_path
     end
 
     def version
@@ -33,7 +38,7 @@ module Spring
     end
 
     def application_id
-      Digest::MD5.hexdigest(Spring.project_root_path.to_s)
+      Digest::MD5.hexdigest(project_root.to_s)
     end
 
     def socket_path
