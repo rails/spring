@@ -262,13 +262,14 @@ module Spring
       end
 
       def system(command)
-        Kernel.system("#{command} > /dev/null") or raise "command failed: #{command}"
-      end
+        if ENV["SPRING_DEBUG"]
+          puts "$ #{command}\n"
+        else
+          command = "#{command} > /dev/null"
+        end
 
-      def bundle
-        return if @bundled
-        application.bundle
-        @bundled = true
+        Kernel.system(command) or raise "command failed: #{command}"
+        puts if ENV["SPRING_DEBUG"]
       end
 
       # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
@@ -312,10 +313,10 @@ module Spring
       def install_spring
         return if @installed
 
-        system("gem build spring.gemspec 2>/dev/null")
+        system("gem build spring.gemspec 2>&1")
         application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
 
-        bundle
+        application.bundle
 
         FileUtils.rm_rf application.path("bin")
 
