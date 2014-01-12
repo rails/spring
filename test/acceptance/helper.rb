@@ -57,8 +57,12 @@ module Spring
         @stderr ||= IO.pipe
       end
 
+      def log_file_path
+        path("tmp/spring.log")
+      end
+
       def log_file
-        @log_file ||= path("tmp/spring.log").open("w+")
+        @log_file ||= log_file_path.open("w+")
       end
 
       def env
@@ -68,7 +72,7 @@ module Spring
           "HOME"       => user_home.to_s,
           "RAILS_ENV"  => nil,
           "RACK_ENV"   => nil,
-          "SPRING_LOG" => log_file.path
+          "SPRING_LOG" => log_file_path.to_s
         }
       end
 
@@ -202,6 +206,12 @@ module Spring
         output
       end
 
+      def debug(artifacts)
+        artifacts = artifacts.dup
+        artifacts.delete :status
+        dump_streams(artifacts.delete(:command), artifacts)
+      end
+
       def await_reload
         raise "no pid" if @application_pids.nil? || @application_pids.empty?
 
@@ -212,7 +222,9 @@ module Spring
 
       def run!(*args)
         artifacts = run(*args)
-        raise "command failed" unless artifacts[:status].success?
+        unless artifacts[:status].success?
+          raise "command failed\n\n#{debug(artifacts)}"
+        end
         artifacts
       end
 

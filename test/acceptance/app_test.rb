@@ -21,28 +21,22 @@ class AppTest < ActiveSupport::TestCase
     @app ||= Spring::Test::Application.new("#{TEST_ROOT}/apps/tmp")
   end
 
-  def debug(artifacts)
-    artifacts = artifacts.dup
-    artifacts.delete :status
-    app.dump_streams(artifacts.delete(:command), artifacts)
-  end
-
   def assert_output(artifacts, expected)
     expected.each do |stream, output|
       assert artifacts[stream].include?(output),
-             "expected #{stream} to include '#{output}'.\n\n#{debug(artifacts)}"
+             "expected #{stream} to include '#{output}'.\n\n#{app.debug(artifacts)}"
     end
   end
 
   def assert_success(command, expected_output = nil)
     artifacts = app.run(*Array(command))
-    assert artifacts[:status].success?, "expected successful exit status\n\n#{debug(artifacts)}"
+    assert artifacts[:status].success?, "expected successful exit status\n\n#{app.debug(artifacts)}"
     assert_output artifacts, expected_output if expected_output
   end
 
   def assert_failure(command, expected_output = nil)
     artifacts = app.run(*Array(command))
-    assert !artifacts[:status].success?, "expected unsuccessful exit status\n\n#{debug(artifacts)}"
+    assert !artifacts[:status].success?, "expected unsuccessful exit status\n\n#{app.debug(artifacts)}"
     assert_output artifacts, expected_output if expected_output
   end
 
