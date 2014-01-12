@@ -62,7 +62,11 @@ module Spring
       end
 
       def log_file
-        @log_file ||= log_file_path.open("w+")
+        @log_file ||= begin
+          tmp = path("tmp")
+          tmp.mkdir unless tmp.exist?
+          tmp.join("spring.log").open("w+")
+        end
       end
 
       def env
@@ -72,7 +76,7 @@ module Spring
           "HOME"       => user_home.to_s,
           "RAILS_ENV"  => nil,
           "RACK_ENV"   => nil,
-          "SPRING_LOG" => log_file_path.to_s
+          "SPRING_LOG" => log_file.path
         }
       end
 
@@ -295,7 +299,8 @@ module Spring
           end
         end
 
-        bundle
+        install_spring
+
         application.run! "bundle exec rails g scaffold post title:string"
         application.run! "bundle exec rake db:migrate db:test:clone"
       end
@@ -305,23 +310,21 @@ module Spring
       end
 
       def install_spring
-        unless @installed
-          # Need to do this here too because the app may have been generated with
-          # a different ruby
-          bundle
+        return if @installed
 
-          system("gem build spring.gemspec 2>/dev/null")
-          application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
+        system("gem build spring.gemspec 2>/dev/null")
+        application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
 
-          FileUtils.rm_rf application.path("bin")
+        bundle
 
-          if application.path("bin_original").exist?
-            FileUtils.cp_r application.path("bin_original"), application.path("bin")
-          end
+        FileUtils.rm_rf application.path("bin")
 
-          application.run! "#{application.spring} binstub --all"
-          @installed = true
+        if application.path("bin_original").exist?
+          FileUtils.cp_r application.path("bin_original"), application.path("bin")
         end
+
+        application.run! "#{application.spring} binstub --all"
+        @installed = true
       end
 
       def copy_to(path)
