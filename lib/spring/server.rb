@@ -92,13 +92,13 @@ module Spring
     end
 
     def shutdown
-      @applications.values.each(&:stop)
-
       [env.socket_path, env.pidfile_path].each do |path|
         if path.exist?
           path.unlink rescue nil
         end
       end
+
+      @applications.values.map { |a| Thread.new { a.stop } }.map(&:join)
     end
 
     def write_pidfile

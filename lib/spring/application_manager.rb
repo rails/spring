@@ -6,6 +6,7 @@ module Spring
       @app_env    = app_env
       @spring_env = Env.new
       @mutex      = Mutex.new
+      @state      = :running
     end
 
     def log(message)
@@ -26,6 +27,7 @@ module Spring
     end
 
     def restart
+      return if @state == :stopping
       start_child(true)
     end
 
@@ -74,7 +76,12 @@ module Spring
     end
 
     def stop
-      Process.kill('TERM', pid) if pid
+      @state = :stopping
+
+      if pid
+        Process.kill('TERM', pid)
+        Process.wait(pid)
+      end
     end
 
     private
