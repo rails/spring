@@ -57,16 +57,8 @@ module Spring
         @stderr ||= IO.pipe
       end
 
-      def log_file_path
-        path("tmp/spring.log")
-      end
-
       def log_file
-        @log_file ||= begin
-          tmp = path("tmp")
-          tmp.mkdir unless tmp.exist?
-          tmp.join("spring.log").open("w+")
-        end
+        @log_file ||= path("tmp/spring.log").open("w+")
       end
 
       def env
@@ -329,8 +321,8 @@ module Spring
       end
 
       def copy_to(path)
-        FileUtils.rm_rf(path.to_s)
-        FileUtils.cp_r(application.root.to_s, path.to_s)
+        system("rm -rf #{path}")
+        system("cp -r #{application.root} #{path}")
       end
     end
   end
