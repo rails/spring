@@ -5,6 +5,7 @@ app = Spring::Application.new(
   Spring::JSON.load(ENV.delete("SPRING_ORIGINAL_ENV").dup)
 )
 Signal.trap("TERM") { app.terminate }
+Signal.trap("TTOU", "IGNORE")
 
 app.preload if ENV.delete("SPRING_PRELOAD") == "1"
 app.run
