@@ -257,7 +257,7 @@ module Spring
         if ENV["SPRING_DEBUG"]
           puts "$ #{command}\n"
         else
-          command = "#{command} > /dev/null"
+          command = "(#{command}) > /dev/null"
         end
 
         Kernel.system(command) or raise "command failed: #{command}"
