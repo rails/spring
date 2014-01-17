@@ -1,4 +1,4 @@
-## Next version
+## 1.1.0
 
 * A `bin/spring` binstub is now generated. This allows us to load spring
   correctly if you have it installed locally with a `BUNDLE_PATH`, so
