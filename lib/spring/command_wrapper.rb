@@ -37,9 +37,12 @@ module Spring
       if command.respond_to?(:call)
         command.call
       else
-        $0 = exec
         load exec
       end
+    end
+
+    def process_title
+      ["spring", name, *ARGV].join(" ")
     end
 
     def gem_name
