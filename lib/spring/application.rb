@@ -31,6 +31,10 @@ module Spring
       ENV['RAILS_ENV']
     end
 
+    def app_name
+      spring_env.app_name
+    end
+
     def log(message)
       spring_env.log "[application:#{app_env}] #{message}"
     end
@@ -107,7 +111,6 @@ module Spring
     def run
       state :running
       manager.puts
-      update_process_title
 
       loop do
         IO.select [manager, @interrupt.first]
@@ -268,12 +271,6 @@ module Spring
       first, rest = error.backtrace.first, error.backtrace.drop(1)
       stream.puts("#{first}: #{error} (#{error.class})")
       rest.each { |line| stream.puts("\tfrom #{line}") }
-    end
-
-    def update_process_title
-      ProcessTitleUpdater.run { |distance|
-        "spring app    | #{spring_env.app_name} | started #{distance} ago | #{app_env} mode"
-      }
     end
   end
 end
