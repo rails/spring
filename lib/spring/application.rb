@@ -102,7 +102,7 @@ module Spring
       watcher.add loaded_application_features
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
 
-      if defined?(Rails)
+      if defined?(Rails) && Rails.application
         watcher.add Rails.application.paths["config/initializers"]
         watcher.add Rails.application.paths["config/database"]
       end
