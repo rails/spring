@@ -128,7 +128,7 @@ module Spring
       manager.puts
 
       stdout, stderr, stdin = streams = 3.times.map { client.recv_io }
-      [STDOUT, STDERR].zip([stdout, stderr]).each { |a, b| a.reopen(b) }
+      [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
 
       preload unless preloaded?
 
@@ -144,8 +144,6 @@ module Spring
       end
 
       pid = fork {
-        Process.setsid
-        STDIN.reopen(stdin)
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         trap("TERM", "DEFAULT")
 
@@ -173,6 +171,7 @@ module Spring
 
       disconnect_database
       [STDOUT, STDERR].each { |stream| stream.reopen(spring_env.log_file) }
+      STDIN.reopen("/dev/null")
 
       log "forked #{pid}"
       manager.puts pid
