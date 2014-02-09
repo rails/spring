@@ -42,7 +42,7 @@ module Spring
     end
 
     def process_title
-      ["spring", name, *ARGV].join(" ")
+      [name, *ARGV].join(" ")
     end
 
     def gem_name

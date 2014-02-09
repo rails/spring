@@ -1,3 +1,9 @@
+## Next release
+
+* Fix `$0` so that it is no longer prefixed with "spring ", as doing
+  this cause issues with rspec when running just `rspec` with no
+  arguments.
+
 ## 1.1.0
 
 * A `bin/spring` binstub is now generated. This allows us to load spring
