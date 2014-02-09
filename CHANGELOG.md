@@ -1,4 +1,4 @@
-## Next release
+## 1.1.1
 
 * Fix `$0` so that it is no longer prefixed with "spring ", as doing
   this cause issues with rspec when running just `rspec` with no
