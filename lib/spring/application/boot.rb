@@ -1,3 +1,6 @@
+# This is necessary for the terminal to work correctly when we reopen stdin.
+Process.setsid
+
 require "spring/application"
 
 app = Spring::Application.new(
@@ -6,11 +9,10 @@ app = Spring::Application.new(
 )
 
 Signal.trap("TERM") { app.terminate }
-Signal.trap("TTOU", "IGNORE")
 
 Spring::ProcessTitleUpdater.run { |distance|
   "spring app    | #{app.app_name} | started #{distance} ago | #{app.app_env} mode"
 }
 
-app.preload if ENV.delete("SPRING_PRELOAD") == "1"
+app.eager_preload if ENV.delete("SPRING_PRELOAD") == "1"
 app.run

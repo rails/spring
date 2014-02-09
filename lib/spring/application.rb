@@ -1,5 +1,6 @@
 require "spring/boot"
 require "set"
+require "pty"
 
 module Spring
   class Application
@@ -108,6 +109,10 @@ module Spring
       end
     end
 
+    def eager_preload
+      with_pty { preload }
+    end
+
     def run
       state :running
       manager.puts
@@ -128,7 +133,7 @@ module Spring
       manager.puts
 
       stdout, stderr, stdin = streams = 3.times.map { client.recv_io }
-      [STDOUT, STDERR].zip([stdout, stderr]).each { |a, b| a.reopen(b) }
+      [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
 
       preload unless preloaded?
 
@@ -144,8 +149,6 @@ module Spring
       end
 
       pid = fork {
-        Process.setsid
-        STDIN.reopen(stdin)
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         trap("TERM", "DEFAULT")
 
@@ -172,7 +175,7 @@ module Spring
       }
 
       disconnect_database
-      [STDOUT, STDERR].each { |stream| stream.reopen(spring_env.log_file) }
+      reset_streams
 
       log "forked #{pid}"
       manager.puts pid
@@ -272,6 +275,19 @@ module Spring
       first, rest = error.backtrace.first, error.backtrace.drop(1)
       stream.puts("#{first}: #{error} (#{error.class})")
       rest.each { |line| stream.puts("\tfrom #{line}") }
+    end
+
+    def with_pty
+      PTY.open do |master, slave|
+        [STDOUT, STDERR, STDIN].each { |s| s.reopen slave }
+        yield
+        reset_streams
+      end
+    end
+
+    def reset_streams
+      [STDOUT, STDERR].each { |stream| stream.reopen(spring_env.log_file) }
+      STDIN.reopen("/dev/null")
     end
   end
 end
