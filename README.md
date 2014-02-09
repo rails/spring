@@ -7,6 +7,8 @@ Spring is a Rails application preloader. It speeds up development by
 keeping your application running in the background so you don't need to
 boot it every time you run a test, rake task or migration.
 
+**Upgrading to 1.1? It's recommended to run `bundle exec spring binstub --all` to regenerate your binstubs.**
+
 ## Features
 
 * Totally automatic; no need to explicitly start and stop the background process
