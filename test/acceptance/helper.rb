@@ -267,8 +267,8 @@ module Spring
       # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
       def generate
         Bundler.with_clean_env do
-          system("(gem list rails --installed --version '#{version_constraint}' || " \
-                    "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}')")
+          system("gem list rails --installed --version '#{version_constraint}' || " \
+                   "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}'")
 
           skips = %w(--skip-bundle --skip-javascript --skip-sprockets)
           skips << "--skip-spring" if version.bundles_spring?
