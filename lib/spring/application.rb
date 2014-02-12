@@ -246,11 +246,11 @@ module Spring
     end
 
     def disconnect_database
-      ActiveRecord::Base.remove_connection if defined?(ActiveRecord::Base)
+      ActiveRecord::Base.remove_connection if active_record_configured?
     end
 
     def connect_database
-      ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
+      ActiveRecord::Base.establish_connection if active_record_configured?
     end
 
     # This feels very naughty
@@ -289,5 +289,12 @@ module Spring
       [STDOUT, STDERR].each { |stream| stream.reopen(spring_env.log_file) }
       STDIN.reopen("/dev/null")
     end
+
+    private
+
+    def active_record_configured?
+      defined?(ActiveRecord::Base) && ActiveRecord::Base.configurations.present?
+    end
+
   end
 end
