@@ -37,7 +37,7 @@ gem "spring", group: :development
 It's recommended to 'springify' the executables in your `bin/`
 directory:
 
-```
+``` text
 $ bundle install
 $ bundle exec spring binstub --all
 ```
