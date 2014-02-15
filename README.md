@@ -209,6 +209,7 @@ to pick up the changes):
 
 * [spring-commands-rspec](https://github.com/jonleighton/spring-commands-rspec)
 * [spring-commands-cucumber](https://github.com/jonleighton/spring-commands-cucumber)
+* [spring-commands-spinach](https://github.com/jvanbaarsen/spring-commands-spinach)
 * [spring-commands-testunit](https://github.com/jonleighton/spring-commands-testunit) - useful for
   running `Test::Unit` tests on Rails 3, since only Rails 4 allows you
   to use `rake test path/to/test` to run a particular test/directory.
