@@ -23,7 +23,7 @@ module Spring
       end
 
       def bundles_spring?
-        version >= Gem::Version.new("4.1.0.beta1")
+        version.segments.take(2) == [4, 1] || version > Gem::Version.new("4.1")
       end
 
       def major
@@ -32,6 +32,10 @@ module Spring
 
       def minor
         version.segments[1]
+      end
+
+      def to_s
+        version.to_s
       end
     end
 
@@ -270,12 +274,12 @@ module Spring
           system("gem list rails --installed --version '#{version_constraint}' || " \
                    "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}'")
 
+          @version = RailsVersion.new(`ruby -e 'puts Gem::Specification.find_by_name("rails", "#{version_constraint}").version'`.chomp)
+
           skips = %w(--skip-bundle --skip-javascript --skip-sprockets)
           skips << "--skip-spring" if version.bundles_spring?
 
-          rails = `ruby -e 'puts Gem.bin_path("railties", "rails", "#{version_constraint}")'`.chomp
-          system("#{rails} new #{application.root} #{skips.join(' ')}")
-
+          system("rails _#{version}_ new #{application.root} #{skips.join(' ')}")
           raise "application generation failed" unless application.exists?
 
           FileUtils.mkdir_p(application.gem_home)
