@@ -1,5 +1,21 @@
 #!/usr/bin/env ruby
 
+if defined?(Spring)
+  $stderr.puts "You've tried to invoke Spring when it's already loaded (i.e. the Spring " \
+               "constant is defined)."
+  $stderr.puts
+  $stderr.puts "This is probably because you generated binstubs with " \
+               "Spring 1.0, and you now have a Spring version > 1.0 on your system. To solve " \
+               "this, upgrade your bundle to the latest Spring version and then run " \
+               "`bundle exec spring binstub --all` to regenerate your binstubs. This is a one-time " \
+               "step necessary to upgrade from 1.0 to 1.1."
+  $stderr.puts
+  $stderr.puts "Here's the backtrace:"
+  $stderr.puts
+  $stderr.puts caller
+  exit 1
+end
+
 if defined?(Gem)
   if Gem::Version.new(Gem::VERSION) < Gem::Version.new("2.1.0")
     warn "Warning: You're using Rubygems #{Gem::VERSION} with Spring. " \

@@ -1,3 +1,9 @@
+## Next release
+
+* Detect old binstubs generated with Spring 1.0 and exit with an error.
+  This prevents a situation where you can get stuck in an infinite loop
+  of spring invocations.
+
 ## 1.1.1
 
 * Fix `$0` so that it is no longer prefixed with "spring ", as doing
