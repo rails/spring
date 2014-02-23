@@ -273,7 +273,14 @@ module Spring
           skips = %w(--skip-bundle --skip-javascript --skip-sprockets)
           skips << "--skip-spring" if version.bundles_spring?
 
-          system("rails '_#{version_constraint}_' new #{application.root} #{skips.join(' ')}")
+          system "which rails"
+          system "cat `which rails`"
+
+          rails = `ruby -e 'puts Gem.bin_path("railties", "rails", "#{version_constraint}")'`.chomp
+          p rails
+
+          system("#{rails} new #{application.root} #{skips.join(' ')}")
+          raise "application generation failed" unless application.exists?
 
           FileUtils.mkdir_p(application.gem_home)
           FileUtils.mkdir_p(application.user_home)
