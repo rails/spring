@@ -263,13 +263,13 @@ CODE
   end
 
   test "runner command sets Rails environment from command-line options" do
-    assert_success "bin/rails runner -e production 'puts Rails.env'", stdout: "production"
-    assert_success "bin/rails runner --environment=production 'puts Rails.env'", stdout: "production"
+    assert_success "bin/rails runner -e test 'puts Rails.env'", stdout: "test"
+    assert_success "bin/rails runner --environment=test 'puts Rails.env'", stdout: "test"
   end
 
   test "forcing rails env via environment variable" do
-    app.env['RAILS_ENV'] = 'production'
-    assert_success "bin/rake -p 'Rails.env'", stdout: "production"
+    app.env['RAILS_ENV'] = 'test'
+    assert_success "bin/rake -p 'Rails.env'", stdout: "test"
   end
 
   test "setting env vars with rake" do
