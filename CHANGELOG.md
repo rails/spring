@@ -7,6 +7,8 @@
   rails commands that do not use spring (e.g. `bin/rails server` would
   emit this when you ^C to exit)
 * Fix `reload!` in rails console
+* Don't connect/disconnect the database if there are no connections
+  configured. Issue #256.
 
 ## 1.1.1
 

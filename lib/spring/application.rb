@@ -299,8 +299,7 @@ module Spring
     private
 
     def active_record_configured?
-      defined?(ActiveRecord::Base) && ActiveRecord::Base.configurations.present?
+      defined?(ActiveRecord::Base) && ActiveRecord::Base.configurations.any?
     end
-
   end
 end
