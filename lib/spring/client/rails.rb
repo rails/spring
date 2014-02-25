@@ -25,6 +25,7 @@ module Spring
           require "spring/configuration"
           ARGV.shift
           load Dir.glob(Spring.application_root_path.join("{bin,script}/rails")).first
+          exit
         end
       end
     end

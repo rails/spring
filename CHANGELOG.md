@@ -3,6 +3,9 @@
 * Detect old binstubs generated with Spring 1.0 and exit with an error.
   This prevents a situation where you can get stuck in an infinite loop
   of spring invocations.
+* Avoid `warning: already initialized constant APP_PATH` when running
+  rails commands that do not use spring (e.g. `bin/rails server` would
+  emit this when you ^C to exit)
 
 ## 1.1.1
 
