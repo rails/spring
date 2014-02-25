@@ -91,7 +91,9 @@ module Spring
 
       require Spring.application_root_path.join("config", "environment")
 
+      @original_cache_classes = Rails.application.config.cache_classes
       Rails.application.config.cache_classes = false
+
       disconnect_database
 
       @preloaded = :success
@@ -161,9 +163,13 @@ module Spring
         # Load in the current env vars, except those which *were* changed when spring started
         env.each { |k, v| ENV[k] ||= v }
 
-        # requiring is faster, and we don't need constant reloading in this process
-        ActiveSupport::Dependencies.mechanism = :require
-        Rails.application.config.cache_classes = true
+        # requiring is faster, so if config.cache_classes was true in
+        # the environment's config file, then we can respect that from
+        # here on as we no longer need constant reloading.
+        if @original_cache_classes
+          ActiveSupport::Dependencies.mechanism = :require
+          Rails.application.config.cache_classes = true
+        end
 
         connect_database
         srand

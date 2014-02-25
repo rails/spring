@@ -6,6 +6,7 @@
 * Avoid `warning: already initialized constant APP_PATH` when running
   rails commands that do not use spring (e.g. `bin/rails server` would
   emit this when you ^C to exit)
+* Fix `reload!` in rails console
 
 ## 1.1.1
 
