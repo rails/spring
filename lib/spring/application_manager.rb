@@ -82,6 +82,8 @@ module Spring
         Process.kill('TERM', pid)
         Process.wait(pid)
       end
+    rescue Errno::ESRCH, Errno::ECHILD
+      # Don't care
     end
 
     private
