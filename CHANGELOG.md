@@ -1,4 +1,4 @@
-## Next release
+## 1.1.2
 
 * Detect old binstubs generated with Spring 1.0 and exit with an error.
   This prevents a situation where you can get stuck in an infinite loop
