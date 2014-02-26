@@ -220,17 +220,25 @@ module Spring
         end
       end
 
-      def run!(*args)
-        artifacts = run(*args)
-        unless artifacts[:status].success?
+      def run!(command, options = {})
+        attempts  = (options.delete(:retry) || 0) + 1
+        artifacts = nil
+
+        until attempts == 0 || artifacts && artifacts[:status].success?
+          artifacts = run(command, options)
+          attempts -= 1
+        end
+
+        if artifacts[:status].success?
+          artifacts
+        else
           raise "command failed\n\n#{debug(artifacts)}"
         end
-        artifacts
       end
 
       def bundle
-        run! "(gem list bundler | grep bundler) || gem install bundler", timeout: nil
-        run! "bundle update", timeout: nil
+        run! "(gem list bundler | grep bundler) || gem install bundler", timeout: nil, retry: 2
+        run! "bundle update --retry=2", timeout: nil
       end
 
       private
