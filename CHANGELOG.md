@@ -1,5 +1,6 @@
 ## Next Version
 
+* Ensure an application is started with the correct ENV - @eval
 * Accept -e and --environment options for `rails console`.
 * Watch `config/secrets.yml` by default. #289 - @morgoth
 * Custom Spring commands that implement `#binstub_prelude` will have that

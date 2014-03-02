@@ -133,6 +133,24 @@ module Spring
       end
     end
 
+    def with_env_vars(env)
+      # Allowed are keys currently not in ENV...
+      allowed_keys = env.keys - ENV.keys
+      # ...and ENV-keys whose values have not changed since the start of spring
+      allowed_keys += original_env.select {|k, v| ENV[k] == v }.keys
+      # never allowed:
+      allowed_keys -= %w(RUBYOPT RUBY_ROOT BUNDLE_GEMFILE GEM_ROOT GEM_HOME GEM_PATH)
+      allowed_keys.uniq!
+
+      allowed_keys.each{|k| ENV[k] = env[k] }
+
+      yield
+    ensure
+      allowed_keys.each do |k|
+        original_env.has_key?(k) ? ENV[k] = original_env[k] : ENV.delete(k)
+      end
+    end
+
     def serve(client)
       log "got client"
       manager.puts
@@ -140,66 +158,63 @@ module Spring
       stdout, stderr, stdin = streams = 3.times.map { client.recv_io }
       [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
 
-      preload unless preloaded?
+      client_args, client_env = JSON.load(client.read(client.gets.to_i)).values_at("args", "env")
 
-      args, env = JSON.load(client.read(client.gets.to_i)).values_at("args", "env")
-      command   = Spring.command(args.shift)
-
-      connect_database
-      setup command
-
-      if Rails.application.reloaders.any?(&:updated?)
-        ActionDispatch::Reloader.cleanup!
-        ActionDispatch::Reloader.prepare!
-      end
-
-      pid = fork {
-        IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
-        trap("TERM", "DEFAULT")
-
-        ARGV.replace(args)
-        $0 = command.process_title
-
-        # Delete all env vars which are unchanged from before spring started
-        original_env.each { |k, v| ENV.delete k if ENV[k] == v }
-
-        # Load in the current env vars, except those which *were* changed when spring started
-        env.each { |k, v| ENV[k] ||= v }
-
-        # requiring is faster, so if config.cache_classes was true in
-        # the environment's config file, then we can respect that from
-        # here on as we no longer need constant reloading.
-        if @original_cache_classes
-          ActiveSupport::Dependencies.mechanism = :require
-          Rails.application.config.cache_classes = true
-        end
+      @pid = nil
+      with_env_vars(client_env) do
+        preload unless preloaded?
+        command = Spring.command(client_args.shift)
 
         connect_database
-        srand
+        setup command
 
-        invoke_after_fork_callbacks
-        shush_backtraces
+        if Rails.application.reloaders.any?(&:updated?)
+          ActionDispatch::Reloader.cleanup!
+          ActionDispatch::Reloader.prepare!
+        end
 
-        command.call
-      }
+        @pid = fork {
+          IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
+          trap("TERM", "DEFAULT")
+
+          ARGV.replace(client_args)
+          $0 = command.process_title
+
+          # requiring is faster, so if config.cache_classes was true in
+          # the environment's config file, then we can respect that from
+          # here on as we no longer need constant reloading.
+          if @original_cache_classes
+            ActiveSupport::Dependencies.mechanism = :require
+            Rails.application.config.cache_classes = true
+          end
+
+          connect_database
+          srand
+
+          invoke_after_fork_callbacks
+          shush_backtraces
+
+          command.call
+        }
+      end
 
       disconnect_database
       reset_streams
 
-      log "forked #{pid}"
-      manager.puts pid
+      log "forked #{@pid}"
+      manager.puts @pid
 
-      wait pid, streams, client
+      wait @pid, streams, client
     rescue Exception => e
       log "exception: #{e}"
-      manager.puts unless pid
+      manager.puts unless @pid
 
       if streams && !e.is_a?(SystemExit)
         print_exception(stderr, e)
         streams.each(&:close)
       end
 
-      client.puts(1) if pid
+      client.puts(1) if @pid
       client.close
     end
 

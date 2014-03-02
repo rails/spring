@@ -291,6 +291,18 @@ CODE
     assert_success "bin/rake -p 'Rails.env'", stdout: "test"
   end
 
+  test "config via environment variable" do
+    File.write(app.path('config/initializers/set_foo.rb'), <<-CONFIG)
+      Rails.application.config.foo = !!ENV['FOO']
+    CONFIG
+
+    app.env['FOO'] = '1'
+    assert_success "bin/rails runner -e test 'p Rails.application.config.foo'", stdout: "true"
+
+    app.env['FOO'] = nil
+    assert_success "bin/rails runner -e development 'p Rails.application.config.foo'", stdout: "false"
+  end
+
   test "setting env vars with rake" do
     File.write(app.path("lib/tasks/env.rake"), <<-'CODE')
       task :print_rails_env => :environment do
