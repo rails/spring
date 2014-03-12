@@ -34,6 +34,11 @@ module Spring
     end
 
     class RailsRunner < Rails
+      def call
+        remove_environment_switches ARGV
+        super
+      end
+
       def env(tail)
         previous_option = nil
         tail.reverse.each do |option|
@@ -48,6 +53,18 @@ module Spring
 
       def command_name
         "runner"
+      end
+
+      def remove_environment_switches switches
+        if i = switches.index('-e')
+          if switches.length >= i + 1
+            switches.slice! i..(i+1)
+          end
+        end
+
+        if i = switches.find_index { |arg| arg =~ /--environment=/ }
+          switches.slice! i
+        end
       end
     end
 
