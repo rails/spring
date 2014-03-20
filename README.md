@@ -295,7 +295,7 @@ Spring.application_root = './test/dummy'
 
 There is no `Spring.before_fork` callback. To run something before the
 fork, you can place it in `~/.spring.rb` or `config/spring.rb` or in any of the files
-which get run when your application initializers, such as
+which get run when your application initializes, such as
 `config/application.rb`, `config/environments/*.rb` or
 `config/initializers/*.rb`.
 
