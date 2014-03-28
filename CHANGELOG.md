@@ -1,3 +1,8 @@
+## Next release
+
+* The `rails runner` command no longer passes environment switches to
+  files which it runs. Issue #272.
+
 ## 1.1.2
 
 * Detect old binstubs generated with Spring 1.0 and exit with an error.
