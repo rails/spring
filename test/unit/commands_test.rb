@@ -27,18 +27,16 @@ class CommandsTest < ActiveSupport::TestCase
     assert_nil command.env(['puts 1+1'])
   end
 
-  test 'RailsRunner#remove_environment_switches removes -e <env>' do
+  test 'RailsRunner#extract_environment removes -e <env>' do
     command = Spring::Commands::RailsRunner.new
-    switches = ['-b', '-a', '-e', 'test', '-r']
-    command.remove_environment_switches switches
-    assert_equal ['-b', '-a', '-r'], switches
+    args = ['-b', '-a', '-e', 'test', '-r']
+    assert_equal [['-b', '-a', '-r'], 'test'], command.extract_environment(args)
   end
 
-  test 'RailsRunner#remove_environment_switches removes --environment=<env>' do
+  test 'RailsRunner#extract_environment removes --environment=<env>' do
     command = Spring::Commands::RailsRunner.new
-    switches = ['-b', '--environment=test', '-a', '-r']
-    command.remove_environment_switches switches
-    assert_equal ['-b', '-a', '-r'], switches
+    args = ['-b', '--environment=test', '-a', '-r']
+    assert_equal [['-b', '-a', '-r'], 'test'], command.extract_environment(args)
   end
 
   test "rake command has configurable environments" do

@@ -35,36 +35,39 @@ module Spring
 
     class RailsRunner < Rails
       def call
-        remove_environment_switches ARGV
+        ARGV.replace extract_environment(ARGV).first
         super
       end
 
-      def env(tail)
-        previous_option = nil
-        tail.reverse.each do |option|
-          case option
-          when /--environment=(\w+)/ then return $1
-          when '-e' then return previous_option
-          end
-          previous_option = option
-        end
-        nil
+      def env(args)
+        extract_environment(args).last
       end
 
       def command_name
         "runner"
       end
 
-      def remove_environment_switches switches
-        if i = switches.index('-e')
-          if switches.length >= i + 1
-            switches.slice! i..(i+1)
-          end
-        end
+      def extract_environment(args)
+        environment = nil
 
-        if i = switches.find_index { |arg| arg =~ /--environment=/ }
-          switches.slice! i
-        end
+        args = args.select.with_index { |arg, i|
+          case arg
+          when "-e"
+            false
+          when /--environment=(\w+)/
+            environment = $1
+            false
+          else
+            if i > 0 && args[i - 1] == "-e"
+              environment = arg
+              false
+            else
+              true
+            end
+          end
+        }
+
+        [args, environment]
       end
     end
 
