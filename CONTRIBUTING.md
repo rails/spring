@@ -30,3 +30,9 @@ $ RAILS_VERSION="~> 3.2.0" rake test:acceptance
 
 The apps in `test/apps` will be named based on the rails version and the
 spring version.
+
+## Submitting a pull request
+
+If your change is a bugfix or feature, please make sure you add to
+`CHANGELOG.md` under the "Next Release" heading (add the heading if
+needed).
