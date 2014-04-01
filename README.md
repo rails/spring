@@ -213,6 +213,7 @@ to pick up the changes):
 * [spring-commands-testunit](https://github.com/jonleighton/spring-commands-testunit) - useful for
   running `Test::Unit` tests on Rails 3, since only Rails 4 allows you
   to use `rake test path/to/test` to run a particular test/directory.
+* [spring-commands-teaspoon](https://github.com/alejandrobabio/spring-commands-teaspoon.git)
 
 ## Use without adding to bundle
 
