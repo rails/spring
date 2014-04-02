@@ -16,7 +16,7 @@ module Spring
     def initialize(root = nil)
       @root         = root
       @project_root = root
-      @log_file     = File.open(ENV["SPRING_LOG"] || "/dev/null", "a")
+      @log_file     = File.open(ENV["SPRING_LOG"] || File::NULL, "a")
     end
 
     def root
