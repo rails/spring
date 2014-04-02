@@ -2,6 +2,9 @@
 Process.setsid
 
 require "spring/application"
+Spring.project_root_path.join('.spring.rb').tap do |config|
+  require config if config.exist?
+end
 
 app = Spring::Application.new(
   UNIXSocket.for_fd(3),

@@ -45,4 +45,7 @@ end
 
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require 'spring/client'
+Spring.project_root_path.join('.spring.rb').tap do |config|
+  require config if config.exist?
+end
 Spring::Client.run(ARGV)

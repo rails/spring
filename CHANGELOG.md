@@ -3,6 +3,10 @@
 * The `rails runner` command no longer passes environment switches to
   files which it runs. Issue #272.
 
+* Add support for a `.spring.rb` config file in the project root that
+  is loaded before calling the spring `Command`, so it's a good place to
+  modify spring for your own unique needs.
+
 ## 1.1.2
 
 * Detect old binstubs generated with Spring 1.0 and exit with an error.

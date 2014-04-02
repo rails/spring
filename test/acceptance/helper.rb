@@ -125,6 +125,10 @@ module Spring
         path "config/spring.rb"
       end
 
+      def project_root_spring_config
+        path ".spring.rb"
+      end
+
       def run(command, opts = {})
         start_time = Time.now
 
