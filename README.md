@@ -34,6 +34,9 @@ Add spring to your Gemfile:
 gem "spring", group: :development
 ```
 
+(Note: using `gem "spring", git: "..."` *won't* work and is not a
+supported way of using spring.)
+
 It's recommended to 'springify' the executables in your `bin/`
 directory:
 
