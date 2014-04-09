@@ -325,7 +325,7 @@ If there are additional files or directories which should trigger an
 application restart, you can specify them with `Spring.watch`:
 
 ```ruby
-Spring.watch "spec/factories"
+Spring.watch "config/some_config_file.yml"
 ```
 
 By default Spring polls the filesystem for changes once every 0.2 seconds. This
