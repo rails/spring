@@ -339,7 +339,7 @@ much CPU, then you can turn on event-based file system listening:
 Spring.watch_method = :listen
 ```
 
-You may need to add the [`listen` gem](https://github.com/guard/listen) to your `Gemfile`.
+You may need to add the [Listen](https://github.com/guard/listen) gem to your Gemfile.
 
 ## Troubleshooting
 
