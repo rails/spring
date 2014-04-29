@@ -1,3 +1,7 @@
+## Next version
+
+* Add OpenBSD compatibility for `spring status`. Issue #299.
+
 ## 1.2.0
 
 * Accept -e and --environment options for `rails console`.

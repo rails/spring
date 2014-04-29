@@ -17,11 +17,11 @@ module Spring
       end
 
       def print_process(pid)
-        puts `ps -p #{pid} -o pid= -o args=`
+        puts `ps -p #{pid} -o pid= -o command=`
       end
 
       def application_pids
-        candidates = `ps -A -o ppid= -o pid=`.lines
+        candidates = `ps -ax -o ppid= -o pid=`.lines
         candidates.select { |l| l =~ /^(\s+)?#{env.pid} / }
                   .map    { |l| l.split(" ").last   }
       end
