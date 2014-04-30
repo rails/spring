@@ -19,7 +19,7 @@ boot it every time you run a test, rake task or migration.
 ## Compatibility
 
 * Ruby versions: MRI 1.9.3, MRI 2.0, MRI 2.1
-* Rails versions: 3.2, 4.0
+* Rails versions: 3.2, 4.0 (in Rails 4.1 and up Spring is included by default)
 
 Spring makes extensive use of `Process.fork`, so won't be able to
 provide a speed up on platforms which don't support forking (Windows, JRuby).
