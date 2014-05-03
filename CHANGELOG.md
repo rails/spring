@@ -6,6 +6,7 @@
 
 * The `rails runner` command no longer passes environment switches to
   files which it runs. Issue #272.
+* Add OpenBSD compatibility for process status calls. Issue #299.
 * Various issues solved to do with termination / processes hanging around
   longer than they should. Issue #290.
 
