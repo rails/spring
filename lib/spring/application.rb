@@ -186,21 +186,7 @@ module Spring
       log "forked #{pid}"
       manager.puts pid
 
-      # Wait in a separate thread so we can run multiple commands at once
-      Thread.new {
-        @mutex.synchronize { @waiting += 1 }
-
-        _, status = Process.wait2 pid
-        log "#{pid} exited with #{status.exitstatus}"
-
-        streams.each(&:close)
-        client.puts(status.exitstatus)
-        client.close
-
-        @mutex.synchronize { @waiting -= 1 }
-        exit_if_finished
-      }
-
+      wait pid, streams, client
     rescue Exception => e
       log "exception: #{e}"
       manager.puts unless pid
@@ -294,6 +280,25 @@ module Spring
     def reset_streams
       [STDOUT, STDERR].each { |stream| stream.reopen(spring_env.log_file) }
       STDIN.reopen("/dev/null")
+    end
+
+    def wait(pid, streams, client)
+      @mutex.synchronize { @waiting += 1 }
+
+      # Wait in a separate thread so we can run multiple commands at once
+      Thread.new {
+        begin
+          _, status = Process.wait2 pid
+          log "#{pid} exited with #{status.exitstatus}"
+
+          streams.each(&:close)
+          client.puts(status.exitstatus)
+          client.close
+        ensure
+          @mutex.synchronize { @waiting -= 1 }
+          exit_if_finished
+        end
+      }
     end
 
     private
