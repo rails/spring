@@ -5,6 +5,12 @@ module Spring
   module Client
     class Run < Command
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO) & Signal.list.keys
+      TIMEOUT = 1
+
+      def initialize(args)
+        super
+        @signal_queue = []
+      end
 
       def log(message)
         env.log "[client] #{message}"
@@ -20,6 +26,7 @@ module Spring
 
         application, client = UNIXSocket.pair
 
+        queue_signals
         connect_to_application(client)
         run_command(client, application)
       rescue Errno::ECONNRESET
@@ -59,7 +66,12 @@ ERROR
       def connect_to_application(client)
         server.send_io client
         send_json server, "args" => args, "default_rails_env" => default_rails_env
-        server.gets or raise CommandNotFound
+
+        if IO.select([server], [], [], TIMEOUT)
+          server.gets or raise CommandNotFound
+        else
+          raise "Error connecting to Spring server"
+        end
       end
 
       def run_command(client, application)
@@ -96,19 +108,32 @@ ERROR
         application.close
       end
 
-      def forward_signals(pid)
+      def queue_signals
         FORWARDED_SIGNALS.each do |sig|
-          trap(sig) { forward_signal sig, pid }
+          trap(sig) { @signal_queue << sig }
         end
       end
 
+      def forward_signals(pid)
+        @signal_queue.each { |sig| kill sig, pid }
+
+        FORWARDED_SIGNALS.each do |sig|
+          trap(sig) { forward_signal sig, pid }
+        end
+      rescue Errno::ESRCH
+      end
+
       def forward_signal(sig, pid)
-        Process.kill(sig, -Process.getpgid(pid))
+        kill(sig, pid)
       rescue Errno::ESRCH
         # If the application process is gone, then don't block the
         # signal on this process.
         trap(sig, 'DEFAULT')
         Process.kill(sig, Process.pid)
+      end
+
+      def kill(sig, pid)
+        Process.kill(sig, -Process.getpgid(pid))
       end
 
       def send_json(socket, data)
