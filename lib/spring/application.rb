@@ -11,7 +11,7 @@ module Spring
       @original_env = original_env
       @spring_env   = Env.new
       @mutex        = Mutex.new
-      @waiting      = 0
+      @waiting      = Set.new
       @preloaded    = false
       @state        = :initialized
       @interrupt    = IO.pipe
@@ -201,7 +201,14 @@ module Spring
     end
 
     def terminate
-      state! :terminating
+      if exiting?
+        # Ensure that we do not ignore subsequent termination attempts
+        log "forced exit"
+        @waiting.each { |pid| Process.kill("TERM", pid) }
+        Kernel.exit
+      else
+        state! :terminating
+      end
     end
 
     def exit
@@ -213,7 +220,7 @@ module Spring
 
     def exit_if_finished
       @mutex.synchronize {
-        Kernel.exit if exiting? && @waiting == 0
+        Kernel.exit if exiting? && @waiting.empty?
       }
     end
 
@@ -283,7 +290,7 @@ module Spring
     end
 
     def wait(pid, streams, client)
-      @mutex.synchronize { @waiting += 1 }
+      @mutex.synchronize { @waiting << pid }
 
       # Wait in a separate thread so we can run multiple commands at once
       Thread.new {
@@ -295,7 +302,7 @@ module Spring
           client.puts(status.exitstatus)
           client.close
         ensure
-          @mutex.synchronize { @waiting -= 1 }
+          @mutex.synchronize { @waiting.delete pid }
           exit_if_finished
         end
       }
