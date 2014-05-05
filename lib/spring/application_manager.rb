@@ -76,6 +76,7 @@ module Spring
     end
 
     def stop
+      log "stopping"
       @state = :stopping
 
       if pid

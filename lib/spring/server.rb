@@ -92,6 +92,8 @@ module Spring
     end
 
     def shutdown
+      log "shutting down"
+
       [env.socket_path, env.pidfile_path].each do |path|
         if path.exist?
           path.unlink rescue nil
