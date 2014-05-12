@@ -125,11 +125,11 @@ module WatcherTests
     file = "#{@dir}/omg"
     touch file, Time.now - 2.seconds
 
-    watcher.add file
-    watcher.start
-
     stale = false
     watcher.on_stale { stale = true }
+
+    watcher.add file
+    watcher.start
 
     touch file, Time.now
 
