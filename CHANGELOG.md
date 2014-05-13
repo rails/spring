@@ -1,4 +1,4 @@
-## Next release
+## 1.1.3
 
 * The `rails runner` command no longer passes environment switches to
   files which it runs. Issue #272.
