@@ -1,3 +1,7 @@
+## Next release
+
+* Add `config/secrets.yml` file to watched for changes by default. Issue #289.
+
 ## 1.1.3
 
 * The `rails runner` command no longer passes environment switches to

@@ -108,6 +108,9 @@ module Spring
       if defined?(Rails) && Rails.application
         watcher.add Rails.application.paths["config/initializers"]
         watcher.add Rails.application.paths["config/database"]
+        if secrets_path = Rails.application.paths["config/secrets"]
+          watcher.add secrets_path
+        end
       end
     end
 
