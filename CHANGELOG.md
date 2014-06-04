@@ -1,3 +1,7 @@
+## Next Version
+
+* Accept -e and --environment options for `rails console`.
+
 ## 1.1.3
 
 * The `rails runner` command no longer passes environment switches to
