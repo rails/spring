@@ -13,7 +13,19 @@ module Spring
 
     class RailsConsole < Rails
       def env(args)
-        args.first if args.first && !args.first.index("-")
+        return args.first if args.first && !args.first.index("-")
+
+        environment = nil
+
+        args.each.with_index do |arg, i|
+          if arg =~ /--environment=(\w+)/
+            environment = $1
+          elsif i > 0 && args[i - 1] == "-e"
+            environment = arg
+          end
+        end
+
+        environment
       end
 
       def command_name

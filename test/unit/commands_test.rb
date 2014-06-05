@@ -7,7 +7,17 @@ class CommandsTest < ActiveSupport::TestCase
     assert_equal 'test', command.env(['test'])
   end
 
-  test 'console command ignores first argument if it is a flag' do
+  test 'console command sets rails environment from -e option' do
+    command = Spring::Commands::RailsConsole.new
+    assert_equal 'test', command.env(['-e', 'test'])
+  end
+
+  test 'console command sets rails environment from --environment option' do
+    command = Spring::Commands::RailsConsole.new
+    assert_equal 'test', command.env(['--environment=test'])
+  end
+
+  test 'console command ignores first argument if it is a flag except -e and --environment' do
     command = Spring::Commands::RailsConsole.new
     assert_nil command.env(['--sandbox'])
   end
