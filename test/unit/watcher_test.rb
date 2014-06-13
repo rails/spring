@@ -185,11 +185,12 @@ class ListenWatcherTest < ActiveSupport::TestCase
     end
   end
 
-  test "directories with same subpath" do
+  test "root directories with a root subpath directory" do
     begin
-      other_dir_1 = File.realpath(Dir.mktmpdir)
-      # same subpath as other_dir_1 but with _other appended
-      other_dir_2 = "#{other_dir_1}_other"
+      other_dir_1 = "#{dir}_other"
+      other_dir_2 = "#{dir}_core"
+      # same subpath as dir but with _other or _core appended
+      FileUtils::mkdir_p(other_dir_1)
       FileUtils::mkdir_p(other_dir_2)
       File.write("#{other_dir_1}/foo", "foo")
       File.write("#{other_dir_2}/foo", "foo")
@@ -197,7 +198,6 @@ class ListenWatcherTest < ActiveSupport::TestCase
 
       watcher.add "#{other_dir_1}/foo"
       watcher.add other_dir_2
-      watcher.add "#{dir}/foo"
 
       assert_equal [dir, other_dir_1, other_dir_2].sort, watcher.base_directories.sort
     ensure
