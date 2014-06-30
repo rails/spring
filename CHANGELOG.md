@@ -1,6 +1,7 @@
 ## Next Version
 
 * Accept -e and --environment options for `rails console`.
+* Add `config/secrets.yml` file to watched for changes by default. Issue #289.
 
 ## 1.1.3
 
