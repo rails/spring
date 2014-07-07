@@ -1,3 +1,7 @@
+# Don't use the issue tracker to ask questions
+
+Please use Stack Overflow or similar.
+
 # Contributing guide
 
 ## Getting set up
