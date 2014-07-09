@@ -2,6 +2,8 @@
 
 * Accept -e and --environment options for `rails console`.
 * Add `config/secrets.yml` file to watched for changes by default. Issue #289.
+* Make sure running `bin/spring` does not add an empty string to `Gem.path`.
+  Issues #297, #310.
 
 ## 1.1.3
 
