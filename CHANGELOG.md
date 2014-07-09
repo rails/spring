@@ -1,5 +1,7 @@
 ## Next version
 
+* Make sure running `bin/spring` does not add an empty string to `Gem.path`.
+  Issues #297, #310.
 * Fixed problem with `$0` including the command line args, which could
   confuse commands which try to parse `$0`. This caused the
   spring-commands-rspec to not work properly in some cases. Issue #369.
