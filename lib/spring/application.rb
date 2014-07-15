@@ -283,6 +283,7 @@ module Spring
     def with_pty
       PTY.open do |master, slave|
         [STDOUT, STDERR, STDIN].each { |s| s.reopen slave }
+        Thread.new { master.read }
         yield
         reset_streams
       end
