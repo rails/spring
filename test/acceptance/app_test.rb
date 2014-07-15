@@ -132,6 +132,17 @@ class AppTest < ActiveSupport::TestCase
     assert_app_reloaded
   end
 
+  test "app gets reloaded even with a ton of boot output" do
+    File.write(app.path("config/initializers/verbose.rb"), "50.times { puts 'x' * 80 }\n")
+    begin
+      app.env["RAILS_ENV"] = "test"
+      assert_success "bin/rails runner 'puts Spring.watcher.class'", stdout: "Polling"
+      assert_app_reloaded
+    ensure
+      File.unlink(app.path("config/initializers/verbose.rb"))
+    end
+  end
+
   test "app recovers when a boot-level error is introduced" do
     config = app.application_config.read
 
