@@ -238,7 +238,7 @@ module Spring
 
       def bundle
         run! "(gem list bundler | grep bundler) || gem install bundler", timeout: nil, retry: 2
-        run! "bundle update --retry=2", timeout: nil
+        run! "bundle check || bundle update --retry=2", timeout: nil
       end
 
       private
