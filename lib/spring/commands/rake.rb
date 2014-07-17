@@ -23,6 +23,11 @@ module Spring
 
         nil
       end
+
+      def preload
+        puts 'requiring rake tasks'
+        Bundler.require(:rake_tasks)
+      end
     end
 
     Spring.register_command "rake", Rake.new

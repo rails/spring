@@ -18,6 +18,10 @@ module Spring
       end
     end
 
+    def preload
+      command.preload if command.respond_to?(:preload)
+    end
+
     def setup?
       @setup
     end
