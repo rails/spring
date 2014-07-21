@@ -179,6 +179,17 @@ To remove spring:
 * 'Unspring' your bin/ executables: `bin/spring binstub --remove --all`
 * Remove spring from your Gemfile
 
+### Deployment
+
+You must not install Spring on production environment to prevent it
+from running there by providing `--without development test` argument to
+the `bundle install` command which is used to install gems on your production
+machines:
+
+```
+$ bundle install --without development test
+```
+
 ## Commands
 
 ### `rake`
