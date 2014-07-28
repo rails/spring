@@ -1,3 +1,5 @@
+require "spring/watcher"
+
 gem "listen", "~> 1.0"
 require "listen"
 require "listen/version"
