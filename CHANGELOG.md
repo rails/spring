@@ -1,7 +1,10 @@
 ## Next Version
 
 * Accept -e and --environment options for `rails console`.
-* Add `config/secrets.yml` file to watched for changes by default. Issue #289.
+* Watch `config/secrets.yml` by default. #289 - @morgoth
+* Custom Spring commands that implement `#binstub_prelude` will have that
+  snippet of code inserted into generated binstubs just after Spring is
+  set up. #329 - @merhard
 
 ## 1.1.3
 
