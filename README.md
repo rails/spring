@@ -183,9 +183,9 @@ To remove spring:
 
 ### Deployment
 
-You must not install Spring on production environment to prevent it
-from running there by providing `--without development test` argument to
-the `bundle install` command which is used to install gems on your production
+You must not install Spring on your production environment. To prevent it from
+being installed, provide the `--without development test` argument to the
+`bundle install` command which is used to install gems on your production
 machines:
 
 ```
