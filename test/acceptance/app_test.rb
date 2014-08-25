@@ -281,6 +281,12 @@ CODE
     assert_success "bin/spring status", stdout: "Spring is running"
   end
 
+  test "stdout doesn't block when full" do
+    assert_success app.spring_test_command
+    File.write(app.application_config, "#{app.application_config.read}\nputs 'hello world'*200")
+    assert_success app.spring_test_command
+  end
+
   test "runner command sets Rails environment from command-line options" do
     assert_success "bin/rails runner -e test 'puts Rails.env'", stdout: "test"
     assert_success "bin/rails runner --environment=test 'puts Rails.env'", stdout: "test"
