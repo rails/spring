@@ -5,6 +5,7 @@
 * Custom Spring commands that implement `#binstub_prelude` will have that
   snippet of code inserted into generated binstubs just after Spring is
   set up. #329 - @merhard
+* Change monkey-patched `Kernel.raise` from public to private (to match default Ruby behavior) #351 - @mattbrictson
 
 ## 1.1.3
 

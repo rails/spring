@@ -270,6 +270,7 @@ module Spring
             end
           end
         end
+        private :raise
       end
     end
 
