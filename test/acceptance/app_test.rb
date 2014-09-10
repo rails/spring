@@ -350,4 +350,9 @@ CODE
     assert_success %(bin/rails runner 'p ENV["OMG"]'), stdout: "2"
     assert_success %(bin/rails runner 'p ENV.key?("FOO")'), stdout: "false"
   end
+
+  test "Kernel.raise remains private" do
+    expr = "p Kernel.private_instance_methods.include?(:raise)"
+    assert_success %(bin/rails runner '#{expr}'), stdout: "true"
+  end
 end
