@@ -1,5 +1,11 @@
 gem "listen", "~> 2.7"
 require "listen"
+
+# fork() doesn't preserve threads, so a clean
+# Celluloid shutdown isn't possible, but we can
+# reduce the 10 second timeout
+Celluloid.shutdown_timeout = 2
+
 require "listen/version"
 
 module Spring
