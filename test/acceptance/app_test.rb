@@ -72,6 +72,7 @@ class AppTest < ActiveSupport::TestCase
       generator.generate_if_missing
       generator.install_spring
       generator.copy_to(app.root)
+      app.stop_spring
     rescue Exception => e
       STDERR.puts "FATAL: setup() caused an exception, so running tests makes no sense."
       STDERR.puts "The exception was: #{e.inspect}, backtrace:\n\t#{e.backtrace.join("\n\t")}\n"
