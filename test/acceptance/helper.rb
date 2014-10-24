@@ -139,7 +139,8 @@ module Spring
           )
         end
 
-        _, status = Timeout.timeout(opts.fetch(:timeout, DEFAULT_TIMEOUT)) { Process.wait2 }
+        max_time = opts.fetch(:timeout, DEFAULT_TIMEOUT)
+        _, status = Timeout.timeout(max_time) { Process.wait2 }
 
         if pid = spring_env.pid
           @server_pid = pid
@@ -154,7 +155,7 @@ module Spring
 
         output.merge(status: status, command: command)
       rescue Timeout::Error => e
-        raise e, "Output:\n\n#{dump_streams(command, read_streams)}"
+        raise "#{e.to_s}: Output:\n\n#{dump_streams(command, read_streams)} \n(command took more than #{max_time} seconds)"
       end
 
       def with_timing
