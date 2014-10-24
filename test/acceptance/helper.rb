@@ -316,8 +316,8 @@ module Spring
 
         install_spring
 
-        application.run! "bundle exec rails g scaffold post title:string"
-        application.run! "bundle exec rake db:migrate db:test:clone"
+        application.run! "bundle exec rails g scaffold post title:string", env: {'DISABLE_SPRING' => '1'}
+        application.run! "bundle exec rake db:migrate db:test:clone", env: {'DISABLE_SPRING' => '1'}
       end
 
       def generate_if_missing
