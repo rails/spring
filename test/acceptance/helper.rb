@@ -193,13 +193,19 @@ module Spring
         output
       end
 
+      def prefix(line)
+        "  >#{line}"
+      end
+
       def dump_streams(command, streams)
-        output = "$ #{command}\n"
+        output = prefix("$ #{command}\n")
 
         streams.each do |name, stream|
           unless stream.chomp.empty?
-            output << "--- #{name} ---\n"
-            output << "#{stream.chomp}\n"
+            output << prefix("--- #{name} ---\n")
+            stream.lines.each do |line|
+              output << prefix("#{line.chomp}\n")
+            end
           end
         end
 
