@@ -130,7 +130,7 @@ module Spring
 
         Bundler.with_clean_env do
           Process.spawn(
-            env,
+            env.merge(opts.fetch(:env, {})),
             command.to_s,
             out:   stdout.last,
             err:   stderr.last,
