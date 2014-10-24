@@ -244,7 +244,7 @@ module Spring
       end
 
       def bundle
-        run! "(gem list bundler | grep bundler) || gem install bundler", timeout: nil, retry: 2
+        run! "(gem list bundler | grep bundler) || gem install --no-ri --no-rdoc bundler", timeout: nil, retry: 2
         run! "bundle check || bundle update --retry=2", timeout: nil
       end
 
@@ -328,7 +328,7 @@ module Spring
         return if @installed
 
         system("gem build spring.gemspec 2>&1")
-        application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
+        application.run! "gem install --no-ri --no-rdoc ../../../spring-#{Spring::VERSION}.gem", timeout: nil
 
         application.bundle
 
