@@ -32,8 +32,17 @@ module Spring
   # then we need to be under bundler.
   require "bundler/setup"
 
-  Gem::Specification.map(&:name).grep(/^spring-commands-/).each do |command|
-    require command
+  # Auto-require any spring extensions which are in the Gemfile
+  Gem::Specification.map(&:name).grep(/^spring-/).each do |command|
+    begin
+      require command
+    rescue LoadError => error
+      if error.message.include?(command)
+        require command.gsub("-", "/")
+      else
+        raise
+      end
+    end
   end
 
   config = File.expand_path("./config/spring.rb")

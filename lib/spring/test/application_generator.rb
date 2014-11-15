@@ -10,8 +10,12 @@ module Spring
         @bundled            = false
       end
 
+      def test_root
+        Pathname.new Spring::Test.root
+      end
+
       def root
-        "#{Spring::Test.root}/apps/rails-#{version.major}-#{version.minor}-spring-#{Spring::VERSION}"
+        test_root.join("apps/rails-#{version.major}-#{version.minor}-spring-#{Spring::VERSION}")
       end
 
       def system(command)
@@ -25,41 +29,40 @@ module Spring
         puts if ENV["SPRING_DEBUG"]
       end
 
-      # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
       def generate
-        Bundler.with_clean_env do
-          system("gem list rails --installed --version '#{version_constraint}' || " \
-                   "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}'")
+        Bundler.with_clean_env { generate_files }
+        install_spring
+        generate_scaffold
+      end
 
-          @version = RailsVersion.new(`ruby -e 'puts Gem::Specification.find_by_name("rails", "#{version_constraint}").version'`.chomp)
+      # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
+      def generate_files
+        system("gem list rails --installed --version '#{version_constraint}' || " \
+                 "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}'")
 
-          skips = %w(--skip-bundle --skip-javascript --skip-sprockets)
-          skips << "--skip-spring" if version.bundles_spring?
+        @version = RailsVersion.new(`ruby -e 'puts Gem::Specification.find_by_name("rails", "#{version_constraint}").version'`.chomp)
 
-          system("rails _#{version}_ new #{application.root} #{skips.join(' ')}")
-          raise "application generation failed" unless application.exists?
+        skips = %w(--skip-bundle --skip-javascript --skip-sprockets)
+        skips << "--skip-spring" if version.bundles_spring?
 
-          FileUtils.mkdir_p(application.gem_home)
-          FileUtils.mkdir_p(application.user_home)
-          FileUtils.rm_rf(application.path("test/performance"))
+        system("rails _#{version}_ new #{application.root} #{skips.join(' ')}")
+        raise "application generation failed" unless application.exists?
 
-          File.write(application.gemfile, "#{application.gemfile.read}gem 'spring', '#{Spring::VERSION}'\n")
+        FileUtils.mkdir_p(application.gem_home)
+        FileUtils.mkdir_p(application.user_home)
+        FileUtils.rm_rf(application.path("test/performance"))
 
-          if version.needs_testunit?
-            File.write(application.gemfile, "#{application.gemfile.read}gem 'spring-commands-testunit'\n")
-          end
+        File.write(application.gemfile, "#{application.gemfile.read}gem 'spring', '#{Spring::VERSION}'\n")
 
-          File.write(application.gemfile, application.gemfile.read.sub("https://rubygems.org", "http://rubygems.org"))
-
-          if application.path("bin").exist?
-            FileUtils.cp_r(application.path("bin"), application.path("bin_original"))
-          end
+        if version.needs_testunit?
+          File.write(application.gemfile, "#{application.gemfile.read}gem 'spring-commands-testunit'\n")
         end
 
-        install_spring
+        File.write(application.gemfile, application.gemfile.read.sub("https://rubygems.org", "http://rubygems.org"))
 
-        application.run! "bundle exec rails g scaffold post title:string"
-        application.run! "bundle exec rake db:migrate db:test:clone"
+        if application.path("bin").exist?
+          FileUtils.cp_r(application.path("bin"), application.path("bin_original"))
+        end
       end
 
       def generate_if_missing
@@ -69,8 +72,7 @@ module Spring
       def install_spring
         return if @installed
 
-        system("gem build spring.gemspec 2>&1")
-        application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
+        build_and_install_gems
 
         application.bundle
 
@@ -84,9 +86,35 @@ module Spring
         @installed = true
       end
 
+      def manually_built_gems
+        %w(spring)
+      end
+
+      def build_and_install_gems
+        manually_built_gems.each do |name|
+          spec = Gem::Specification.find_by_name(name)
+
+          FileUtils.cd(spec.gem_dir) do
+            FileUtils.rm(Dir.glob("#{name}-*.gem"))
+            system("gem build #{name}.gemspec 2>&1")
+          end
+
+          application.run! "gem install #{spec.gem_dir}/#{name}-*.gem", timeout: nil
+        end
+      end
+
       def copy_to(path)
         system("rm -rf #{path}")
         system("cp -r #{application.root} #{path}")
+      end
+
+      def generate_scaffold
+        application.run! "bundle exec rails g scaffold post title:string"
+        application.run! "bundle exec rake db:migrate db:test:clone"
+      end
+
+      def gemspec(name)
+        "#{Gem::Specification.find_by_name(name).gem_dir}/#{name}.gemspec"
       end
     end
   end

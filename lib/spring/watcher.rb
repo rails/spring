@@ -9,15 +9,11 @@ module Spring
   end
 
   def self.watch_method=(method)
-    case method
-    when :polling
-      require_relative "watcher/polling"
-      @watch_method = Watcher::Polling
-    when :listen
-      require_relative "watcher/listen"
-      @watch_method = Watcher::Listen
-    else
+    if method.is_a?(Class)
       @watch_method = method
+    else
+      require "spring/watcher/#{method}"
+      @watch_method = Watcher.const_get(method.to_s.gsub(/(^.|_.)/) { $1[-1].upcase })
     end
   end
 

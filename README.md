@@ -344,23 +344,10 @@ Spring.watch "config/some_config_file.yml"
 
 By default Spring polls the filesystem for changes once every 0.2 seconds. This
 method requires zero configuration, but if you find that it's using too
-much CPU, then you can turn on event-based file system listening:
-
-```ruby
-Spring.watch_method = :listen
-```
-
-You will need to add the [`listen` gem](https://github.com/guard/listen) to your `Gemfile`
-if you don't already have it:
-
-```ruby
-group :development do
-  gem 'listen', '~> 1.0'
-end
-```
-
-Note that Spring does not currently support version 2 of the listen gem.
-See pull request [#194](https://github.com/rails/spring/pull/194) for more details.
+much CPU, then you can use event-based file system listening by
+installing the
+[spring-watcher-listen](https://github.com/jonleighton/spring-watcher-listen)
+gem.
 
 ## Troubleshooting
 

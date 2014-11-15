@@ -2,6 +2,8 @@
 
 * Accept -e and --environment options for `rails console`.
 * Add `config/secrets.yml` file to watched for changes by default. Issue #289.
+* Extract the 'listen' watcher to a separate `spring-watcher-listen`
+  gem. This allows it to be developed/maintained separately.
 
 ## 1.1.3
 
