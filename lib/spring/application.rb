@@ -283,8 +283,15 @@ module Spring
     def with_pty
       PTY.open do |master, slave|
         [STDOUT, STDERR, STDIN].each { |s| s.reopen slave }
+        interrupt = IO.pipe
+        Thread.new{ loop{
+          readable,_=IO.select([master,interrupt.first])
+          log master.read_nonblock(4096) if readable.include?(master)
+          break if readable == [interrupt.first]
+        }}
         yield
         reset_streams
+        interrupt.last.write '.'
       end
     end
 
