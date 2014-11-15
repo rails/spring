@@ -16,8 +16,13 @@ module Spring
         ENV['RAILS_VERSION'] || '~> 4.0.0'
       end
 
+      # Extension point for spring-watchers-listen
+      def generator_klass
+        Spring::Test::ApplicationGenerator
+      end
+
       def generator
-        @@generator ||= Spring::Test::ApplicationGenerator.new(rails_version)
+        @@generator ||= generator_klass.new(rails_version)
       end
 
       def app

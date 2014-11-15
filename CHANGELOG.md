@@ -4,6 +4,8 @@
 * Watch `config/secrets.yml` by default. #289 - @morgoth
 * Change monkey-patched `Kernel.raise` from public to private (to match default Ruby behavior) #351 - @mattbrictson
 * Let application_id also respect RUBY_VERSION for the use case of switching between Ruby versions for a given Rails app - @methodmissing
+* Extract the 'listen' watcher to a separate `spring-watcher-listen`
+  gem. This allows it to be developed/maintained separately.
 
 ## 1.1.3
 
