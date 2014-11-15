@@ -25,7 +25,7 @@ module Spring
         if Process.respond_to?(:getsid)
           # Ruby 2
           Process.getsid
-        elsif defined?(Fiddle)
+        elsif defined?(Fiddle) and defined?(DL)
           # Ruby 1.9.3 compiled with libffi support
           fiddle_func.call(0)
         else
