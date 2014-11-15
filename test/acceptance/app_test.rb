@@ -68,9 +68,16 @@ class AppTest < ActiveSupport::TestCase
   end
 
   setup do
-    generator.generate_if_missing
-    generator.install_spring
-    generator.copy_to(app.root)
+    begin
+      generator.generate_if_missing
+      generator.install_spring
+      generator.copy_to(app.root)
+      app.stop_spring
+    rescue Exception => e
+      STDERR.puts "FATAL: setup() caused an exception, so running tests makes no sense."
+      STDERR.puts "The exception was: #{e.inspect}, backtrace:\n\t#{e.backtrace.join("\n\t")}\n"
+      abort
+    end
   end
 
   teardown do
@@ -123,7 +130,7 @@ class AppTest < ActiveSupport::TestCase
   end
 
   test "app gets reloaded when preloaded files change (listen watcher)" do
-    File.write(app.gemfile, "#{app.gemfile.read}gem 'listen', '~> 1.0'")
+    File.write(app.gemfile, "#{app.gemfile.read}\ngem 'listen', '~> 2.7'")
     File.write(app.spring_config, "Spring.watch_method = :listen")
     app.bundle
 

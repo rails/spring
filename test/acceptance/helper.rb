@@ -130,7 +130,7 @@ module Spring
 
         Bundler.with_clean_env do
           Process.spawn(
-            env,
+            env.merge(opts.fetch(:env, {})),
             command.to_s,
             out:   stdout.last,
             err:   stderr.last,
@@ -139,7 +139,8 @@ module Spring
           )
         end
 
-        _, status = Timeout.timeout(opts.fetch(:timeout, DEFAULT_TIMEOUT)) { Process.wait2 }
+        max_time = opts.fetch(:timeout, DEFAULT_TIMEOUT)
+        _, status = Timeout.timeout(max_time) { Process.wait2 }
 
         if pid = spring_env.pid
           @server_pid = pid
@@ -154,7 +155,7 @@ module Spring
 
         output.merge(status: status, command: command)
       rescue Timeout::Error => e
-        raise e, "Output:\n\n#{dump_streams(command, read_streams)}"
+        raise "#{e.to_s}: Output:\n\n#{dump_streams(command, read_streams)} \n(command took more than #{max_time} seconds)"
       end
 
       def with_timing
@@ -192,13 +193,19 @@ module Spring
         output
       end
 
+      def prefix(line)
+        "  >#{line}"
+      end
+
       def dump_streams(command, streams)
-        output = "$ #{command}\n"
+        output = prefix("$ #{command}\n")
 
         streams.each do |name, stream|
           unless stream.chomp.empty?
-            output << "--- #{name} ---\n"
-            output << "#{stream.chomp}\n"
+            output << prefix("--- #{name} ---\n")
+            stream.lines.each do |line|
+              output << prefix("#{line.chomp}\n")
+            end
           end
         end
 
@@ -237,7 +244,7 @@ module Spring
       end
 
       def bundle
-        run! "(gem list bundler | grep bundler) || gem install bundler", timeout: nil, retry: 2
+        run! "(gem list bundler | grep bundler) || gem install --no-ri --no-rdoc bundler", timeout: nil, retry: 2
         run! "bundle check || bundle update --retry=2", timeout: nil
       end
 
@@ -309,8 +316,8 @@ module Spring
 
         install_spring
 
-        application.run! "bundle exec rails g scaffold post title:string"
-        application.run! "bundle exec rake db:migrate db:test:clone"
+        application.run! "bundle exec rails g scaffold post title:string", env: {'DISABLE_SPRING' => '1'}
+        application.run! "bundle exec rake db:migrate db:test:clone", env: {'DISABLE_SPRING' => '1'}
       end
 
       def generate_if_missing
@@ -321,7 +328,7 @@ module Spring
         return if @installed
 
         system("gem build spring.gemspec 2>&1")
-        application.run! "gem install ../../../spring-#{Spring::VERSION}.gem", timeout: nil
+        application.run! "gem install --no-ri --no-rdoc ../../../spring-#{Spring::VERSION}.gem", timeout: nil
 
         application.bundle
 

@@ -163,6 +163,12 @@ end
 class ListenWatcherTest < ActiveSupport::TestCase
   include WatcherTests
 
+  setup {
+    Celluloid.boot
+  }
+
+  teardown { Listen.stop }
+
   def watcher_class
     Spring::Watcher::Listen
   end
@@ -178,7 +184,8 @@ class ListenWatcherTest < ActiveSupport::TestCase
       watcher.add other_dir_2
       watcher.add "#{dir}/foo"
 
-      assert_equal [dir, other_dir_1, other_dir_2].sort, watcher.base_directories.sort
+      dirs = [dir, other_dir_1, other_dir_2].sort.map { |path| Pathname.new(path) }
+      assert_equal dirs, watcher.base_directories.sort
     ensure
       FileUtils.rmdir other_dir_1
       FileUtils.rmdir other_dir_2
@@ -199,7 +206,8 @@ class ListenWatcherTest < ActiveSupport::TestCase
       watcher.add "#{other_dir_1}/foo"
       watcher.add other_dir_2
 
-      assert_equal [dir, other_dir_1, other_dir_2].sort, watcher.base_directories.sort
+      dirs = [dir, other_dir_1, other_dir_2].sort.map { |path| Pathname.new(path) }
+      assert_equal dirs, watcher.base_directories.sort
     ensure
       FileUtils.rmdir other_dir_1
       FileUtils.rmdir other_dir_2
