@@ -15,6 +15,10 @@
 * Various issues solved to do with termination / processes hanging around
   longer than they should. Issue #290.
 
+* Add support for a `.spring.rb` config file in the project root that
+  is loaded before calling the spring `Command`, so it's a good place to
+  modify spring for your own unique needs.
+
 ## 1.1.2
 
 * Detect old binstubs generated with Spring 1.0 and exit with an error.
