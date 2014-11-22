@@ -1,4 +1,4 @@
-## Next Version
+## 1.2.0
 
 * Accept -e and --environment options for `rails console`.
 * Watch `config/secrets.yml` by default. #289 - @morgoth
