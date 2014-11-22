@@ -188,25 +188,6 @@ class AppTest < ActiveSupport::TestCase
     assert_success "bin/rake -T", stdout: "rake db:migrate"
   end
 
-  test "binstub with prelude code" do
-    prelude = "Prelude code line 1\nPrelude code line 2\n"
-
-    File.write(app.spring_config, <<-CODE)
-      class PreludeCode
-        def binstub_prelude
-          "#{prelude}"
-        end
-      end
-
-      Spring.register_command "prelude", PreludeCode.new
-    CODE
-
-    assert_success "bin/spring binstub prelude"
-    prelude.each_line do |line|
-      assert app.path("bin/prelude").read.include?(line), "'#{line}' not found in bin/prelude"
-    end
-  end
-
   test "binstub when spring is uninstalled" do
     app.run! "gem uninstall --ignore-dependencies spring"
     File.write(app.gemfile, app.gemfile.read.gsub(/gem 'spring.*/, ""))

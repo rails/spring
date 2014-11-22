@@ -104,14 +104,8 @@ CODE
             fallback = "require 'bundler/setup'\n" \
                        "load Gem.bin_path('#{command.gem_name}', '#{command.exec_name}')\n"
           end
-          if prelude = command.binstub_prelude
-            formatted_prelude = prelude.chomp.gsub(/^(?!$)/, '  ')
-            loader = LOADER.sub(/^end$/, "else\n#{formatted_prelude}\nend")
-          else
-            loader = LOADER
-          end
 
-          File.write(command.binstub, "#!/usr/bin/env ruby\n#{loader}#{fallback}")
+          File.write(command.binstub, "#!/usr/bin/env ruby\n#{LOADER}#{fallback}")
           command.binstub.chmod 0755
         end
 

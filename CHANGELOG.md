@@ -2,9 +2,6 @@
 
 * Accept -e and --environment options for `rails console`.
 * Watch `config/secrets.yml` by default. #289 - @morgoth
-* Custom Spring commands that implement `#binstub_prelude` will have that
-  snippet of code inserted into generated binstubs just after Spring is
-  set up. #329 - @merhard
 * Change monkey-patched `Kernel.raise` from public to private (to match default Ruby behavior) #351 - @mattbrictson
 * Let application_id also respect RUBY_VERSION for the use case of switching between Ruby versions for a given Rails app - @methodmissing
 

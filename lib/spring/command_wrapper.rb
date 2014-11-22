@@ -69,12 +69,6 @@ module Spring
       "bin/#{name}"
     end
 
-    def binstub_prelude
-      if command.respond_to?(:binstub_prelude)
-        command.binstub_prelude
-      end
-    end
-
     def exec
       if binstub.exist?
         binstub.to_s
