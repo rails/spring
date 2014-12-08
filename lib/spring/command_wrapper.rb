@@ -41,10 +41,6 @@ module Spring
       end
     end
 
-    def process_title
-      [name, *ARGV].join(" ")
-    end
-
     def gem_name
       if command.respond_to?(:gem_name)
         command.gem_name
