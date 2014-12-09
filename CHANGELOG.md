@@ -1,5 +1,8 @@
 ## Next version
 
+* Fixed problem with `$0` including the command line args, which could
+  confuse commands which try to parse `$0`. This caused the
+  spring-commands-rspec to not work properly in some cases. Issue #369.
 * Add OpenBSD compatibility for `spring status`. Issue #299.
 
 ## 1.2.0
