@@ -1,5 +1,8 @@
 ## Next version
 
+* Make app reloading work in apps which spew out lots of output on
+  startup (previously a buffer would fill up and cause the process to
+  hang). Issue #332.
 * Make sure running `bin/spring` does not add an empty string to `Gem.path`.
   Issues #297, #310.
 * Fixed problem with `$0` including the command line args, which could
