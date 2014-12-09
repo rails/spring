@@ -158,7 +158,7 @@ module Spring
         trap("TERM", "DEFAULT")
 
         ARGV.replace(args)
-        $0 = command.process_title
+        $0 = command.exec_name
 
         # Delete all env vars which are unchanged from before spring started
         original_env.each { |k, v| ENV.delete k if ENV[k] == v }
