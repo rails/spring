@@ -21,7 +21,37 @@ module Spring
       end
 
       def call
-        boot_server unless env.server_running?
+        if env.server_running?
+          warm_run
+        else
+          cold_run
+        end
+      rescue Errno::ECONNRESET
+        exit 1
+      ensure
+        server.close if @server
+      end
+
+      def warm_run
+        run
+      rescue CommandNotFound
+        require "spring/commands"
+
+        if Spring.command?(args.first)
+          # Command installed since spring started
+          stop_server
+          cold_run
+        else
+          raise
+        end
+      end
+
+      def cold_run
+        boot_server
+        run
+      end
+
+      def run
         verify_server_version
 
         application, client = UNIXSocket.pair
@@ -29,25 +59,28 @@ module Spring
         queue_signals
         connect_to_application(client)
         run_command(client, application)
-      rescue Errno::ECONNRESET
-        exit 1
-      ensure
-        server.close if @server
       end
 
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
 
-        pid = fork {
-          require "spring/server"
-          Spring::Server.boot
-        }
+        pid = Process.spawn(
+          "ruby",
+          "-r", "spring/server",
+          "-e", "Spring::Server.boot"
+        )
 
         until env.socket_path.exist?
           _, status = Process.waitpid2(pid, Process::WNOHANG)
           exit status.exitstatus if status
           sleep 0.1
         end
+      end
+
+      def stop_server
+        server.close
+        @server = nil
+        env.stop
       end
 
       def verify_server_version

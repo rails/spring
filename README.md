@@ -218,8 +218,7 @@ speed-up).
 
 ### Additional commands
 
-You can add these to your Gemfile for additional commands (run `spring stop` afterwards
-to pick up the changes):
+You can add these to your Gemfile for additional commands:
 
 * [spring-commands-rspec](https://github.com/jonleighton/spring-commands-rspec)
 * [spring-commands-cucumber](https://github.com/jonleighton/spring-commands-cucumber)

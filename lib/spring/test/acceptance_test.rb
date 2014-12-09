@@ -147,6 +147,9 @@ module Spring
       end
 
       test "custom commands" do
+        # Start spring before setting up the command, to test that it gracefully upgrades itself
+        assert_success "bin/rails runner ''"
+
         File.write(app.spring_config, <<-CODE)
           class CustomCommand
             def call
