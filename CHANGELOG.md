@@ -1,5 +1,9 @@
 ## Next version
 
+* Automatically restart spring after new commands are added. This means
+  that you can add spring-commands-rspec to your Gemfile and then
+  immediately start using it, without having to run `spring stop`.
+  (Spring will effectively run `spring stop` for you.)
 * Make app reloading work in apps which spew out lots of output on
   startup (previously a buffer would fill up and cause the process to
   hang). Issue #332.
