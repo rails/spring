@@ -124,6 +124,16 @@ module Spring
         assert_failure app.spring_test_command, stdout: "RuntimeError: omg"
       end
 
+      test "app gets reloaded even with a ton of boot output" do
+        limit = UNIXSocket.pair.first.getsockopt(:SOCKET, :SNDBUF).int
+
+        assert_success app.spring_test_command
+        File.write(app.path("config/initializers/verbose.rb"), "#{limit}.times { puts 'x' }")
+
+        app.await_reload
+        assert_success app.spring_test_command
+      end
+
       test "app recovers when a boot-level error is introduced" do
         config = app.application_config.read
 
@@ -327,17 +337,6 @@ CODE
       test "Kernel.raise remains private" do
         expr = "p Kernel.private_instance_methods.include?(:raise)"
         assert_success %(bin/rails runner '#{expr}'), stdout: "true"
-      end
-
-      test "app gets reloaded even with a ton of boot output" do
-        File.write(app.path("config/initializers/verbose.rb"), "50.times { puts 'x' * 80 }\n")
-        begin
-          app.env["RAILS_ENV"] = "test"
-          assert_success "bin/rails runner 'puts Spring.watcher.class'", stdout: "Polling"
-          assert_app_reloaded
-        ensure
-          File.unlink(app.path("config/initializers/verbose.rb"))
-        end
       end
     end
   end
