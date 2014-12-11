@@ -1,5 +1,6 @@
 ## Next version
 
+* Read a `.spring.rb` from the local directory in addition to a global `~/.spring.rb`
 * Automatically restart spring after new commands are added. This means
   that you can add spring-commands-rspec to your Gemfile and then
   immediately start using it, without having to run `spring stop`.
