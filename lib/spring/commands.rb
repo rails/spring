@@ -25,8 +25,10 @@ module Spring
 
   # Load custom commands, if any.
   # needs to be at the end to allow modification of existing commands.
-  config = File.expand_path("~/.spring.rb")
-  require config if File.exist?(config)
+  ["~", "."].each do |location|
+    config = File.expand_path File.join(location, ".spring.rb")
+    require config if File.exist?(config)
+  end
 
   # If the config/spring.rb contains requires for commands from other gems,
   # then we need to be under bundler.

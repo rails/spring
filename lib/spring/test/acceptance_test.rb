@@ -252,6 +252,11 @@ CODE
         assert_success "bin/rails runner 'puts 2'", stdout: "!callback!\n2"
       end
 
+      test "local config file evaluated" do
+        File.write("#{app.root}/.spring.rb", "Spring.after_fork { puts '!callback!' }")
+        assert_success "bin/rails runner 'puts 2'", stdout: "!callback!\n2"
+      end
+
       test "missing config/application.rb" do
         app.application_config.delete
         assert_failure "bin/rake -T", stderr: "unable to find your config/application.rb"
