@@ -287,12 +287,12 @@ constants in your initialization code.
 
 ## Configuration
 
-Spring will read `~/.spring.rb` and `config/spring.rb` for custom
-settings. Note that `~/.spring.rb` is loaded *before* bundler, but
-`config/spring.rb` is loaded *after* bundler. So if you have any
-`spring-commands-*` gems installed that you want to be available in all
-projects without having to be added to the project's Gemfile, require
-them in your `~/.spring.rb`.
+Spring will read `~/.spring.rb`, `./.spring.rb` and `config/spring.rb` for
+custom settings. Note that `~/.spring.rb` and `./.spring.rb` are loaded
+*before* bundler, but `config/spring.rb` is loaded *after* bundler. So if you
+have any `spring-commands-*` gems installed that you want to be available in
+all projects without having to be added to the project's Gemfile, require them
+in your `~/.spring.rb` or `./.spring.rb`.
 
 ### Application root
 
@@ -307,9 +307,9 @@ Spring.application_root = './test/dummy'
 
 ### Running code before forking
 
-There is no `Spring.before_fork` callback. To run something before the
-fork, you can place it in `~/.spring.rb` or `config/spring.rb` or in any of the files
-which get run when your application initializes, such as
+There is no `Spring.before_fork` callback. To run something before the fork,
+you can place it in `~/.spring.rb`, `./.spring.rb` or `config/spring.rb` or in
+any of the files which get run when your application initializes, such as
 `config/application.rb`, `config/environments/*.rb` or
 `config/initializers/*.rb`.
 
