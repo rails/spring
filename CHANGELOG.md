@@ -1,4 +1,4 @@
-## Next version
+## 1.3.0
 
 * Automatically restart spring after new commands are added. This means
   that you can add spring-commands-rspec to your Gemfile and then
