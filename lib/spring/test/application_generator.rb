@@ -37,7 +37,7 @@ module Spring
 
       # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
       def generate_files
-        system("gem list rails --installed --version '#{version_constraint}' || " \
+        system("gem list '^rails$' --installed --version '#{version_constraint}' || " \
                  "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}'")
 
         @version = RailsVersion.new(`ruby -e 'puts Gem::Specification.find_by_name("rails", "#{version_constraint}").version'`.chomp)
