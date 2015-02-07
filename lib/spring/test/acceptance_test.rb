@@ -13,7 +13,7 @@ module Spring
       DEFAULT_SPEEDUP = 0.8
 
       def rails_version
-        ENV['RAILS_VERSION'] || '~> 4.0.0'
+        ENV['RAILS_VERSION'] || '~> 4.2.0'
       end
 
       # Extension point for spring-watchers-listen

@@ -13,6 +13,7 @@
   confuse commands which try to parse `$0`. This caused the
   spring-commands-rspec to not work properly in some cases. Issue #369.
 * Add OpenBSD compatibility for `spring status`. Issue #299.
+* Rails 3.2 no longer officially supported (but it may continue to work)
 
 ## 1.2.0
 
