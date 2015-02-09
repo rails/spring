@@ -64,7 +64,10 @@ module Spring
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
 
+        # The GEM_HOME handling is to work around a problem with spring binstubs
+        # generated prior to 1.3.0.
         pid = Process.spawn(
+          ENV["GEM_HOME"] == "" ? { "GEM_HOME" => nil } : {},
           "ruby",
           "-r", "spring/server",
           "-e", "Spring::Server.boot"

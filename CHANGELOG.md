@@ -1,3 +1,8 @@
+## Next release
+
+* Fix a problem with gems bundled from a git repository, where the
+  `bin/spring` was generated before 1.3.0.
+
 ## 1.3.0
 
 * Automatically restart spring after new commands are added. This means
