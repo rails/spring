@@ -5,6 +5,8 @@ module Spring
     class Help < Command
       attr_reader :spring_commands, :application_commands
 
+      KNOWN_PLUGINS = %w(rspec cucumber spinach teaspoon testunit)
+
       def self.description
         "Print available commands."
       end
@@ -29,12 +31,18 @@ module Spring
         puts formatted_help
       end
 
+      def help_for_missing_plugin(name)
+        return [] unless KNOWN_PLUGINS.include?(name)
+        ['', "Hint: you probably want to add the 'spring-commands-#{name}' gem"]
+      end
+
       def formatted_help
         ["Version: #{env.version}\n",
          "Usage: spring COMMAND [ARGS]\n",
          *command_help("spring itself", spring_commands),
          '',
-         *command_help("your application", application_commands)].join("\n")
+         *command_help("your application", application_commands),
+         *help_for_missing_plugin(Array(args).first)].join("\n")
       end
 
       def command_help(subject, commands)

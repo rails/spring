@@ -57,4 +57,10 @@ Commands for your application:
 
     assert_equal expected_output.chomp, @help.formatted_help
   end
+
+  test "formatted_help knows about missing plugins" do
+    rspec_help = Spring::Client::Help.new('rspec', spring_commands, application_commands)
+    assert_match /spring-commands-rspec/, rspec_help.formatted_help
+  end
+
 end
