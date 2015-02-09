@@ -1,3 +1,8 @@
+## 1.3.1
+
+* Improved help message - suggests installing appropriate plugin when a
+  known but uninstalled command is attempted.
+
 ## 1.3.0
 
 * Automatically restart spring after new commands are added. This means
