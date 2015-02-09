@@ -1,4 +1,4 @@
-## Next release
+## 1.3.1
 
 * Fix a problem with gems bundled from a git repository, where the
   `bin/spring` was generated before 1.3.0.
