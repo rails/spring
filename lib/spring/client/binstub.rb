@@ -14,7 +14,7 @@ module Spring
       LOADER = <<CODE
 begin
   load File.expand_path("../spring", __FILE__)
-rescue LoadError
+rescue SpringNotInstalledError
 end
 CODE
 
@@ -36,12 +36,19 @@ unless defined?(Spring)
   require "rubygems"
   require "bundler"
 
+  class SpringNotInstalledError < LoadError; end
+
   if match = Bundler.default_lockfile.read.match(/^GEM$.*?^    (?:  )*spring \((.*?)\)$.*?^$/m)
     ENV["GEM_PATH"] = ([Bundler.bundle_path.to_s] + Gem.path).join(File::PATH_SEPARATOR)
     ENV["GEM_HOME"] = nil
     Gem.paths = ENV
 
-    gem "spring", match[1]
+    begin
+      gem "spring", match[1]
+    rescue LoadError => e
+      raise SpringNotInstalledError, e.message
+    end
+
     require "spring/binstub"
   end
 end
