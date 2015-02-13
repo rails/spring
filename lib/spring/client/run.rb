@@ -1,5 +1,6 @@
 require "rbconfig"
 require "socket"
+require "bundler"
 
 module Spring
   module Client
@@ -64,10 +65,8 @@ module Spring
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
 
-        # The GEM_HOME handling is to work around a problem with spring binstubs
-        # generated prior to 1.3.0.
         pid = Process.spawn(
-          ENV["GEM_HOME"] == "" ? { "GEM_HOME" => nil } : {},
+          gem_env,
           "ruby",
           "-r", "spring/server",
           "-e", "Spring::Server.boot"
@@ -78,6 +77,16 @@ module Spring
           exit status.exitstatus if status
           sleep 0.1
         end
+      end
+
+      def gem_env
+        bundle = Bundler.bundle_path.to_s
+        paths  = ENV["GEM_PATH"].to_s.split(File::PATH_SEPARATOR)
+
+        {
+          "GEM_PATH" => [bundle, *paths].join(File::PATH_SEPARATOR),
+          "GEM_HOME" => bundle
+        }
       end
 
       def stop_server

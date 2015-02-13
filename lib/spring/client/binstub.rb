@@ -29,18 +29,15 @@ CODE
       SPRING = <<'CODE'
 #!/usr/bin/env ruby
 
-# This file loads spring without using Bundler, in order to be fast
-# It gets overwritten when you run the `spring binstub` command
+# This file loads spring without using Bundler, in order to be fast.
+# It gets overwritten when you run the `spring binstub` command.
 
 unless defined?(Spring)
   require "rubygems"
   require "bundler"
 
   if match = Bundler.default_lockfile.read.match(/^GEM$.*?^    (?:  )*spring \((.*?)\)$.*?^$/m)
-    ENV["GEM_PATH"] = ([Bundler.bundle_path.to_s] + Gem.path).join(File::PATH_SEPARATOR)
-    ENV["GEM_HOME"] = nil
-    Gem.paths = ENV
-
+    Gem.paths = { "GEM_PATH" => Bundler.bundle_path.to_s }
     gem "spring", match[1]
     require "spring/binstub"
   end
