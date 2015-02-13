@@ -1,3 +1,8 @@
+## Next version
+
+* Fix another problem with gems bundled from git repositories. This
+  affected chruby and RVM users, and possibly others. See #383.
+
 ## 1.3.1
 
 * Fix a problem with gems bundled from a git repository, where the
