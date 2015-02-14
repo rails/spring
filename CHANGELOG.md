@@ -1,4 +1,4 @@
-## Next version
+## 1.3.2
 
 * Fix another problem with gems bundled from git repositories. This
   affected chruby and RVM users, and possibly others. See #383.
