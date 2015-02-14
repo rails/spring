@@ -22,6 +22,10 @@ boot it every time you run a test, rake task or migration.
 Spring makes extensive use of `Process.fork`, so won't be able to
 provide a speed up on platforms which don't support forking (Windows, JRuby).
 
+## Interoperability with other gems
+
+* FactoryGirl 4.4.1 or newer
+
 ## Walkthrough
 
 ### Setup
