@@ -72,7 +72,7 @@ For this walkthrough I've generated a new Rails application, and run
 Let's run a test:
 
 ```
-$ time bin/rake test test/functional/posts_controller_test.rb
+$ time bin/rake test test/controllers/posts_controller_test.rb
 Run options:
 
 # Running tests:
@@ -102,7 +102,7 @@ Spring is running:
 The next run is faster:
 
 ```
-$ time bin/rake test test/functional/posts_controller_test.rb
+$ time bin/rake test test/controllers/posts_controller_test.rb
 Run options:
 
 # Running tests:
