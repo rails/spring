@@ -1,3 +1,8 @@
+## Next version
+
+* Fix yet another problem with loading spring which seems to affect
+  some/all rbenv users. Issue #390.
+
 ## 1.3.2
 
 * Fix another problem with gems bundled from git repositories. This

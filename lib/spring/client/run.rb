@@ -81,10 +81,10 @@ module Spring
 
       def gem_env
         bundle = Bundler.bundle_path.to_s
-        paths  = ENV["GEM_PATH"].to_s.split(File::PATH_SEPARATOR)
+        paths  = Gem.path + ENV["GEM_PATH"].to_s.split(File::PATH_SEPARATOR)
 
         {
-          "GEM_PATH" => [bundle, *paths].join(File::PATH_SEPARATOR),
+          "GEM_PATH" => [bundle, *paths].uniq.join(File::PATH_SEPARATOR),
           "GEM_HOME" => bundle
         }
       end
