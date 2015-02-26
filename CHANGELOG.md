@@ -1,4 +1,4 @@
-## Next version
+## 1.3.3
 
 * Fix yet another problem with loading spring which seems to affect
   some/all rbenv users. Issue #390.
