@@ -67,7 +67,7 @@ Rails directory.
 ### Usage
 
 For this walkthrough I've generated a new Rails application, and run
-`rails generate scaffold posts name:string`.
+`rails generate scaffold post name:string`.
 
 Let's run a test:
 
