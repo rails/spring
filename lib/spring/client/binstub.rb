@@ -146,7 +146,7 @@ CODE
         when "--all"
           @all = true
           commands = Spring.commands.dup
-          commands.delete_if { |name, _| name.start_with?("rails_") }
+          commands.delete_if { |command_name, _| command_name.start_with?("rails_") }
           commands.values + [self.class.rails_command]
         when "--remove"
           @mode = :remove
