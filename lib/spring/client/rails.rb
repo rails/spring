@@ -3,13 +3,14 @@ require "set"
 module Spring
   module Client
     class Rails < Command
-      COMMANDS = Set.new %w(console runner generate destroy)
+      COMMANDS = Set.new %w(console runner generate destroy test)
 
       ALIASES = {
         "c" => "console",
         "r" => "runner",
         "g" => "generate",
-        "d" => "destroy"
+        "d" => "destroy",
+        "t" => "test"
       }
 
       def self.description

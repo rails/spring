@@ -1,3 +1,7 @@
+## Not released
+
+* Add `rails test` command.
+
 ## 1.3.3
 
 * Fix yet another problem with loading spring which seems to affect
