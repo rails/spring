@@ -56,4 +56,19 @@ class CommandsTest < ActiveSupport::TestCase
     assert_equal "test", command.env(["test:models"])
     assert_nil command.env(["test_foo"])
   end
+
+  test 'RailsTest#command defaults to test rails environment' do
+    command = Spring::Commands::RailsTest.new
+    assert_equal 'test', command.env([])
+  end
+
+  test 'RailsTest#command sets rails environment from --environment option' do
+    command = Spring::Commands::RailsTest.new
+    assert_equal 'foo', command.env(['--environment=foo'])
+  end
+
+  test 'RailsTest#command sets rails environment from -e option' do
+    command = Spring::Commands::RailsTest.new
+    assert_equal 'foo', command.env(['-e', 'foo'])
+  end
 end
