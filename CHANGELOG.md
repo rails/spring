@@ -1,3 +1,7 @@
+## 1.3.5
+
+* Fix `rails test` command to run in test environment #403 - @eileencodes
+
 ## 1.3.4
 
 * Add `rails test` command.
