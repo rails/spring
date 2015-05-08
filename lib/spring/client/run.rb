@@ -68,8 +68,7 @@ module Spring
         pid = Process.spawn(
           gem_env,
           "ruby",
-          "-r", "spring/server",
-          "-e", "Spring::Server.boot"
+          "-e", "gem 'spring', '#{Spring::VERSION}'; require 'spring/server'; Spring::Server.boot"
         )
 
         until env.socket_path.exist?

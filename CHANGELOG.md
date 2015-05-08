@@ -1,6 +1,8 @@
 ## 1.3.5
 
 * Fix `rails test` command to run in test environment #403 - @eileencodes
+* Ensure the spawned server is loaded from the same version of the Spring gem
+  as the client. Issue #295.
 
 ## 1.3.4
 
