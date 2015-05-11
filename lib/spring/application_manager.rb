@@ -98,7 +98,8 @@ module Spring
             "RAILS_ENV"           => app_env,
             "RACK_ENV"            => app_env,
             "SPRING_ORIGINAL_ENV" => JSON.dump(Spring::ORIGINAL_ENV),
-            "SPRING_PRELOAD"      => preload ? "1" : "0"
+            "SPRING_PRELOAD"      => preload ? "1" : "0",
+            "RUBYOPT"             => "-W0"
           },
           "ruby",
           "-I", File.expand_path("../..", __FILE__),
