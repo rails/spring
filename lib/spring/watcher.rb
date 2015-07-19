@@ -25,6 +25,6 @@ module Spring
   end
 
   def self.watch(*items)
-    watcher.add *items
+    watcher.add(*items)
   end
 end
