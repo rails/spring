@@ -48,7 +48,7 @@ module Spring
       end
 
       def gem_home
-        path "vendor/gems/#{RUBY_VERSION}"
+        path "../gems/#{RUBY_VERSION}"
       end
 
       def user_home
