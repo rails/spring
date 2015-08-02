@@ -52,17 +52,30 @@ module Spring
         FileUtils.mkdir_p(application.user_home)
         FileUtils.rm_rf(application.path("test/performance"))
 
-        File.write(application.gemfile, "#{application.gemfile.read}gem 'spring', '#{Spring::VERSION}'\n")
+        append_to_file(application.gemfile, "gem 'spring', '#{Spring::VERSION}'")
 
         if version.needs_testunit?
-          File.write(application.gemfile, "#{application.gemfile.read}gem 'spring-commands-testunit'\n")
+          append_to_file(application.gemfile, "gem 'spring-commands-testunit'")
         end
 
-        File.write(application.gemfile, application.gemfile.read.sub("https://rubygems.org", "http://rubygems.org"))
+        rewrite_file(application.gemfile) do |c|
+          c.sub!("https://rubygems.org", "http://rubygems.org")
+          c.gsub!(/(gem '(byebug|web-console|sdoc|jbuilder)')/, "# \\1")
+          c
+        end
+
 
         if application.path("bin").exist?
           FileUtils.cp_r(application.path("bin"), application.path("bin_original"))
         end
+      end
+
+      def rewrite_file(file)
+        File.write(file, yield(file.read))
+      end
+
+      def append_to_file(file, add)
+        rewrite_file(file) { |c| c << "#{add}\n" }
       end
 
       def generate_if_missing
