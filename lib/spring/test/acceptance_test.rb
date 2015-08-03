@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 require "io/wait"
 require "timeout"
 require "spring/sid"

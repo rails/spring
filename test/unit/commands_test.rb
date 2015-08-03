@@ -1,4 +1,4 @@
-require "helper"
+require_relative "../helper"
 require "spring/commands"
 
 class CommandsTest < ActiveSupport::TestCase

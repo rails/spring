@@ -1,4 +1,4 @@
-require 'helper'
+require_relative "../../helper"
 require 'spring/client'
 
 class VersionTest < ActiveSupport::TestCase
