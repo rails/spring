@@ -58,6 +58,14 @@ module Spring
         end
       end
 
+      def without_gem(name)
+        gem_home = app.gem_home.join('gems')
+        FileUtils.mv(gem_home.join(name), app.root)
+        yield
+      ensure
+        FileUtils.mv(app.root.join(name), gem_home)
+      end
+
       setup do
         generator.generate_if_missing
         generator.install_spring
@@ -193,12 +201,9 @@ module Spring
       end
 
       test "binstub when spring is uninstalled" do
-        begin
-          app.run! "gem uninstall --ignore-dependencies spring"
+        without_gem "spring-#{Spring::VERSION}" do
           File.write(app.gemfile, app.gemfile.read.gsub(/gem 'spring.*/, ""))
           assert_success "bin/rake -T", stdout: "rake db:migrate"
-        ensure
-          generator.build_and_install_gems
         end
       end
 
