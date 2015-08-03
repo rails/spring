@@ -2,6 +2,7 @@ require "io/wait"
 require "timeout"
 require "spring/sid"
 require "spring/client"
+require "active_support/core_ext/string/strip"
 
 module Spring
   module Test
@@ -109,13 +110,13 @@ module Spring
       test "app gets reloaded when preloaded files change" do
         assert_success app.spring_test_command
 
-        File.write(app.application_config, app.application_config.read + <<-CODE)
+        File.write(app.application_config, app.application_config.read + <<-RUBY.strip_heredoc)
           class Foo
             def self.omg
               raise "omg"
             end
           end
-        CODE
+        RUBY
         File.write(app.test, app.test.read.sub("get :index", "Foo.omg"))
 
         app.await_reload
@@ -158,7 +159,7 @@ module Spring
         # Start spring before setting up the command, to test that it gracefully upgrades itself
         assert_success "bin/rails runner ''"
 
-        File.write(app.spring_config, <<-CODE)
+        File.write(app.spring_config, <<-RUBY.strip_heredoc)
           class CustomCommand
             def call
               puts "omg"
@@ -170,7 +171,7 @@ module Spring
           end
 
           Spring.register_command "custom", CustomCommand.new
-        CODE
+        RUBY
 
         assert_success "bin/spring custom", stdout: "omg"
 
@@ -202,46 +203,48 @@ module Spring
       end
 
       test "binstub upgrade" do
-        File.write(app.path("bin/rake"), <<CODE)
-#!/usr/bin/env ruby
+        File.write(app.path("bin/rake"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
 
-if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?
-  exec "bundle", "exec", "rake", *ARGV
-else
-  ARGV.unshift "rake"
-  load Gem.bin_path("spring", "spring")
-end
-CODE
+          if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?
+            exec "bundle", "exec", "rake", *ARGV
+          else
+            ARGV.unshift "rake"
+            load Gem.bin_path("spring", "spring")
+          end
+        RUBY
 
-        File.write(app.path("bin/rails"), <<CODE)
-#!/usr/bin/env ruby
+        File.write(app.path("bin/rails"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
 
-if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?
-  APP_PATH = File.expand_path('../../config/application',  __FILE__)
-  require_relative '../config/boot'
-  require 'rails/commands'
-else
-  ARGV.unshift "rails"
-  load Gem.bin_path("spring", "spring")
-end
-CODE
+          if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?
+            APP_PATH = File.expand_path('../../config/application',  __FILE__)
+            require_relative '../config/boot'
+            require 'rails/commands'
+          else
+            ARGV.unshift "rails"
+            load Gem.bin_path("spring", "spring")
+          end
+        RUBY
 
         assert_success "bin/spring binstub --all", stdout: "upgraded"
 
-        assert_equal app.path("bin/rake").read, <<CODE
-#!/usr/bin/env ruby
-#{Spring::Client::Binstub::LOADER.strip}
-require 'bundler/setup'
-load Gem.bin_path('rake', 'rake')
-CODE
+        expected = <<-RUBY.gsub(/^          /, "")
+          #!/usr/bin/env ruby
+          #{Spring::Client::Binstub::LOADER.strip}
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+        assert_equal expected, app.path("bin/rake").read
 
-    assert_equal app.path("bin/rails").read, <<CODE
-#!/usr/bin/env ruby
-#{Spring::Client::Binstub::LOADER.strip}
-APP_PATH = File.expand_path('../../config/application',  __FILE__)
-require_relative '../config/boot'
-require 'rails/commands'
-CODE
+        expected = <<-RUBY.gsub(/^          /, "")
+          #!/usr/bin/env ruby
+          #{Spring::Client::Binstub::LOADER.strip}
+          APP_PATH = File.expand_path('../../config/application',  __FILE__)
+          require_relative '../config/boot'
+          require 'rails/commands'
+        RUBY
+        assert_equal expected, app.path("bin/rails").read
       end
 
       test "after fork callback" do
@@ -280,17 +283,17 @@ CODE
       end
 
       test "setting env vars with rake" do
-        File.write(app.path("lib/tasks/env.rake"), <<-'CODE')
+        File.write(app.path("lib/tasks/env.rake"), <<-RUBY.strip_heredoc)
           task :print_rails_env => :environment do
             puts Rails.env
           end
 
           task :print_env do
-            ENV.each { |k, v| puts "#{k}=#{v}" }
+            ENV.each { |k, v| puts "\#{k}=\#{v}" }
           end
 
           task(:default).clear.enhance [:print_rails_env]
-        CODE
+        RUBY
 
         assert_success "bin/rake RAILS_ENV=test print_rails_env", stdout: "test"
         assert_success "bin/rake FOO=bar print_env", stdout: "FOO=bar"
@@ -307,7 +310,7 @@ CODE
       end
 
       test "changing the Gemfile works when spring calls into itself" do
-        File.write(app.path("script.rb"), <<-CODE)
+        File.write(app.path("script.rb"), <<-RUBY.strip_heredoc)
           gemfile = Rails.root.join("Gemfile")
           File.write(gemfile, "\#{gemfile.read}gem 'devise'\\n")
           Bundler.with_clean_env do
@@ -315,7 +318,7 @@ CODE
           end
           output = `\#{Rails.root.join('bin/rails')} runner 'require "devise"; puts "done";'`
           exit output == "done\n"
-        CODE
+        RUBY
 
         assert_success [%(bin/rails runner 'load Rails.root.join("script.rb")'), timeout: 60]
       end
