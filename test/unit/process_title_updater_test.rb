@@ -1,4 +1,4 @@
-require "helper"
+require_relative "../helper"
 require "spring/process_title_updater"
 require "active_support/time"
 

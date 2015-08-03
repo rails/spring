@@ -1,6 +1,6 @@
-require 'helper'
+require_relative "../../helper"
 
-require "spring/client/command"
+require 'spring/client/command'
 require 'spring/client/help'
 require 'spring/client'
 

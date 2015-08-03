@@ -1,4 +1,4 @@
-require "helper"
+require_relative "../helper"
 require "spring/test/watcher_test"
 require "spring/watcher/polling"
 
