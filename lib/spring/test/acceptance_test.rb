@@ -194,9 +194,13 @@ module Spring
       end
 
       test "binstub when spring is uninstalled" do
-        app.run! "gem uninstall --ignore-dependencies spring"
-        File.write(app.gemfile, app.gemfile.read.gsub(/gem 'spring.*/, ""))
-        assert_success "bin/rake -T", stdout: "rake db:migrate"
+        begin
+          app.run! "gem uninstall --ignore-dependencies spring"
+          File.write(app.gemfile, app.gemfile.read.gsub(/gem 'spring.*/, ""))
+          assert_success "bin/rake -T", stdout: "rake db:migrate"
+        ensure
+          generator.build_and_install_gems
+        end
       end
 
       test "binstub upgrade" do
