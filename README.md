@@ -294,6 +294,9 @@ settings. Note that `~/.spring.rb` is loaded *before* bundler, but
 projects without having to be added to the project's Gemfile, require
 them in your `~/.spring.rb`.
 
+`config/spring_preboot.rb` is also loaded before bundler and before a 
+server process is started, it can be used to add new top-level commands.
+
 ### Application root
 
 Spring must know how to find your Rails application. If you have a
