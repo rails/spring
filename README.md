@@ -1,8 +1,5 @@
 # Spring
 
-[![Build Status](https://travis-ci.org/rails/spring.svg?branch=master)](https://travis-ci.org/rails/spring)
-[![Gem Version](https://badge.fury.io/rb/spring.svg)](http://badge.fury.io/rb/spring)
-
 Spring is a Rails application preloader. It speeds up development by
 keeping your application running in the background so you don't need to
 boot it every time you run a test, rake task or migration.
@@ -358,3 +355,13 @@ spring stop # if spring is already running
 export SPRING_LOG=/tmp/spring.log
 spring rake -T
 ```
+
+## Contributing to Spring
+
+Spring is work of many contributors. You're encouraged to submit pull requests, propose
+features and discuss issues.
+
+See [CONTRIBUTING](CONTRIBUTING.md).
+
+## License
+Spring is released under the [MIT License](MIT-LICENSE).
