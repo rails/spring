@@ -262,6 +262,13 @@ module Spring
         assert_success "bin/rails runner 'puts 2'", stdout: "!callback!\n2"
       end
 
+      test "can define preboot tasks" do
+        File.write("#{app.spring_config.sub('.rb', '_preboot.rb')}", <<-RUBY)
+          Spring::Client::COMMANDS["foo"] = lambda { |args| puts "bar -- \#{args.inspect}" }
+        RUBY
+        assert_success "bin/spring foo --baz", stdout: "bar -- [\"foo\", \"--baz\"]\n"
+      end
+
       test "missing config/application.rb" do
         app.application_config.delete
         assert_failure "bin/rake -T", stderr: "unable to find your config/application.rb"
