@@ -256,10 +256,11 @@ module Spring
       loaded = ActiveSupport::Dependencies.loaded
 
       # The loaded_paths do not include file suffixes. Find all matches.
-      dlexts = RbConfig::CONFIG.values_at('DLEXT', 'DLEXT2')
-      ext_glob = "{rb,#{dlexts.reject { |s| s.to_s.empty? }.join(',')}}"
+      extensions = ['rb'] + RbConfig::CONFIG.values_at('DLEXT', 'DLEXT2').
+        reject { |s| s.to_s.empty? }
+      extension_glob = "{#{extensions.join(',')}}"
       loaded.select { |path| path.start_with?(root) }.flat_map do |path|
-        Dir["#{path}.#{ext_glob}"]
+        Dir["#{path}.#{extension_glob}"]
       end
     end
 
