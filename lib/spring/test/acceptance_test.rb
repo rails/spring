@@ -104,15 +104,14 @@ module Spring
         end
       end
 
-      test "code changes in pre-referenced app files are picked up" do
-        File.write(app.path("config/initializers/load_posts_controller.rb"), "PostsController\n")
+      test "code changes in pre-referenced app files trigger a restart" do
+        File.write(app.path("app/models/test_constant.rb"), "TestConstant = 1\n")
+        File.write(app.path("config/initializers/set_variable.rb"), "TEST_VALUE = TestConstant\n")
 
-        assert_speedup do
-          assert_success app.spring_test_command, stdout: "0 failures"
+        assert_success app.spring_run_command('print TEST_VALUE'), stdout: "1"
 
-          File.write(app.controller, app.controller.read.sub("@posts = Post.all", "raise 'omg'"))
-          assert_failure app.spring_test_command, stdout: "RuntimeError: omg"
-        end
+        File.write(app.path("app/models/test_constant.rb"), "TestConstant = 2\n")
+        assert_success app.spring_run_command('print TEST_VALUE'), stdout: "2"
       end
 
       test "app gets reloaded when preloaded files change" do

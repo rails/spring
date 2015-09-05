@@ -67,6 +67,10 @@ module Spring
         "#{rails_version.test_command} #{test}"
       end
 
+      def spring_run_command(code)
+        "bin/rails runner \"#{code}\""
+      end
+
       def stop_spring
         run "#{spring} stop"
       rescue Errno::ENOENT
