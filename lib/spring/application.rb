@@ -1,6 +1,7 @@
 require "spring/boot"
 require "set"
 require "pty"
+require "rbconfig"
 
 module Spring
   class Application
@@ -103,6 +104,7 @@ module Spring
       raise e unless initialized?
     ensure
       watcher.add loaded_application_features
+      watcher.add loaded_application_dependencies
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
 
       if defined?(Rails) && Rails.application
@@ -232,7 +234,9 @@ module Spring
     # load the helper file once and have it cached.
     def setup(command)
       if command.setup
-        watcher.add loaded_application_features # loaded features may have changed
+        # Loaded features may have changed.
+        watcher.add loaded_application_features
+        watcher.add loaded_application_dependencies
       end
     end
 
@@ -245,6 +249,18 @@ module Spring
     def loaded_application_features
       root = Spring.application_root_path.to_s
       $LOADED_FEATURES.select { |f| f.start_with?(root) }
+    end
+
+    def loaded_application_dependencies
+      root = Spring.application_root_path.to_s
+      loaded = ActiveSupport::Dependencies.loaded
+
+      # The loaded_paths do not include file suffixes. Find all matches.
+      dlexts = RbConfig::CONFIG.values_at('DLEXT', 'DLEXT2')
+      ext_glob = "{rb,#{dlexts.reject { |s| s.to_s.empty? }.join(',')}}"
+      loaded.select { |path| path.start_with?(root) }.flat_map do |path|
+        Dir["#{path}.#{ext_glob}"]
+      end
     end
 
     def disconnect_database
