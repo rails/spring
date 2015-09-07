@@ -103,8 +103,7 @@ module Spring
       watcher.add e.backtrace.map { |line| line.match(/^(.*)\:\d+\:in /)[1] }
       raise e unless initialized?
     ensure
-      watcher.add loaded_application_features
-      watcher.add loaded_application_dependencies
+      watcher.add loaded_application_files
       watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
 
       if defined?(Rails) && Rails.application
@@ -235,8 +234,7 @@ module Spring
     def setup(command)
       if command.setup
         # Loaded features may have changed.
-        watcher.add loaded_application_features
-        watcher.add loaded_application_dependencies
+        watcher.add loaded_application_files
       end
     end
 
@@ -244,6 +242,10 @@ module Spring
       Spring.after_fork_callbacks.each do |callback|
         callback.call
       end
+    end
+
+    def loaded_application_files
+      loaded_application_features + loaded_application_dependencies
     end
 
     def loaded_application_features
