@@ -2,6 +2,7 @@ require "io/wait"
 require "timeout"
 require "spring/sid"
 require "spring/client"
+require "spring/watcher"
 require "active_support/core_ext/string/strip"
 
 module Spring
@@ -107,10 +108,10 @@ module Spring
       test "code changes in pre-referenced app files trigger a restart" do
         File.write(app.path("app/models/test_constant.rb"), "TestConstant = 1\n")
         File.write(app.path("config/initializers/set_variable.rb"), "TEST_VALUE = TestConstant\n")
-
         assert_success app.spring_run_command('print TEST_VALUE'), stdout: "1"
 
         File.write(app.path("app/models/test_constant.rb"), "TestConstant = 2\n")
+        sleep Spring.watch_interval + 0.1
         assert_success app.spring_run_command('print TEST_VALUE'), stdout: "2"
       end
 
