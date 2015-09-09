@@ -84,6 +84,14 @@ module Spring
 
       test "help message when called without arguments" do
         assert_success "bin/spring", stdout: 'Usage: spring COMMAND [ARGS]'
+        assert app.spring_env.server_running?
+      end
+
+      test "shows help" do
+        assert_success "bin/spring help", stdout: 'Usage: spring COMMAND [ARGS]'
+        assert_success "bin/spring -h", stdout: 'Usage: spring COMMAND [ARGS]'
+        assert_success "bin/spring --help", stdout: 'Usage: spring COMMAND [ARGS]'
+        refute app.spring_env.server_running?
       end
 
       test "test changes are picked up" do

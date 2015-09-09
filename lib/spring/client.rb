@@ -14,12 +14,14 @@ module Spring
   module Client
     COMMANDS = {
       "help"      => Client::Help,
+      "-h"        => Client::Help,
+      "--help"    => Client::Help,
       "binstub"   => Client::Binstub,
       "stop"      => Client::Stop,
       "status"    => Client::Status,
       "rails"     => Client::Rails,
       "-v"        => Client::Version,
-      "--version" => Client::Version
+      "--version" => Client::Version,
     }
 
     def self.run(args)
