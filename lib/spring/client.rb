@@ -41,6 +41,6 @@ end
 
 # allow users to add hooks that do not run in the server
 # or modify start/stop
-if File.exist?("config/spring_preboot.rb")
-  require "./config/spring_preboot.rb"
+if File.exist?("config/spring_client.rb")
+  require "./config/spring_client.rb"
 end
