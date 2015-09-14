@@ -1,3 +1,9 @@
+## 1.4.0
+
+* Add support for client side hooks. `config/spring_client.rb` is loaded before
+  bundler and before a server process is started, it can be used to add new
+  top-level commands.
+
 ## 1.3.6
 
 * Ensure the spawned server is loaded from the same version of the Spring gem
