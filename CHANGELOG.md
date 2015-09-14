@@ -3,6 +3,7 @@
 * Add support for client side hooks. `config/spring_client.rb` is loaded before
   bundler and before a server process is started, it can be used to add new
   top-level commands.
+* Do not boot up the server when using -h / --help
 
 ## 1.3.6
 
