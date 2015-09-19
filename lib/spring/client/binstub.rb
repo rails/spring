@@ -13,7 +13,7 @@ module Spring
       # should cause the "unsprung" version of the command to run.
       LOADER = <<CODE
 begin
-  load File.expand_path("../spring", __FILE__)
+  load File.expand_path('../spring', __FILE__)
 rescue LoadError
 end
 CODE
@@ -33,13 +33,13 @@ CODE
 # It gets overwritten when you run the `spring binstub` command.
 
 unless defined?(Spring)
-  require "rubygems"
-  require "bundler"
+  require 'rubygems'
+  require 'bundler'
 
   if (match = Bundler.default_lockfile.read.match(/^GEM$.*?^    (?:  )*spring \((.*?)\)$.*?^$/m))
-    Gem.paths = { "GEM_PATH" => [Bundler.bundle_path.to_s, *Gem.path].uniq }
-    gem "spring", match[1]
-    require "spring/binstub"
+    Gem.paths = { 'GEM_PATH' => [Bundler.bundle_path.to_s, *Gem.path].uniq }
+    gem 'spring', match[1]
+    require 'spring/binstub'
   end
 end
 CODE
