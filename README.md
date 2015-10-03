@@ -48,7 +48,7 @@ code into relevant existing executables. The snippet looks like this:
 
 ``` ruby
 begin
-  load File.expand_path("../spring", __FILE__)
+  load File.expand_path('../spring', __FILE__)
 rescue LoadError
 end
 ```
@@ -295,7 +295,7 @@ settings. Note that `~/.spring.rb` is loaded *before* bundler, but
 projects without having to be added to the project's Gemfile, require
 them in your `~/.spring.rb`.
 
-`config/spring_client.rb` is also loaded before bundler and before a 
+`config/spring_client.rb` is also loaded before bundler and before a
 server process is started, it can be used to add new top-level commands.
 
 ### Application root
