@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = "https://github.com/rails/spring"
   gem.license       = "MIT"
 
-  gem.files         = Dir["LICENSE.txt", "README.md", "lib/**/*", "bin/*"]
+  gem.files         = Dir["LICENSE.txt", "README.md", "CHANGELOG.md", "lib/**/*", "bin/*"]
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
 
   gem.add_development_dependency 'activesupport', '~> 4.2.0'
