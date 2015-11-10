@@ -1,9 +1,12 @@
+## 1.4.1
+
+* Enable terminal resize detection in rails console.
+
 ## 1.4.0
 
 * Add support for client side hooks. `config/spring_client.rb` is loaded before
   bundler and before a server process is started, it can be used to add new
   top-level commands.
-* Enable terminal resize detection in rails console.
 
 ## 1.3.6
 
