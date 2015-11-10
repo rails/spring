@@ -5,7 +5,7 @@ require "bundler"
 module Spring
   module Client
     class Run < Command
-      FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO) & Signal.list.keys
+      FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
       TIMEOUT = 1
 
       def initialize(args)
