@@ -33,7 +33,7 @@ module Spring
     end
 
     def tmp_path
-      path = Pathname.new(File.join(ENV['XDG_RUNTIME_DIR'] || Dir.tmpdir, "spring"))
+      path = Pathname.new(File.join(ENV['XDG_RUNTIME_DIR'] || Dir.tmpdir, "spring-#{Process.uid}"))
       FileUtils.mkdir_p(path) unless path.exist?
       path
     end
