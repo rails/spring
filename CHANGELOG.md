@@ -1,3 +1,7 @@
+## 1.4.2
+
+* Don't supress non-spring load errors in binstub
+
 ## 1.4.1
 
 * Enable terminal resize detection in rails console.
