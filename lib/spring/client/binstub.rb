@@ -13,8 +13,10 @@ module Spring
       # should cause the "unsprung" version of the command to run.
       LOADER = <<CODE
 begin
-  load File.expand_path('../spring', __FILE__)
-rescue LoadError
+  spring_bin_path = File.expand_path('../spring', __FILE__)
+  load spring_bin_path
+rescue LoadError => e
+  raise unless e.message.end_with? spring_bin_path, 'spring/binstub'
 end
 CODE
 

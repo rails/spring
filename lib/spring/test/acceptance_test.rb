@@ -208,10 +208,19 @@ module Spring
         assert_success "bin/rake -T", stdout: "rake db:migrate"
       end
 
-      test "binstub when spring is uninstalled" do
+      test "binstub when spring gem is missing" do
         without_gem "spring-#{Spring::VERSION}" do
           File.write(app.gemfile, app.gemfile.read.gsub(/gem 'spring.*/, ""))
           assert_success "bin/rake -T", stdout: "rake db:migrate"
+        end
+      end
+
+      test "binstub when spring binary is missing" do
+        begin
+          File.rename(app.path("bin/spring"), app.path("bin/spring.bak"))
+          assert_success "bin/rake -T", stdout: "rake db:migrate"
+        ensure
+          File.rename(app.path("bin/spring.bak"), app.path("bin/spring"))
         end
       end
 
