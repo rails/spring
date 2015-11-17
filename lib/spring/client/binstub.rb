@@ -119,7 +119,7 @@ CODE
       attr_reader :bindir, :items
 
       def self.description
-        "Generate spring based binstubs. Use --all to generate a binstub for all known commands."
+        "Generate spring based binstubs. Use --all to generate a binstub for all known commands. Use --remove to revert."
       end
 
       def self.rails_command
