@@ -208,6 +208,11 @@ module Spring
         assert_success "bin/rake -T", stdout: "rake db:migrate"
       end
 
+      test "binstub remove all" do
+        assert_success "bin/spring binstub --remove --all"
+        refute File.exist?(app.path("bin/spring"))
+      end
+
       test "binstub when spring gem is missing" do
         without_gem "spring-#{Spring::VERSION}" do
           File.write(app.gemfile, app.gemfile.read.gsub(/gem 'spring.*/, ""))
