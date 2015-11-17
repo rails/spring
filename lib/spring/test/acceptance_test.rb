@@ -229,7 +229,7 @@ module Spring
         end
       end
 
-      test "binstub upgrade" do
+      test "binstub upgrade with old binstub" do
         File.write(app.path("bin/rake"), <<-RUBY.strip_heredoc)
           #!/usr/bin/env ruby
 
@@ -267,6 +267,93 @@ module Spring
         expected = <<-RUBY.gsub(/^          /, "")
           #!/usr/bin/env ruby
           #{Spring::Client::Binstub::LOADER.strip}
+          APP_PATH = File.expand_path('../../config/application',  __FILE__)
+          require_relative '../config/boot'
+          require 'rails/commands'
+        RUBY
+        assert_equal expected, app.path("bin/rails").read
+      end
+
+      test "binstub upgrade with new binstub variations" do
+        # older variation with double quotes
+        File.write(app.path("bin/rake"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
+          begin
+            load File.expand_path("../spring", __FILE__)
+          rescue LoadError
+          end
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+
+        # newer variation with single quotes
+        File.write(app.path("bin/rails"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
+          begin
+            load File.expand_path('../spring', __FILE__)
+          rescue LoadError
+          end
+          APP_PATH = File.expand_path('../../config/application',  __FILE__)
+          require_relative '../config/boot'
+          require 'rails/commands'
+        RUBY
+
+        assert_success "bin/spring binstub --all", stdout: "upgraded"
+
+        expected = <<-RUBY.gsub(/^          /, "")
+          #!/usr/bin/env ruby
+          #{Spring::Client::Binstub::LOADER.strip}
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+        assert_equal expected, app.path("bin/rake").read
+
+        expected = <<-RUBY.gsub(/^          /, "")
+          #!/usr/bin/env ruby
+          #{Spring::Client::Binstub::LOADER.strip}
+          APP_PATH = File.expand_path('../../config/application',  __FILE__)
+          require_relative '../config/boot'
+          require 'rails/commands'
+        RUBY
+        assert_equal expected, app.path("bin/rails").read
+      end
+
+      test "binstub remove with new binstub variations" do
+        # older variation with double quotes
+        File.write(app.path("bin/rake"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
+          begin
+            load File.expand_path("../spring", __FILE__)
+          rescue LoadError
+          end
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+
+        # newer variation with single quotes
+        File.write(app.path("bin/rails"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
+          begin
+            load File.expand_path('../spring', __FILE__)
+          rescue LoadError
+          end
+          APP_PATH = File.expand_path('../../config/application',  __FILE__)
+          require_relative '../config/boot'
+          require 'rails/commands'
+        RUBY
+
+        assert_success "bin/spring binstub --remove rake", stdout: "bin/rake: spring removed"
+        assert_success "bin/spring binstub --remove rails", stdout: "bin/rails: spring removed"
+
+        expected = <<-RUBY.strip_heredoc
+          #!/usr/bin/env ruby
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+        assert_equal expected, app.path("bin/rake").read
+
+        expected = <<-RUBY.strip_heredoc
+          #!/usr/bin/env ruby
           APP_PATH = File.expand_path('../../config/application',  __FILE__)
           require_relative '../config/boot'
           require 'rails/commands'
