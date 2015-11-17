@@ -1,3 +1,7 @@
+## 1.4.3
+
+* Support new binstub format and --remove option
+
 ## 1.4.2
 
 * Don't supress non-spring load errors in binstub
