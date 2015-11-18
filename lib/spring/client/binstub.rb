@@ -13,10 +13,9 @@ module Spring
       # should cause the "unsprung" version of the command to run.
       LOADER = <<CODE
 begin
-  spring_bin_path = File.expand_path('../spring', __FILE__)
-  load spring_bin_path
+  load File.expand_path('../spring', __FILE__)
 rescue LoadError => e
-  raise unless e.message.end_with? spring_bin_path, 'spring/binstub'
+  raise unless e.message.include?('spring')
 end
 CODE
 
@@ -51,6 +50,7 @@ CODE
       BINSTUB_VARIATIONS = Regexp.union [
         %{begin\n  load File.expand_path("../spring", __FILE__)\nrescue LoadError\nend\n},
         %{begin\n  load File.expand_path('../spring', __FILE__)\nrescue LoadError\nend\n},
+        %{begin\n  spring_bin_path = File.expand_path('../spring', __FILE__)\n  load spring_bin_path\nrescue LoadError => e\n  raise unless e.message.end_with? spring_bin_path, 'spring/binstub'\nend\n},
         LOADER
       ]
 
