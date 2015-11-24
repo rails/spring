@@ -6,7 +6,7 @@ if command == "spring"
 else
   disable = ENV["DISABLE_SPRING"]
 
-  if Process.respond_to?(:fork) && (disable.nil? || disable.empty? || disable == "0")
+  if disable.nil? || disable.empty? || disable == "0"
     ARGV.unshift(command)
     load bin_path
   end

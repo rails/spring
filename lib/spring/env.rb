@@ -6,9 +6,9 @@ require "tmpdir"
 require "spring/version"
 require "spring/sid"
 require "spring/configuration"
+require "spring/platform"
 
 module Spring
-  IGNORE_SIGNALS = %w(INT QUIT)
   STOP_TIMEOUT = 2 # seconds
 
   class Env

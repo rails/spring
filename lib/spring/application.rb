@@ -1,9 +1,17 @@
 require "spring/boot"
 require "set"
 require "pty"
+require "spring/platform"
 
 module Spring
   class Application
+    if Spring.fork?
+      require 'spring/application/fork_strategy'
+      include ForkStrategy
+    else
+      require 'spring/application/pool_strategy'
+      include PoolStrategy
+    end
     attr_reader :manager, :watcher, :spring_env, :original_env
 
     def initialize(manager, original_env)
@@ -114,13 +122,9 @@ module Spring
       end
     end
 
-    def eager_preload
-      with_pty { preload }
-    end
-
     def run
       state :running
-      manager.puts
+      manager.puts Process.pid
 
       loop do
         IO.select [manager, @interrupt.first]
@@ -134,6 +138,7 @@ module Spring
     end
 
     def serve(client)
+      app_started = [false]
       log "got client"
       manager.puts
 
@@ -153,7 +158,7 @@ module Spring
         ActionDispatch::Reloader.prepare!
       end
 
-      pid = fork {
+      start_app(client, streams, app_started) {
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         trap("TERM", "DEFAULT")
 
@@ -184,24 +189,18 @@ module Spring
 
         command.call
       }
-
-      disconnect_database
-      reset_streams
-
-      log "forked #{pid}"
-      manager.puts pid
-
-      wait pid, streams, client
     rescue Exception => e
+      Kernel.exit if exiting? && e.is_a?(SystemExit)
+
       log "exception: #{e}"
-      manager.puts unless pid
+      manager.puts unless app_started[0]
 
       if streams && !e.is_a?(SystemExit)
         print_exception(stderr, e)
         streams.each(&:close)
       end
 
-      client.puts(1) if pid
+      client.puts(1) if app_started[0]
       client.close
     end
 
@@ -282,37 +281,9 @@ module Spring
       rest.each { |line| stream.puts("\tfrom #{line}") }
     end
 
-    def with_pty
-      PTY.open do |master, slave|
-        [STDOUT, STDERR, STDIN].each { |s| s.reopen slave }
-        Thread.new { master.read }
-        yield
-        reset_streams
-      end
-    end
-
     def reset_streams
       [STDOUT, STDERR].each { |stream| stream.reopen(spring_env.log_file) }
       STDIN.reopen("/dev/null")
-    end
-
-    def wait(pid, streams, client)
-      @mutex.synchronize { @waiting << pid }
-
-      # Wait in a separate thread so we can run multiple commands at once
-      Thread.new {
-        begin
-          _, status = Process.wait2 pid
-          log "#{pid} exited with #{status.exitstatus}"
-
-          streams.each(&:close)
-          client.puts(status.exitstatus)
-          client.close
-        ensure
-          @mutex.synchronize { @waiting.delete pid }
-          exit_if_finished
-        end
-      }
     end
 
     private
