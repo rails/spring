@@ -1,3 +1,8 @@
+## Next Release
+
+* Make the temporary directory path used by spring contain the UID of the process
+  so that spring can work on machines where multiple users share a single $TMPDIR.
+
 ## 1.4.3
 
 * Support new binstub format and --remove option
