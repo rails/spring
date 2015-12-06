@@ -1,4 +1,4 @@
-## Next Release
+## 1.5.0
 
 * Make the temporary directory path used by spring contain the UID of the process
   so that spring can work on machines where multiple users share a single $TMPDIR.
