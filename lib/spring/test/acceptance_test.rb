@@ -94,6 +94,19 @@ module Spring
         refute app.spring_env.server_running?
       end
 
+      test "tells the user that spring is being used when used automatically via binstubs" do
+        assert_success "bin/rails runner ''", stdout: "Running via Spring preloader in process"
+        assert_success app.spring_test_command, stdout: "Running via Spring preloader in process"
+      end
+
+      test "does not tell the user that spring is being used when used automatically via binstubs but quiet is enabled" do
+        File.write("#{app.user_home}/.spring.rb", "Spring.quiet = true")
+        assert_success "bin/rails runner ''"
+        artifacts = app.run("bin/rails runner ''")
+        assert !artifacts[:stdout].include?("Running via Spring preloader in process"),
+          "expected stdout to not include 'Running via Spring preloader in process'.\n\n#{app.debug(artifacts)}"
+      end
+
       test "test changes are picked up" do
         assert_speedup do
           assert_success app.spring_test_command, stdout: "0 failures"
