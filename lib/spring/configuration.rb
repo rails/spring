@@ -2,7 +2,7 @@ require "spring/errors"
 
 module Spring
   class << self
-    attr_accessor :application_root
+    attr_accessor :application_root, :quiet
 
     def gemfile
       ENV['BUNDLE_GEMFILE'] || "Gemfile"
@@ -49,4 +49,6 @@ module Spring
       end
     end
   end
+
+  self.quiet = false
 end

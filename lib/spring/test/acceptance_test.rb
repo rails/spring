@@ -447,7 +447,7 @@ module Spring
             system(#{app.env.inspect}, "bundle install")
           end
           output = `\#{Rails.root.join('bin/rails')} runner 'require "devise"; puts "done";'`
-          exit output == "done\n"
+          exit output.include? "done\n"
         RUBY
 
         assert_success [%(bin/rails runner 'load Rails.root.join("script.rb")'), timeout: 60]
