@@ -2,7 +2,7 @@ require "spring/errors"
 
 module Spring
   class << self
-    attr_accessor :application_root
+    attr_accessor :application_root, :verbose_output
 
     def gemfile
       ENV['BUNDLE_GEMFILE'] || "Gemfile"
@@ -35,6 +35,11 @@ module Spring
 
     def project_root_path
       @project_root_path ||= find_project_root(Pathname.new(File.expand_path(Dir.pwd)))
+    end
+
+    # Return true if verbose_output is not set
+    def output_status?
+      @verbose_output ||= true
     end
 
     private
