@@ -138,6 +138,8 @@ ERROR
         if pid && !pid.empty?
           log "got pid: #{pid}"
 
+          puts "Running Spring [client] #{pid}" if Spring.output_status?
+
           forward_signals(pid.to_i)
           status = application.read.to_i
 
