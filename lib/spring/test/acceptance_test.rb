@@ -47,6 +47,14 @@ module Spring
         assert_output artifacts, expected_output if expected_output
       end
 
+      def refute_output_includes(command, not_expected)
+        artifacts = app.run(*Array(command))
+        not_expected.each do |stream, output|
+          assert !artifacts[stream].include?(output),
+                 "expected #{stream} to not include '#{output}'.\n\n#{app.debug(artifacts)}"
+        end
+      end
+
       def assert_speedup(ratio = DEFAULT_SPEEDUP)
         if ENV['CI']
           yield
@@ -99,12 +107,15 @@ module Spring
         assert_success app.spring_test_command, stdout: "Running via Spring preloader in process"
       end
 
+      test "does not tell the user that spring is being used when the user used spring manually" do
+        refute_output_includes "spring rails runner ''", stdout: "Running via Spring preloader in process"
+        refute_output_includes "spring rake test", stdout: "Running via Spring preloader in process"
+      end
+
       test "does not tell the user that spring is being used when used automatically via binstubs but quiet is enabled" do
         File.write("#{app.user_home}/.spring.rb", "Spring.quiet = true")
         assert_success "bin/rails runner ''"
-        artifacts = app.run("bin/rails runner ''")
-        assert !artifacts[:stdout].include?("Running via Spring preloader in process"),
-          "expected stdout to not include 'Running via Spring preloader in process'.\n\n#{app.debug(artifacts)}"
+        refute_output_includes "bin/rails runner ''", stdout: 'Running via Spring preloader in process'
       end
 
       test "test changes are picked up" do
