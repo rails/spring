@@ -1,3 +1,7 @@
+## 1.6.0
+
+* show when spring is used automatically to remind people why things might fail, disable with `Spring.quiet = true`
+
 ## 1.5.0
 
 * Make the temporary directory path used by spring contain the UID of the process
