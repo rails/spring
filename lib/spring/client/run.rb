@@ -1,3 +1,4 @@
+require "spring/commands"
 require "rbconfig"
 require "socket"
 require "bundler"
@@ -137,6 +138,8 @@ ERROR
 
         if pid && !pid.empty?
           log "got pid: #{pid}"
+
+          puts "Running via Spring preloader in process #{pid}" unless Spring.quiet
 
           forward_signals(pid.to_i)
           status = application.read.to_i
