@@ -85,9 +85,9 @@ module Spring
       def install_spring
         return if @installed
 
-        build_and_install_gems
-
         application.bundle
+
+        build_and_install_gems
 
         FileUtils.rm_rf application.path("bin")
 
