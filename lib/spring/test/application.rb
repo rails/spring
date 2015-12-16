@@ -94,7 +94,7 @@ module Spring
         Bundler.with_clean_env do
           Process.spawn(
             env,
-            command.to_s,
+            "bundle exec #{command}",
             out:   stdout.last,
             err:   stderr.last,
             in:    :close,
@@ -200,7 +200,7 @@ module Spring
       end
 
       def bundle
-        run! "(gem list bundler | grep bundler) || gem install bundler", timeout: nil, retry: 2
+        run! "gem list bundler | grep bundler || gem install bundler", timeout: nil, retry: 2
         run! "bundle check || bundle update --retry=2", timeout: nil
       end
 
