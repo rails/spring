@@ -13,6 +13,7 @@ Gem::Specification.new do |gem|
   gem.files         = Dir["LICENSE.txt", "README.md", "lib/**/*", "bin/*"]
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
 
+  gem.add_dependency 'bundler', '>= 1.0'
   gem.add_development_dependency 'activesupport', '~> 4.2.0'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'bump'
