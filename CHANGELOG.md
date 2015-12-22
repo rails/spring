@@ -1,3 +1,7 @@
+## 1.6.1
+
+* support replaced backtraces / backtraces with only line and number
+
 ## 1.6.0
 
 * show when spring is used automatically to remind people why things might fail, disable with `Spring.quiet = true`
