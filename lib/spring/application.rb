@@ -99,7 +99,7 @@ module Spring
       @preloaded = :success
     rescue Exception => e
       @preloaded = :failure
-      watcher.add e.backtrace.map { |line| line.match(/^(.*)\:\d+\:in /)[1] }
+      watcher.add e.backtrace.map { |line| line[/^(.*)\:\d+/, 1] }
       raise e unless initialized?
     ensure
       watcher.add loaded_application_features
