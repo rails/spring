@@ -1,19 +1,52 @@
+Contributing to Spring
+=====================
+
+[![Build Status](https://travis-ci.org/rails/spring.svg?branch=master)](https://travis-ci.org/rails/spring)
+[![Gem Version](https://badge.fury.io/rb/spring.svg)](http://badge.fury.io/rb/spring)
+
+Spring is work of [many contributors](https://github.com/rails/spring/graphs/contributors). You're encouraged to submit [pull requests](https://github.com/rails/spring/pulls), [propose features and discuss issues](https://github.com/rails/spring/issues).
+
 # Don't use the issue tracker to ask questions
 
 Please use Stack Overflow or similar. If you subsequently feel that the
 documentation is inadequate then plase submit a pull request to fix it.
 
-# Contributing guide
+#### Fork the Project
 
-## Getting set up
+Fork the [project on Github](https://github.com/rails/spring) and check out your copy.
 
-Check out the code and run `bundle install` as usual.
+```
+git clone https://github.com/contributor/spring.git
+cd spring
+git remote add upstream https://github.com/rails/spring.git
+```
 
-## Running tests
+#### Create a Topic Branch
 
-Running `rake` will run all tests. There are both unit tests and
-acceptance tests. You can run them individually with `rake test:unit` or
-`rake test:acceptance`.
+Make sure your fork is up-to-date and create a topic branch for your feature or bug fix.
+
+```
+git checkout master
+git pull upstream master
+git checkout -b my-feature-branch
+```
+
+#### Bundle Install and Test
+
+Ensure that you can build the project and run tests.
+
+```
+bundle install
+bundle exec rake
+```
+
+#### Write Tests
+
+Try to write a test that reproduces the problem you're trying to fix or describes a feature that you want to build. Add to [test](test).
+
+We definitely appreciate pull requests that highlight or reproduce a problem, even without a fix.
+
+There are both unit tests and acceptance tests. You can run them individually with `rake test:unit` or `rake test:acceptance`. You can also run single tests by matching test names `ruby test/unit/process_title_updater_test.rb -n '/hours/'`
 
 If one doesn't already exist, the acceptance tests will generate a dummy
 Rails app in `test/apps/`. On each test run, the dummy app is copied to
@@ -25,9 +58,7 @@ pre-generated app has become inconsistent in some way. In that case the
 best solution is to purge it with `rm -rf test/apps/*` and then run the
 acceptance tests again, which will generate a new app.
 
-## Testing different Rails versions
-
-You can set the `RAILS_VERSION` environment variable:
+To test against version of Rails, you can set the `RAILS_VERSION` environment variable:
 
 ```
 $ RAILS_VERSION="~> 3.2.0" rake test:acceptance
@@ -36,17 +67,60 @@ $ RAILS_VERSION="~> 3.2.0" rake test:acceptance
 The apps in `test/apps` will be named based on the rails version and the
 spring version.
 
-## Testing with your app
+#### Write Code
 
-You cannot link to a git repo from your Gemfile. Spring doesn't support
-this due to the way that it gets loaded (bypassing bundler for
-performance reasons).
+Implement your feature or bug fix.
 
-Therefore, to test changes with your app, run `rake install` to properly
-install the gem on your system.
+Make sure that `bundle exec rake test` completes without errors.
 
-## Submitting a pull request
+#### Write Documentation
 
-If your change is a bugfix or feature, please make sure you add to
-`CHANGELOG.md` under the "Next Release" heading (add the heading if
-needed).
+Document any external behavior in the [README](README.md).
+
+#### Commit Changes
+
+Make sure git knows your name and email address:
+
+```
+git config --global user.name "Your Name"
+git config --global user.email "contributor@example.com"
+```
+
+Writing good commit logs is important. A commit log should describe what changed and why.
+
+```
+git add ...
+git commit
+```
+
+#### Push
+
+```
+git push origin my-feature-branch
+```
+
+#### Make a Pull Request
+
+Go to https://github.com/contributor/spring and select your feature branch. Click the 'Pull Request' button and fill out the form. Pull requests are usually reviewed within a few days.
+
+#### Rebase
+
+If you've been working on a change for a while, rebase with upstream/master.
+
+```
+git fetch upstream
+git rebase upstream/master
+git push origin my-feature-branch -f
+```
+
+#### Check on Your Pull Request
+
+Go back to your pull request after a few minutes and see whether it passed muster with Travis-CI. Everything should look green, otherwise fix issues and amend your commit as described above.
+
+#### Be Patient
+
+It's likely that your change will not be merged and that the nitpicky maintainers will ask you to do more, or fix seemingly benign problems. Hang on there!
+
+#### Thank You
+
+Please do know that we really appreciate and value your time and work. We love you, really.
