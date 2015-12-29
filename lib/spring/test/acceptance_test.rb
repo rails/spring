@@ -113,7 +113,7 @@ module Spring
       end
 
       test "does not tell the user that spring is being used when used automatically via binstubs but quiet is enabled" do
-        File.write("#{app.user_home}/.spring.rb", "Spring.quiet = true")
+        File.write(app.path('config/spring_client.rb'), "Spring.quiet = true")
         assert_success "bin/rails runner ''"
         refute_output_includes "bin/rails runner ''", stdout: 'Running via Spring preloader in process'
       end

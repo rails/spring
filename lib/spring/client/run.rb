@@ -1,4 +1,3 @@
-require "spring/commands"
 require "rbconfig"
 require "socket"
 require "bundler"
