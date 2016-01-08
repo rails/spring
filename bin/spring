@@ -46,6 +46,4 @@ end
 lib = File.expand_path("../../lib", __FILE__)
 $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib) # enable local development
 require 'spring/client'
-# if the user knows that spring is called, do not show running spring
-Spring.quiet = true if $0.include? 'spring'
 Spring::Client.run(ARGV)

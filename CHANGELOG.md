@@ -1,3 +1,8 @@
+## Next release
+
+* Fix problems with the implementation of the new "Running via Spring preloader"
+  message (see #456, #457)
+
 ## 1.6.1
 
 * support replaced backtraces / backtraces with only line and number
