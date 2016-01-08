@@ -9,6 +9,7 @@ require "spring/client/stop"
 require "spring/client/status"
 require "spring/client/rails"
 require "spring/client/version"
+require "spring/configuration"
 
 module Spring
   module Client
