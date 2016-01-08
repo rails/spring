@@ -112,7 +112,7 @@ module Spring
             system("gem build #{name}.gemspec 2>&1")
           end
 
-          application.run! "gem install #{spec.gem_dir}/#{name}-*.gem", timeout: nil
+          application.run! "gem install #{spec.gem_dir}/#{name}-*.gem --no-ri --no-rdoc", timeout: nil
         end
       end
 
