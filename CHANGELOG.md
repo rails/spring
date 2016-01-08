@@ -2,6 +2,7 @@
 
 * Fix problems with the implementation of the new "Running via Spring preloader"
   message (see #456, #457)
+* Print "Running via Spring preloader" message to stderr, not stdout
 
 ## 1.6.1
 

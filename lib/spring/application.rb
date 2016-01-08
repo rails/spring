@@ -157,7 +157,7 @@ module Spring
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         trap("TERM", "DEFAULT")
 
-        puts "Running via Spring preloader in process #{Process.pid}" unless Spring.quiet
+        STDERR.puts "Running via Spring preloader in process #{Process.pid}" unless Spring.quiet
 
         ARGV.replace(args)
         $0 = command.exec_name

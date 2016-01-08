@@ -103,14 +103,14 @@ module Spring
       end
 
       test "tells the user that spring is being used when used automatically via binstubs" do
-        assert_success "bin/rails runner ''", stdout: "Running via Spring preloader in process"
-        assert_success app.spring_test_command, stdout: "Running via Spring preloader in process"
+        assert_success "bin/rails runner ''", stderr: "Running via Spring preloader in process"
+        assert_success app.spring_test_command, stderr: "Running via Spring preloader in process"
       end
 
       test "does not tell the user that spring is being used when used automatically via binstubs but quiet is enabled" do
         File.write("#{app.user_home}/.spring.rb", "Spring.quiet = true")
         assert_success "bin/rails runner ''"
-        refute_output_includes "bin/rails runner ''", stdout: 'Running via Spring preloader in process'
+        refute_output_includes "bin/rails runner ''", stderr: 'Running via Spring preloader in process'
       end
 
       test "test changes are picked up" do
