@@ -353,6 +353,15 @@ installing the
 [spring-watcher-listen](https://github.com/jonleighton/spring-watcher-listen)
 gem.
 
+### Quiet output
+
+To disable the "Running via Spring preloader" message which is shown each time
+a command runs:
+
+``` ruby
+Spring.quiet = true
+```
+
 ## Troubleshooting
 
 If you want to get more information about what spring is doing, you can
