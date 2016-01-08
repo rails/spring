@@ -73,6 +73,7 @@ Let's run a test:
 
 ```
 $ time bin/rake test test/controllers/posts_controller_test.rb
+Running via Spring preloader in process 2734
 Run options:
 
 # Running tests:
@@ -103,6 +104,7 @@ The next run is faster:
 
 ```
 $ time bin/rake test test/controllers/posts_controller_test.rb
+Running via Spring preloader in process 8352
 Run options:
 
 # Running tests:
@@ -147,6 +149,7 @@ environment gets booted up:
 
 ```
 $ bin/rake routes
+Running via Spring preloader in process 2363
     posts GET    /posts(.:format)          posts#index
           POST   /posts(.:format)          posts#create
  new_post GET    /posts/new(.:format)      posts#new
