@@ -1,4 +1,4 @@
-## Next release
+## 1.6.2
 
 * Fix problems with the implementation of the new "Running via Spring preloader"
   message (see #456, #457)
