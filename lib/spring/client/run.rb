@@ -65,11 +65,14 @@ module Spring
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
 
-        pid = Process.spawn(
-          gem_env,
-          "ruby",
-          "-e", "gem 'spring', '#{Spring::VERSION}'; require 'spring/server'; Spring::Server.boot"
-        )
+        pid = nil
+        Bundler.with_clean_env do
+          pid = Process.spawn(
+            gem_env,
+            "ruby",
+            "-e", "gem 'spring', '#{Spring::VERSION}'; require 'spring/server'; Spring::Server.boot"
+          )
+        end
 
         until env.socket_path.exist?
           _, status = Process.waitpid2(pid, Process::WNOHANG)
