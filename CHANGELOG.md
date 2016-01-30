@@ -1,3 +1,7 @@
+## 1.6.3
+
+* Fix problem with using Bundler 1.11 with a custom `BUNDLE_PATH` (#456)
+
 ## 1.6.2
 
 * Fix problems with the implementation of the new "Running via Spring preloader"

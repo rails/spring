@@ -101,6 +101,7 @@ module Spring
             "SPRING_PRELOAD"      => preload ? "1" : "0"
           },
           "ruby",
+          "-I", File.expand_path("../..", $LOADED_FEATURES.grep(/bundler\/setup\.rb$/).first),
           "-I", File.expand_path("../..", __FILE__),
           "-e", "require 'spring/application/boot'",
           3 => child_socket
