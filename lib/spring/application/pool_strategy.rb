@@ -1,13 +1,13 @@
 module Spring
-  class Application
-    module PoolStrategy
+  module Application
+    class PoolStrategy < Base
       def eager_preload
         reset_streams
         preload
       end
 
-      def start_app(client, streams, app_started)
-        app_started[0] = true
+      def start_app(client, streams, app_status)
+        app_status[:started] = true
         exitstatus = 0
         manager.puts Process.pid
         begin

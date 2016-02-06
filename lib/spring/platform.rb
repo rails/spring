@@ -4,11 +4,11 @@ module Spring
   end
 
   def self.jruby?
-    RUBY_PLATFORM == "java"
+    RUBY_ENGINE == "jruby"
   end
 
   def self.ruby_bin
-    if RUBY_PLATFORM == "java"
+    if RUBY_ENGINE == "jruby"
       "jruby"
     else
       "ruby"

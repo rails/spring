@@ -10,7 +10,7 @@ remote_socket =
     UNIXSocket.for_fd(3)
   end
 
-app = Spring::Application.new(
+app = Spring::Application.create(
   remote_socket,
   Spring::JSON.load(ENV.delete("SPRING_ORIGINAL_ENV").dup)
 )

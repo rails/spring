@@ -1,6 +1,6 @@
 module Spring
-  class Application
-    module ForkStrategy
+  module Application
+    class ForkStrategy < Base
       def eager_preload
         with_pty { preload }
       end
@@ -33,9 +33,9 @@ module Spring
         }
       end
 
-      def start_app(client, streams, app_started)
+      def start_app(client, streams, app_status)
         pid = fork { yield }
-        app_started[0] = true
+        app_status[:started] = true
 
         disconnect_database
         reset_streams
