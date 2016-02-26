@@ -1,3 +1,7 @@
+## 1.6.4
+
+* Fix incompatibility with RubyGems 2.6.0.
+
 ## 1.6.3
 
 * Fix problem with using Bundler 1.11 with a custom `BUNDLE_PATH` (#456)
