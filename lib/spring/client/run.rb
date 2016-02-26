@@ -8,6 +8,8 @@ module Spring
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
       TIMEOUT = 1
 
+      attr_reader :server
+
       def initialize(args)
         super
         @signal_queue = []
@@ -17,20 +19,20 @@ module Spring
         env.log "[client] #{message}"
       end
 
-      def server
-        @server ||= UNIXSocket.open(env.socket_name)
+      def connect
+        @server = UNIXSocket.open(env.socket_name)
       end
 
       def call
-        if env.server_running?
-          warm_run
-        else
+        begin
+          connect
+        rescue Errno::ENOENT, Errno::ECONNRESET
           cold_run
+        else
+          warm_run
         end
-      rescue Errno::ECONNRESET
-        exit 1
       ensure
-        server.close if @server
+        server.close if server
       end
 
       def warm_run
@@ -49,6 +51,7 @@ module Spring
 
       def cold_run
         boot_server
+        connect
         run
       end
 
@@ -60,6 +63,8 @@ module Spring
         queue_signals
         connect_to_application(client)
         run_command(client, application)
+      rescue Errno::ECONNRESET
+        exit 1
       end
 
       def boot_server
