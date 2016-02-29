@@ -37,6 +37,14 @@ module Spring
       @project_root_path ||= find_project_root(Pathname.new(File.expand_path(Dir.pwd)))
     end
 
+    def pool_min_free_workers
+      2
+    end
+
+    def pool_spawn_parallel
+      true
+    end
+
     private
 
     def find_project_root(current_dir)

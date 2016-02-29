@@ -1,12 +1,12 @@
 require "rbconfig"
 require "socket"
 require "bundler"
+require "spring/platform"
 
 module Spring
   module Client
     class Run < Command
-      FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
-      TIMEOUT = 1
+      TIMEOUT = Spring.fork? ? 1 : 60
 
       def initialize(args)
         super
@@ -127,6 +127,7 @@ ERROR
 
         send_json application, "args" => args, "env" => ENV.to_hash
 
+        IO.select([server])
         pid = server.gets
         pid = pid.chomp if pid
 
@@ -139,6 +140,7 @@ ERROR
           log "got pid: #{pid}"
 
           forward_signals(pid.to_i)
+          IO.select([application])
           status = application.read.to_i
 
           log "got exit status #{status}"

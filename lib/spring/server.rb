@@ -3,6 +3,7 @@ module Spring
 end
 
 require "spring/boot"
+require "spring/platform"
 require "spring/application_manager"
 
 # Must be last, as it requires bundler/setup, which alters the load path
@@ -18,7 +19,7 @@ module Spring
 
     def initialize(env = Env.new)
       @env          = env
-      @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(k) }
+      @applications = Hash.new { |h, k| h[k] = new_application_manager(k) }
       @pidfile      = env.pidfile_path.open('a')
       @mutex        = Mutex.new
     end
@@ -125,6 +126,14 @@ module Spring
       ProcessTitleUpdater.run { |distance|
         "spring server | #{env.app_name} | started #{distance} ago"
       }
+    end
+
+    def new_application_manager(app_env)
+      if Spring.fork?
+        ApplicationManager::ForkStrategy.new(app_env)
+      else
+        ApplicationManager::PoolStrategy.new(app_env)
+      end
     end
   end
 end

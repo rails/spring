@@ -3,8 +3,15 @@ Process.setsid
 
 require "spring/application"
 
-app = Spring::Application.new(
-  UNIXSocket.for_fd(3),
+remote_socket =
+  if ENV["SPRING_SOCKET"]
+    UNIXSocket.open(ENV.delete("SPRING_SOCKET"))
+  else
+    UNIXSocket.for_fd(3)
+  end
+
+app = Spring::Application.create(
+  remote_socket,
   Spring::JSON.load(ENV.delete("SPRING_ORIGINAL_ENV").dup)
 )
 
