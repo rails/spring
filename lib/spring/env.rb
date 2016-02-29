@@ -33,17 +33,20 @@ module Spring
     end
 
     def tmp_path
-      path = Pathname.new(File.join(ENV['XDG_RUNTIME_DIR'] || Dir.tmpdir, "spring-#{Process.uid}"))
+      path = Pathname.new(
+        ENV["SPRING_TMP_PATH"] ||
+          File.join(ENV['XDG_RUNTIME_DIR'] || Dir.tmpdir, "spring-#{Process.uid}")
+      )
       FileUtils.mkdir_p(path) unless path.exist?
       path
     end
 
     def application_id
-      Digest::MD5.hexdigest(RUBY_VERSION + project_root.to_s)
+      ENV["SPRING_APPLICATION_ID"] || Digest::MD5.hexdigest(RUBY_VERSION + project_root.to_s)
     end
 
     def socket_path
-      tmp_path.join(application_id)
+      Pathname.new(ENV["SPRING_SOCKET"] || tmp_path.join(application_id))
     end
 
     def socket_name
@@ -51,7 +54,7 @@ module Spring
     end
 
     def pidfile_path
-      tmp_path.join("#{application_id}.pid")
+      Pathname.new(ENV["SPRING_PIDFILE"] || tmp_path.join("#{application_id}.pid"))
     end
 
     def pid

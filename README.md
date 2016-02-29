@@ -365,6 +365,30 @@ a command runs:
 Spring.quiet = true
 ```
 
+### Environment variables
+
+The following environment variables are used by Spring:
+
+* `DISABLE_SPRING` - If set, Spring will be bypassed and your
+  application will boot in a foreground process
+* `SPRING_LOG` - The path to a file which Spring will write log messages
+  to.
+* `SPRING_TMP_PATH` - The directory where Spring should write its temporary
+  files (a pidfile and a socket). By default we use the
+  `XDG_RUNTIME_DIR` environment variable, or else `Dir.tmpdir`, and then
+  create a directory in that named `spring-$UID`. We don't use your
+  Rails application's `tmp/` directory because that may be on a
+  filesystem which doesn't support UNIX sockets.
+* `SPRING_APPLICATION_ID` - Used to identify distinct Rails
+  applications. By default it is an MD5 hash of the current
+  `RUBY_VERSION`, and the path to your Rails project root.
+* `SPRING_SOCKET` - The path which should be used for the UNIX socket
+  which Spring uses to communicate with the long-running Spring server
+  process. By default this is `SPRING_TMP_PATH/SPRING_APPLICATION_ID`.
+* `SPRING_PIDFILE` - The path which should be used to store the pid of
+  the long-running Spring server process. By default this is
+  `SPRING_TMP_PATH/SPRING_PIDFILE`.
+
 ## Troubleshooting
 
 If you want to get more information about what spring is doing, you can
