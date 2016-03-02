@@ -149,8 +149,13 @@ module Spring
       setup command
 
       if Rails.application.reloaders.any?(&:updated?)
-        ActionDispatch::Reloader.cleanup!
-        ActionDispatch::Reloader.prepare!
+        # Rails 5.1 forward-compat. AD::R is deprecated to AS::R in Rails 5.
+        if defined? ActiveSupport::Reloader
+          Rails.application.reloader.reload!
+        else
+          ActionDispatch::Reloader.cleanup!
+          ActionDispatch::Reloader.prepare!
+        end
       end
 
       pid = fork {
