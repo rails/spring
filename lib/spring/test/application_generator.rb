@@ -58,6 +58,10 @@ module Spring
           append_to_file(application.gemfile, "gem 'spring-commands-testunit'")
         end
 
+        if RUBY_VERSION == "1.9.3"
+          append_to_file(application.gemfile, "gem 'mime-types', '~> 2'")
+        end
+
         rewrite_file(application.gemfile) do |c|
           c.sub!("https://rubygems.org", "http://rubygems.org")
           c.gsub!(/(gem '(byebug|web-console|sdoc|jbuilder)')/, "# \\1")
