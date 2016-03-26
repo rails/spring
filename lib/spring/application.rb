@@ -159,6 +159,7 @@ module Spring
       end
 
       pid = fork {
+        Process.setsid
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         trap("TERM", "DEFAULT")
 
