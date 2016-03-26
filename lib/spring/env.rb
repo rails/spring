@@ -14,10 +14,10 @@ module Spring
   class Env
     attr_reader :log_file
 
-    def initialize(root = nil)
-      @root         = root
-      @project_root = root
-      @log_file     = File.open(ENV["SPRING_LOG"] || File::NULL, "a")
+    def initialize(options = {})
+      @root         = options[:root]
+      @project_root = options[:root]
+      @log_file     = options[:log_file] || File.open(ENV["SPRING_LOG"] || File::NULL, "a")
     end
 
     def root

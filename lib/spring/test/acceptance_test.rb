@@ -28,6 +28,10 @@ module Spring
         @app ||= Spring::Test::Application.new("#{Spring::Test.root}/apps/tmp")
       end
 
+      def spring_env
+        app.spring_env
+      end
+
       def assert_output(artifacts, expected)
         expected.each do |stream, output|
           assert artifacts[stream].include?(output),
@@ -92,14 +96,14 @@ module Spring
 
       test "help message when called without arguments" do
         assert_success "bin/spring", stdout: 'Usage: spring COMMAND [ARGS]'
-        assert app.spring_env.server_running?
+        assert spring_env.server_running?
       end
 
       test "shows help" do
         assert_success "bin/spring help", stdout: 'Usage: spring COMMAND [ARGS]'
         assert_success "bin/spring -h", stdout: 'Usage: spring COMMAND [ARGS]'
         assert_success "bin/spring --help", stdout: 'Usage: spring COMMAND [ARGS]'
-        refute app.spring_env.server_running?
+        refute spring_env.server_running?
       end
 
       test "tells the user that spring is being used when used automatically via binstubs" do
@@ -184,10 +188,10 @@ module Spring
 
       test "stop command kills server" do
         app.run app.spring_test_command
-        assert app.spring_env.server_running?, "The server should be running but it isn't"
+        assert spring_env.server_running?, "The server should be running but it isn't"
 
         assert_success "bin/spring stop"
-        assert !app.spring_env.server_running?, "The server should not be running but it is"
+        assert !spring_env.server_running?, "The server should not be running but it is"
       end
 
       test "custom commands" do
@@ -506,6 +510,19 @@ module Spring
 
         assert_speedup do
           2.times { assert_success "bundle exec rails runner ''" }
+        end
+      end
+
+      test "booting a foreground server" do
+        FileUtils.cd(app.root) do
+          assert !spring_env.server_running?
+          app.run "spring server &"
+
+          Timeout.timeout(1) do
+            sleep 0.1 until spring_env.server_running?
+          end
+
+          assert_success app.spring_test_command
         end
       end
     end

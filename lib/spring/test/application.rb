@@ -9,7 +9,7 @@ module Spring
 
       def initialize(root)
         @root       = Pathname.new(root)
-        @spring_env = Spring::Env.new(root)
+        @spring_env = Spring::Env.new(root: root)
       end
 
       def exists?

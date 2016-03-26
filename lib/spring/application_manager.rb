@@ -2,9 +2,9 @@ module Spring
   class ApplicationManager
     attr_reader :pid, :child, :app_env, :spring_env, :status
 
-    def initialize(app_env)
+    def initialize(app_env, spring_env)
       @app_env    = app_env
-      @spring_env = Env.new
+      @spring_env = spring_env
       @mutex      = Mutex.new
       @state      = :running
     end
@@ -104,7 +104,8 @@ module Spring
           "-I", File.expand_path("../..", $LOADED_FEATURES.grep(/bundler\/setup\.rb$/).first),
           "-I", File.expand_path("../..", __FILE__),
           "-e", "require 'spring/application/boot'",
-          3 => child_socket
+          3 => child_socket,
+          4 => spring_env.log_file,
         )
       end
 

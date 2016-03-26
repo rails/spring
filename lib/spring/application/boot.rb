@@ -5,7 +5,8 @@ require "spring/application"
 
 app = Spring::Application.new(
   UNIXSocket.for_fd(3),
-  Spring::JSON.load(ENV.delete("SPRING_ORIGINAL_ENV").dup)
+  Spring::JSON.load(ENV.delete("SPRING_ORIGINAL_ENV").dup),
+  Spring::Env.new(log_file: IO.for_fd(4))
 )
 
 Signal.trap("TERM") { app.terminate }

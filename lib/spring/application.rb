@@ -6,10 +6,10 @@ module Spring
   class Application
     attr_reader :manager, :watcher, :spring_env, :original_env
 
-    def initialize(manager, original_env)
+    def initialize(manager, original_env, spring_env = Env.new)
       @manager      = manager
       @original_env = original_env
-      @spring_env   = Env.new
+      @spring_env   = spring_env
       @mutex        = Mutex.new
       @waiting      = Set.new
       @preloaded    = false

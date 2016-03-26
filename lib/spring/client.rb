@@ -9,6 +9,7 @@ require "spring/client/stop"
 require "spring/client/status"
 require "spring/client/rails"
 require "spring/client/version"
+require "spring/client/server"
 
 module Spring
   module Client
@@ -22,6 +23,7 @@ module Spring
       "rails"     => Client::Rails,
       "-v"        => Client::Version,
       "--version" => Client::Version,
+      "server"    => Client::Server,
     }
 
     def self.run(args)

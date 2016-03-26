@@ -10,17 +10,22 @@ require "spring/commands"
 
 module Spring
   class Server
-    def self.boot
-      new.boot
+    def self.boot(options = {})
+      new(options).boot
     end
 
     attr_reader :env
 
-    def initialize(env = Env.new)
-      @env          = env
-      @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(k) }
+    def initialize(options = {})
+      @foreground   = options.fetch(:foreground, false)
+      @env          = options[:env] || default_env
+      @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(k, env) }
       @pidfile      = env.pidfile_path.open('a')
       @mutex        = Mutex.new
+    end
+
+    def foreground?
+      @foreground
     end
 
     def log(message)
@@ -31,8 +36,8 @@ module Spring
       Spring.verify_environment
 
       write_pidfile
-      set_pgid
-      ignore_signals
+      set_pgid unless foreground?
+      ignore_signals unless foreground?
       set_exit_hook
       set_process_title
       start_server
@@ -42,6 +47,7 @@ module Spring
       server = UNIXServer.open(env.socket_name)
       log "started on #{env.socket_name}"
       loop { serve server.accept }
+    rescue Interrupt
     end
 
     def serve(client)
@@ -125,6 +131,20 @@ module Spring
       ProcessTitleUpdater.run { |distance|
         "spring server | #{env.app_name} | started #{distance} ago"
       }
+    end
+
+    private
+
+    def default_env
+      Env.new(log_file: default_log_file)
+    end
+
+    def default_log_file
+      if foreground? && !ENV["SPRING_LOG"]
+        $stdout
+      else
+        nil
+      end
     end
   end
 end
