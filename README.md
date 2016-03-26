@@ -392,10 +392,11 @@ The following environment variables are used by Spring:
 ## Troubleshooting
 
 If you want to get more information about what spring is doing, you can
-specify a log file with the `SPRING_LOG` environment variable:
+run spring explicitly in a separate terminal:
 
 ```
-spring stop # if spring is already running
-export SPRING_LOG=/tmp/spring.log
-spring rake -T
+$ spring server
 ```
+
+Logging output will be printed to stdout. You can also send log output
+to a file with the `SPRING_LOG` environment variable.
