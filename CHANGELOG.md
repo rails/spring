@@ -1,3 +1,7 @@
+## 1.6.5
+
+* Auto-restart server when server and client versions do not match
+
 ## 1.6.4
 
 * Fix incompatibility with RubyGems 2.6.0.
