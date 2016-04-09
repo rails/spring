@@ -386,8 +386,9 @@ The following environment variables are used by Spring:
   which Spring uses to communicate with the long-running Spring server
   process. By default this is `SPRING_TMP_PATH/SPRING_APPLICATION_ID`.
 * `SPRING_PIDFILE` - The path which should be used to store the pid of
-  the long-running Spring server process. By default this is
-  `SPRING_TMP_PATH/SPRING_PIDFILE`.
+  the long-running Spring server process. By default this is related to
+  the socket path; if the socket path is `/foo/bar/spring.sock` the
+  pidfile will be `/foo/bar/spring.pid`.
 
 ## Troubleshooting
 

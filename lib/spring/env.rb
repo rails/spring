@@ -54,7 +54,7 @@ module Spring
     end
 
     def pidfile_path
-      Pathname.new(ENV["SPRING_PIDFILE"] || tmp_path.join("#{application_id}.pid"))
+      Pathname.new(ENV["SPRING_PIDFILE"] || socket_path.dirname.join("#{socket_path.basename(".*")}.pid"))
     end
 
     def pid
