@@ -319,6 +319,17 @@ module Spring
           exit_if_finished
         end
       }
+
+      Thread.new {
+        while signal = client.gets.chomp
+          begin
+            Process.kill(signal, -Process.getpgid(pid))
+            client.puts(0)
+          rescue Errno::ESRCH
+            client.puts(1)
+          end
+        end
+      }
     end
 
     private

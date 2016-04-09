@@ -143,7 +143,7 @@ ERROR
         if pid && !pid.empty?
           log "got pid: #{pid}"
 
-          forward_signals(pid.to_i)
+          forward_signals(application)
           status = application.read.to_i
 
           log "got exit status #{status}"
@@ -163,26 +163,26 @@ ERROR
         end
       end
 
-      def forward_signals(pid)
-        @signal_queue.each { |sig| kill sig, pid }
+      def forward_signals(application)
+        @signal_queue.each { |sig| kill sig, application }
 
         FORWARDED_SIGNALS.each do |sig|
-          trap(sig) { forward_signal sig, pid }
+          trap(sig) { forward_signal sig, application }
         end
-      rescue Errno::ESRCH
       end
 
-      def forward_signal(sig, pid)
-        kill(sig, pid)
-      rescue Errno::ESRCH
-        # If the application process is gone, then don't block the
-        # signal on this process.
-        trap(sig, 'DEFAULT')
-        Process.kill(sig, Process.pid)
+      def forward_signal(sig, application)
+        if kill(sig, application) != 0
+          # If the application process is gone, then don't block the
+          # signal on this process.
+          trap(sig, 'DEFAULT')
+          Process.kill(sig, Process.pid)
+        end
       end
 
-      def kill(sig, pid)
-        Process.kill(sig, -Process.getpgid(pid))
+      def kill(sig, application)
+        application.puts(sig)
+        application.gets.to_i
       end
 
       def send_json(socket, data)
