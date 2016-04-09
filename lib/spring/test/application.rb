@@ -117,7 +117,7 @@ module Spring
 
         output.merge(status: status, command: command)
       rescue Timeout::Error => e
-        raise e, "Output:\n\n#{dump_streams(command, read_streams)}"
+        raise Timeout::Error, "While running command:\n\n#{dump_streams(command, read_streams)}"
       end
 
       def with_timing
