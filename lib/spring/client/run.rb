@@ -26,7 +26,7 @@ module Spring
       def call
         begin
           connect
-        rescue Errno::ENOENT, Errno::ECONNRESET
+        rescue Errno::ENOENT, Errno::ECONNRESET, Errno::ECONNREFUSED
           cold_run
         else
           warm_run
