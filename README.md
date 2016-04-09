@@ -389,6 +389,9 @@ The following environment variables are used by Spring:
   the long-running Spring server process. By default this is related to
   the socket path; if the socket path is `/foo/bar/spring.sock` the
   pidfile will be `/foo/bar/spring.pid`.
+* `SPRING_SERVER_COMMAND` - The command to run to start up the spring
+  server when it is not already running. Defaults to `spring _[version]_
+  server --background`.
 
 ## Troubleshooting
 

@@ -108,5 +108,9 @@ module Spring
     rescue Errno::ESRCH
       # already dead
     end
+
+    def server_command
+      ENV["SPRING_SERVER_COMMAND"] || "spring _#{Spring::VERSION}_ server --background"
+    end
   end
 end
