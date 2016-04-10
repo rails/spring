@@ -1,4 +1,4 @@
-## Next release
+## 1.7.0
 
 * Auto-restart server when server and client versions do not match
 * Add `spring server` command to explicitly start a Spring server
@@ -6,6 +6,8 @@
   useful to those who want to run spring more explicitly, but the real
   impetus was to enable running a spring server inside a Docker
   container.
+* Numerous other tweaks to better support running Spring inside
+  containers
 
 ## 1.6.4
 
