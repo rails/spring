@@ -290,6 +290,13 @@ false
 So to avoid this problem, don't save off references to application
 constants in your initialization code.
 
+## Using Spring with a containerized development environment
+
+As of Spring 1.7, there is some support for doing this. See [this
+example
+repository](https://github.com/jonleighton/spring-docker-example) for
+information about how to do it with [Docker](https://www.docker.com/).
+
 ## Configuration
 
 Spring will read `~/.spring.rb` and `config/spring.rb` for custom

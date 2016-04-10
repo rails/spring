@@ -7,7 +7,8 @@
   impetus was to enable running a spring server inside a Docker
   container.
 * Numerous other tweaks to better support running Spring inside
-  containers
+  containers (see
+  https://github.com/jonleighton/spring-docker-example)
 
 ## 1.6.4
 
