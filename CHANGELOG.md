@@ -1,3 +1,8 @@
+## 1.7.1
+
+* Specify absolute path to spring binfile when starting the server
+  (#478)
+
 ## 1.7.0
 
 * Auto-restart server when server and client versions do not match

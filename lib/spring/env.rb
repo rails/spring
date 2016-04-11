@@ -110,7 +110,7 @@ module Spring
     end
 
     def server_command
-      ENV["SPRING_SERVER_COMMAND"] || "spring _#{Spring::VERSION}_ server --background"
+      ENV["SPRING_SERVER_COMMAND"] || "#{File.expand_path("../../../bin/spring", __FILE__)} server --background"
     end
   end
 end
