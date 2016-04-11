@@ -404,7 +404,7 @@ module Spring
       end
 
       test "can define client tasks" do
-        File.write("#{app.spring_config.sub('.rb', '_client.rb')}", <<-RUBY)
+        File.write("#{app.spring_client_config}", <<-RUBY)
           Spring::Client::COMMANDS["foo"] = lambda { |args| puts "bar -- \#{args.inspect}" }
         RUBY
         assert_success "bin/spring foo --baz", stdout: "bar -- [\"foo\", \"--baz\"]\n"
@@ -524,6 +524,15 @@ module Spring
 
           assert_success app.spring_test_command
         end
+      end
+
+      test "server boot timeout" do
+        app.env["SPRING_SERVER_COMMAND"] = "sleep 1"
+        app.spring_client_config.write %(
+          Spring::Client::Run.const_set(:BOOT_TIMEOUT, 0.1)
+        )
+
+        assert_failure "bin/rails runner ''", stderr: "timed out"
       end
     end
   end

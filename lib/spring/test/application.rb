@@ -88,6 +88,10 @@ module Spring
         path "config/spring.rb"
       end
 
+      def spring_client_config
+        path "config/spring_client.rb"
+      end
+
       def run(command, opts = {})
         start_time = Time.now
 

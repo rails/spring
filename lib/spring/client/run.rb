@@ -6,7 +6,8 @@ module Spring
   module Client
     class Run < Command
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
-      TIMEOUT = 1
+      CONNECT_TIMEOUT   = 1
+      BOOT_TIMEOUT      = 10
 
       attr_reader :server
 
@@ -69,11 +70,21 @@ module Spring
 
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
-        pid = Process.spawn(gem_env, env.server_command, out: File::NULL)
+
+        pid     = Process.spawn(gem_env, env.server_command, out: File::NULL)
+        timeout = Time.now + BOOT_TIMEOUT
 
         until env.socket_path.exist?
           _, status = Process.waitpid2(pid, Process::WNOHANG)
-          exit status.exitstatus if status
+
+          if status
+            exit status.exitstatus
+          elsif Time.now > timeout
+            $stderr.puts "Starting Spring server with `#{env.server_command}` " \
+                         "timed out after #{BOOT_TIMEOUT} seconds"
+            exit 1
+          end
+
           sleep 0.1
         end
       end
@@ -111,7 +122,7 @@ ERROR
         server.send_io client
         send_json server, "args" => args, "default_rails_env" => default_rails_env
 
-        if IO.select([server], [], [], TIMEOUT)
+        if IO.select([server], [], [], CONNECT_TIMEOUT)
           server.gets or raise CommandNotFound
         else
           raise "Error connecting to Spring server"
