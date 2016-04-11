@@ -4,6 +4,8 @@
   (#478)
 * Time out after 10 seconds if starting the spring server doesn't work
   (maybe related to #480, #479)
+* Prevent infinite boot loop when trying to restart the spring server
+  due to client/server version mismatch (related to #479)
 
 ## 1.7.0
 

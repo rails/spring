@@ -13,7 +13,9 @@ module Spring
 
       def initialize(args)
         super
-        @signal_queue = []
+
+        @signal_queue  = []
+        @server_booted = false
       end
 
       def log(message)
@@ -74,6 +76,8 @@ module Spring
         pid     = Process.spawn(gem_env, env.server_command, out: File::NULL)
         timeout = Time.now + BOOT_TIMEOUT
 
+        @server_booted = true
+
         until env.socket_path.exist?
           _, status = Process.waitpid2(pid, Process::WNOHANG)
 
@@ -87,6 +91,10 @@ module Spring
 
           sleep 0.1
         end
+      end
+
+      def server_booted?
+        @server_booted
       end
 
       def gem_env
@@ -108,13 +116,17 @@ module Spring
       def verify_server_version
         server_version = server.gets.chomp
         if server_version != env.version
-          $stderr.puts <<-ERROR
-There is a version mismatch between the spring client (#{env.version}) and the server (#{server_version}).
-Restarting to resolve.
-ERROR
+          $stderr.puts "There is a version mismatch between the spring client " \
+                         "(#{env.version}) and the server (#{server_version})."
 
-          stop_server
-          cold_run
+          if server_booted?
+            $stderr.puts "We already tried to reboot the server, but the mismatch is still present."
+            exit 1
+          else
+            $stderr.puts "Restarting to resolve."
+            stop_server
+            cold_run
+          end
         end
       end
 
