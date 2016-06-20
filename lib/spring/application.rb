@@ -310,8 +310,6 @@ module Spring
 
       # Wait in a separate thread so we can run multiple commands at once
       Thread.new {
-        Thread.current.abort_on_exception = false
-
         begin
           _, status = Process.wait2 pid
           log "#{pid} exited with #{status.exitstatus}"
@@ -319,6 +317,7 @@ module Spring
           streams.each(&:close)
           client.puts(status.exitstatus)
           client.close
+        rescue
         ensure
           @mutex.synchronize { @waiting.delete pid }
           exit_if_finished
@@ -326,15 +325,16 @@ module Spring
       }
 
       Thread.new {
-        Thread.current.abort_on_exception = false
-
-        while signal = client.gets.chomp
-          begin
-            Process.kill(signal, -Process.getpgid(pid))
-            client.puts(0)
-          rescue Errno::ESRCH
-            client.puts(1)
+        begin
+          while signal = client.gets.chomp
+            begin
+              Process.kill(signal, -Process.getpgid(pid))
+              client.puts(0)
+            rescue Errno::ESRCH
+              client.puts(1)
+            end
           end
+        rescue
         end
       }
     end

@@ -107,8 +107,10 @@ module Spring
       end
 
       @applications.values.map { |a| Thread.new {
-        Thread.current.abort_on_exception = false
-        a.stop
+        begin
+          a.stop
+        rescue
+        end
       } }.map(&:join)
     end
 
