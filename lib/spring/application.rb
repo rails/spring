@@ -291,7 +291,10 @@ module Spring
     def with_pty
       PTY.open do |master, slave|
         [STDOUT, STDERR, STDIN].each { |s| s.reopen slave }
-        Thread.new { master.read }
+        Thread.new {
+          Thread.current.abort_on_exception = false
+          master.read
+        }
         yield
         reset_streams
       end
@@ -307,6 +310,8 @@ module Spring
 
       # Wait in a separate thread so we can run multiple commands at once
       Thread.new {
+        Thread.current.abort_on_exception = false
+
         begin
           _, status = Process.wait2 pid
           log "#{pid} exited with #{status.exitstatus}"
@@ -321,6 +326,8 @@ module Spring
       }
 
       Thread.new {
+        Thread.current.abort_on_exception = false
+
         while signal = client.gets.chomp
           begin
             Process.kill(signal, -Process.getpgid(pid))

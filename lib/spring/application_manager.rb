@@ -117,6 +117,8 @@ module Spring
       Process.detach(pid)
 
       Thread.new {
+        Thread.current.abort_on_exception = false
+
         # The recv can raise an ECONNRESET, killing the thread, but that's ok
         # as if it does we're no longer interested in the child
         loop do

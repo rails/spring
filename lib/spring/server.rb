@@ -106,7 +106,10 @@ module Spring
         end
       end
 
-      @applications.values.map { |a| Thread.new { a.stop } }.map(&:join)
+      @applications.values.map { |a| Thread.new {
+        Thread.current.abort_on_exception = false
+        a.stop
+      } }.map(&:join)
     end
 
     def write_pidfile

@@ -11,6 +11,8 @@ module Spring
       updater = new(&block)
 
       Thread.new {
+        Thread.current.abort_on_exception = false
+
         $0 = updater.value
         loop { $0 = updater.next }
       }
