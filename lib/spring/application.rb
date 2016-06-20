@@ -292,8 +292,10 @@ module Spring
       PTY.open do |master, slave|
         [STDOUT, STDERR, STDIN].each { |s| s.reopen slave }
         Thread.new {
-          Thread.current.abort_on_exception = false
-          master.read
+          begin
+            master.read
+          rescue
+          end
         }
         yield
         reset_streams
