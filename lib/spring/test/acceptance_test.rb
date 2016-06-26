@@ -518,7 +518,7 @@ module Spring
           assert !spring_env.server_running?
           app.run "spring server &"
 
-          Timeout.timeout(1) do
+          Timeout.timeout(10) do
             sleep 0.1 until spring_env.server_running? && spring_env.socket_path.exist?
           end
 
