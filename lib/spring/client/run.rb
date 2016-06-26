@@ -7,7 +7,7 @@ module Spring
     class Run < Command
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
       CONNECT_TIMEOUT   = 1
-      BOOT_TIMEOUT      = 20
+      BOOT_TIMEOUT      = 10
 
       attr_reader :server
 
