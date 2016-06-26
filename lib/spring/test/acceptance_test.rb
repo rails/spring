@@ -465,11 +465,11 @@ module Spring
       test "changing the Gemfile works when spring calls into itself" do
         File.write(app.path("script.rb"), <<-RUBY.strip_heredoc)
           gemfile = Rails.root.join("Gemfile")
-          File.write(gemfile, "\#{gemfile.read}gem 'devise'\\n")
+          File.write(gemfile, "\#{gemfile.read}gem 'text'\\n")
           Bundler.with_clean_env do
             system(#{app.env.inspect}, "bundle install")
           end
-          output = `\#{Rails.root.join('bin/rails')} runner 'require "devise"; puts "done";'`
+          output = `\#{Rails.root.join('bin/rails')} runner 'require "text"; puts "done";'`
           exit output.include? "done\n"
         RUBY
 
