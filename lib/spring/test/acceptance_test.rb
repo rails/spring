@@ -519,7 +519,7 @@ module Spring
           app.run "spring server &"
 
           Timeout.timeout(1) do
-            sleep 0.1 until spring_env.server_running?
+            sleep 0.1 until spring_env.server_running? && spring_env.socket_path.exist?
           end
 
           assert_success app.spring_test_command
