@@ -10,6 +10,7 @@ module Spring
       def initialize(root)
         @root       = Pathname.new(root)
         @spring_env = Spring::Env.new(root: root)
+        @times      = nil
       end
 
       def exists?
