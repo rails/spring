@@ -516,7 +516,7 @@ module Spring
       test "booting a foreground server" do
         FileUtils.cd(app.root) do
           assert !spring_env.server_running?
-          app.run "spring server &"
+          assert_success "bin/spring server &"
 
           Timeout.timeout(10) do
             sleep 0.1 until spring_env.server_running? && spring_env.socket_path.exist?
