@@ -121,7 +121,7 @@ module Spring
         @times << (Time.now - start_time) if @times
 
         output.merge(status: status, command: command)
-      rescue Timeout::Error => e
+      rescue Timeout::Error
         raise Timeout::Error, "While running command:\n\n#{dump_streams(command, read_streams)}"
       end
 

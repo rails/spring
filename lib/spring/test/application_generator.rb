@@ -8,6 +8,7 @@ module Spring
         @version            = RailsVersion.new(version_constraint.split(' ').last)
         @application        = Application.new(root)
         @bundled            = false
+        @installed          = false
       end
 
       def test_root

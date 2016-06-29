@@ -5,7 +5,7 @@ class VersionTest < ActiveSupport::TestCase
   test "outputs current version number" do
     version = Spring::Client::Version.new 'version'
 
-    out, err = capture_io do
+    out, _ = capture_io do
       version.call
     end
 
