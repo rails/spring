@@ -291,12 +291,7 @@ module Spring
     def with_pty
       PTY.open do |master, slave|
         [STDOUT, STDERR, STDIN].each { |s| s.reopen slave }
-        Thread.new {
-          begin
-            master.read
-          rescue
-          end
-        }
+        Thread.new { master.read }
         yield
         reset_streams
       end
@@ -311,7 +306,7 @@ module Spring
       @mutex.synchronize { @waiting << pid }
 
       # Wait in a separate thread so we can run multiple commands at once
-      Thread.new {
+      Spring.failsafe_thread {
         begin
           _, status = Process.wait2 pid
           log "#{pid} exited with #{status.exitstatus}"
@@ -319,24 +314,20 @@ module Spring
           streams.each(&:close)
           client.puts(status.exitstatus)
           client.close
-        rescue
         ensure
           @mutex.synchronize { @waiting.delete pid }
           exit_if_finished
         end
       }
 
-      Thread.new {
-        begin
-          while signal = client.gets.chomp
-            begin
-              Process.kill(signal, -Process.getpgid(pid))
-              client.puts(0)
-            rescue Errno::ESRCH
-              client.puts(1)
-            end
+      Spring.failsafe_thread {
+        while signal = client.gets.chomp
+          begin
+            Process.kill(signal, -Process.getpgid(pid))
+            client.puts(0)
+          rescue Errno::ESRCH
+            client.puts(1)
           end
-        rescue
         end
       }
     end

@@ -116,26 +116,23 @@ module Spring
     def start_wait_thread(pid, child)
       Process.detach(pid)
 
-      Thread.new {
-        begin
-          # The recv can raise an ECONNRESET, killing the thread, but that's ok
-          # as if it does we're no longer interested in the child
-          loop do
-            IO.select([child])
-            break if child.recv(1, Socket::MSG_PEEK).empty?
-            sleep 0.01
-          end
-
-          log "child #{pid} shutdown"
-
-          synchronize {
-            if @pid == pid
-              @pid = nil
-              restart
-            end
-          }
-        rescue
+      Spring.failsafe_thread {
+        # The recv can raise an ECONNRESET, killing the thread, but that's ok
+        # as if it does we're no longer interested in the child
+        loop do
+          IO.select([child])
+          break if child.recv(1, Socket::MSG_PEEK).empty?
+          sleep 0.01
         end
+
+        log "child #{pid} shutdown"
+
+        synchronize {
+          if @pid == pid
+            @pid = nil
+            restart
+          end
+        }
       }
     end
   end

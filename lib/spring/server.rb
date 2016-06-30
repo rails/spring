@@ -106,12 +106,7 @@ module Spring
         end
       end
 
-      @applications.values.map { |a| Thread.new {
-        begin
-          a.stop
-        rescue
-        end
-      } }.map(&:join)
+      @applications.values.map { |a| Spring.failsafe_thread { a.stop } }.map(&:join)
     end
 
     def write_pidfile
