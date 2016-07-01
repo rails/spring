@@ -10,7 +10,7 @@ module Spring
     def self.run(&block)
       updater = new(&block)
 
-      Thread.new {
+      Spring.failsafe_thread {
         $0 = updater.value
         loop { $0 = updater.next }
       }

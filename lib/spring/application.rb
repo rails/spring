@@ -306,7 +306,7 @@ module Spring
       @mutex.synchronize { @waiting << pid }
 
       # Wait in a separate thread so we can run multiple commands at once
-      Thread.new {
+      Spring.failsafe_thread {
         begin
           _, status = Process.wait2 pid
           log "#{pid} exited with #{status.exitstatus}"
@@ -320,7 +320,7 @@ module Spring
         end
       }
 
-      Thread.new {
+      Spring.failsafe_thread {
         while signal = client.gets.chomp
           begin
             Process.kill(signal, -Process.getpgid(pid))
