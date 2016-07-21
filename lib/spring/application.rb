@@ -129,7 +129,12 @@ module Spring
     end
 
     def eager_preload
-      with_pty { preload }
+      with_pty do
+        # we can't see stderr and there could be issues when it's overflown
+        # see https://github.com/rails/spring/issues/396
+        STDERR.reopen("/dev/null")
+        preload
+      end
     end
 
     def run
