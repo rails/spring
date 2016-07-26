@@ -415,6 +415,12 @@ module Spring
         assert_failure "bin/rake -T", stderr: "unable to find your config/application.rb"
       end
 
+      test "piping with boot-level error" do
+        config = app.application_config.read
+        File.write(app.application_config, "#{config}\nomg")
+        assert_success "bin/rake -T | cat"
+      end
+
       test "piping" do
         assert_success "bin/rake -T | grep db", stdout: "rake db:migrate"
       end
