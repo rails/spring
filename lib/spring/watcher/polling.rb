@@ -1,3 +1,5 @@
+require "spring/watcher/abstract"
+
 module Spring
   module Watcher
     class Polling < Abstract
