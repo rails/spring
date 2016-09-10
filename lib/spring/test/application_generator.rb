@@ -38,6 +38,11 @@ module Spring
 
       # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
       def generate_files
+        if RUBY_VERSION == "1.9.3"
+          system("gem list '^mime-types$' --installed --version '~> 2' || " \
+                   "gem install mime-types --clear-sources --source http://rubygems.org --version '~> 2'")
+        end
+
         system("gem list '^rails$' --installed --version '#{version_constraint}' || " \
                  "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}'")
 
@@ -59,7 +64,7 @@ module Spring
           append_to_file(application.gemfile, "gem 'spring-commands-testunit'")
         end
 
-        if RUBY_VERSION == "1.9.3"
+        if RUBY_VERSION == "1.9.3" && version.to_s.start_with?("4.0")
           append_to_file(application.gemfile, "gem 'mime-types', '~> 2'")
         end
 
