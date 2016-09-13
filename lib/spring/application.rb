@@ -192,7 +192,6 @@ module Spring
       }
 
       disconnect_database
-      reset_streams
 
       log "forked #{pid}"
       manager.puts pid
@@ -209,6 +208,11 @@ module Spring
 
       client.puts(1) if pid
       client.close
+    ensure
+      # Redirect STDOUT and STDERR to prevent from keeping the original FDs
+      # (i.e. to prevent `spring rake -T | grep db` from hanging forever),
+      # even when exception is raised before forking (i.e. preloading).
+      reset_streams
     end
 
     def terminate
@@ -292,8 +296,11 @@ module Spring
       PTY.open do |master, slave|
         [STDOUT, STDERR, STDIN].each { |s| s.reopen slave }
         Thread.new { master.read }
-        yield
-        reset_streams
+        begin
+          yield
+        ensure
+          reset_streams
+        end
       end
     end
 
