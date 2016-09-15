@@ -23,10 +23,6 @@ CODE
       # binstub from the application process. Which means that in the application
       # process we'll execute the lines which come after the LOADER block, which
       # is what we want.
-      #
-      # Parsing the lockfile in this way is pretty nasty but reliable enough
-      # The regex ensures that the match must be between a GEM line and an empty
-      # line, so it won't go on to the next section.
       SPRING = <<'CODE'
 #!/usr/bin/env ruby
 
@@ -37,9 +33,10 @@ unless defined?(Spring)
   require 'rubygems'
   require 'bundler'
 
-  if (match = Bundler.default_lockfile.read.match(/^GEM$.*?^    (?:  )*spring \((.*?)\)$.*?^$/m))
+  lockfile = Bundler::LockfileParser.new(Bundler.default_lockfile.read)
+  if spring = lockfile.specs.detect { |spec| spec.name == "spring" }
     Gem.use_paths Gem.dir, Bundler.bundle_path.to_s, *Gem.path
-    gem 'spring', match[1]
+    gem 'spring', spring.version
     require 'spring/binstub'
   end
 end
