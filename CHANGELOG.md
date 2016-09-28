@@ -1,3 +1,7 @@
+## 2.0.0 (unreleased)
+
+* Drop Rails 4.0 and 4.1 support
+
 ## 1.7.2
 
 * Use `Spring.failsafe_thread` to prevent threads from aborting process due to `Thread.abort_on_exception` when set to `true`

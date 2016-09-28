@@ -65,7 +65,7 @@ module Spring
       end
 
       def spring_test_command
-        "#{rails_version.test_command} #{test}"
+        "bin/rake test #{test}"
       end
 
       def stop_spring
@@ -74,7 +74,7 @@ module Spring
       end
 
       def test
-        path "test/#{rails_version.controller_tests_dir}/posts_controller_test.rb"
+        path "test/controllers/posts_controller_test.rb"
       end
 
       def controller

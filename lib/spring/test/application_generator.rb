@@ -48,8 +48,7 @@ module Spring
 
         @version = RailsVersion.new(`ruby -e 'puts Gem::Specification.find_by_name("rails", "#{version_constraint}").version'`.chomp)
 
-        skips = %w(--skip-bundle --skip-javascript --skip-sprockets)
-        skips << "--skip-spring" if version.bundles_spring?
+        skips = %w(--skip-bundle --skip-javascript --skip-sprockets --skip-spring)
 
         system("rails _#{version}_ new #{application.root} #{skips.join(' ')}")
         raise "application generation failed" unless application.exists?
@@ -59,14 +58,6 @@ module Spring
         FileUtils.rm_rf(application.path("test/performance"))
 
         append_to_file(application.gemfile, "gem 'spring', '#{Spring::VERSION}'")
-
-        if version.needs_testunit?
-          append_to_file(application.gemfile, "gem 'spring-commands-testunit'")
-        end
-
-        if RUBY_VERSION == "1.9.3" && version.to_s.start_with?("4.0")
-          append_to_file(application.gemfile, "gem 'mime-types', '~> 2'")
-        end
 
         rewrite_file(application.gemfile) do |c|
           c.sub!("https://rubygems.org", "http://rubygems.org")

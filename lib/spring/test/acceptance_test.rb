@@ -540,6 +540,11 @@ module Spring
 
         assert_failure "bin/rails runner ''", stderr: "timed out"
       end
+
+      test "no warnings are shown for unsprung commands" do
+        app.env["DISABLE_SPRING"] = "1"
+        refute_output_includes "bin/rails runner ''", stderr: "WARN"
+      end
     end
   end
 end
