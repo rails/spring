@@ -86,6 +86,10 @@ module Spring
       def install_spring
         return if @installed
 
+        if RUBY_VERSION < "2.2.2"
+          application.run! "gem install activesupport --version '#{version}'"
+        end
+
         build_and_install_gems
 
         application.bundle

@@ -12,7 +12,7 @@ module Spring
       DEFAULT_SPEEDUP = 0.8
 
       def rails_version
-        ENV['RAILS_VERSION'] || '~> 4.2.0'
+        ENV['RAILS_VERSION'] || '~> 5.0.0'
       end
 
       # Extension point for spring-watchers-listen
@@ -121,7 +121,7 @@ module Spring
         assert_speedup do
           assert_success app.spring_test_command, stdout: "0 failures"
 
-          File.write(app.test, app.test.read.sub("get :index", "raise 'omg'"))
+          app.insert_into_test "raise 'omg'"
           assert_failure app.spring_test_command, stdout: "RuntimeError: omg"
         end
       end
@@ -156,7 +156,7 @@ module Spring
             end
           end
         RUBY
-        File.write(app.test, app.test.read.sub("get :index", "Foo.omg"))
+        app.insert_into_test "Foo.omg"
 
         app.await_reload
         assert_failure app.spring_test_command, stdout: "RuntimeError: omg"

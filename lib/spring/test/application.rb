@@ -209,6 +209,10 @@ module Spring
         run! "bundle check || bundle update --retry=2", timeout: nil
       end
 
+      def insert_into_test(code)
+        File.write(test, test.read.sub(/^\s*get .+$/, code))
+      end
+
       private
 
       def process_alive?(pid)
