@@ -205,7 +205,10 @@ module Spring
       end
 
       def bundle
-        run! "(gem list bundler | grep bundler) || gem install bundler", timeout: nil, retry: 2
+        # Version restriction is a workaround for https://github.com/bundler/bundler/pull/4981
+        # The problem breaks our tests on Ruby 2.2
+        # We can remove once it's fixed
+        run! "(gem list bundler | grep bundler) || gem install bundler --version '~> 1.12.0'", timeout: nil, retry: 2
         run! "bundle check || bundle update --retry=2", timeout: nil
       end
 
