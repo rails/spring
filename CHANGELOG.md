@@ -1,6 +1,8 @@
 ## 2.0.0 (unreleased)
 
 * Drop Rails 4.0 and 4.1 support
+* Add explicit support for Rails 5 (no changes were needed)
+* Use Bundler::LockfileParser to parse lockfile instead of regex (#492)
 
 ## 1.7.2
 
