@@ -1,4 +1,4 @@
-## 2.0.0 (unreleased)
+## 2.0.0
 
 * Drop Rails 4.0 and 4.1 support
 * Add explicit support for Rails 5 (no changes were needed)
