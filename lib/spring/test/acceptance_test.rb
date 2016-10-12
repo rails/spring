@@ -172,6 +172,14 @@ module Spring
         assert_success app.spring_test_command
       end
 
+      test "app gets reloaded even with abort_on_exception=true" do
+        assert_success app.spring_test_command
+        File.write(app.path("config/initializers/thread_config.rb"), "Thread.abort_on_exception = true")
+
+        app.await_reload
+        assert_success app.spring_test_command
+      end
+
       test "app recovers when a boot-level error is introduced" do
         config = app.application_config.read
 
