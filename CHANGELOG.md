@@ -1,3 +1,7 @@
+## Next release
+
+* Fix bug which could cause Spring to hang when `Thread.abort_on_exception` is `true` (#497)
+
 ## 2.0.0
 
 * Drop Rails 4.0 and 4.1 support
