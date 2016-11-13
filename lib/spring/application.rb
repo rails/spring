@@ -295,10 +295,11 @@ module Spring
     def with_pty
       PTY.open do |master, slave|
         [STDOUT, STDERR, STDIN].each { |s| s.reopen slave }
-        Thread.new { master.read }
+        reader_thread = Spring.failsafe_thread { master.read }
         begin
           yield
         ensure
+          reader_thread.kill
           reset_streams
         end
       end
