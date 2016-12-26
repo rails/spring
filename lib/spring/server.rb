@@ -81,7 +81,12 @@ module Spring
     # This will cause it to be automatically killed once the session
     # ends (i.e. when the user closes their terminal).
     def set_pgid
-      Process.setpgid(0, SID.pgid)
+      pgid = SID.pgid
+      if pgid.nil?
+        log "warn: unable to fetch process group of current session"
+        return
+      end
+      Process.setpgid(0, pgid)
     end
 
     # Ignore SIGINT and SIGQUIT otherwise the user typing ^C or ^\ on the command line
