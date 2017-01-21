@@ -1,4 +1,4 @@
-## Next release
+## 2.0.1
 
 * Fix bug which could cause Spring to hang when `Thread.abort_on_exception` is `true` (#497)
 
