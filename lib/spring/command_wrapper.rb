@@ -62,7 +62,11 @@ module Spring
     end
 
     def binstub_name
-      "bin/#{name}"
+      if Bundler.bin_path.exist?
+        "#{Bundler.bin_path}/#{name}"
+      else
+        "bin/#{name}"
+      end
     end
 
     def exec

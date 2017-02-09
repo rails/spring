@@ -142,7 +142,11 @@ CODE
       def initialize(args)
         super
 
-        @bindir = env.root.join("bin")
+        if Bundler.bin_path.exist?
+          @bindir = Bundler.bin_path
+        else
+          @bindir = env.root.join("bin")
+        end
         @all    = false
         @mode   = :add
         @items  = args.drop(1)
