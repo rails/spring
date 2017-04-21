@@ -92,6 +92,11 @@ module Spring
 
         build_and_install_gems
 
+        # TO prevent nokogiri install error in application.bundle.
+        if RUBY_VERSION < "2.1.0"
+          append_to_file(application.gemfile, "gem 'nokogiri', '~> 1.6.8'")
+        end
+
         application.bundle
 
         FileUtils.rm_rf application.path("bin")
