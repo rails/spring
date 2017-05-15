@@ -4,9 +4,11 @@ sudo: false
 rvm:
   - 1.9.3 # when removed, get rid of the before_script hack and also the one in application_generator.rb
   - 2.0.0
-  - 2.1.9
-  - 2.2.5
-  - 2.3.1
+  - 2.1.10
+  - 2.2.7
+  - 2.3.4
+  - 2.4.1
+  - ruby-head
 env:
   - RAILS_VERSION="~> 4.2.0"
   - RAILS_VERSION="~> 5.0.0"
@@ -16,8 +18,12 @@ matrix:
       env: RAILS_VERSION="~> 5.0.0"
     - rvm: 2.0.0
       env: RAILS_VERSION="~> 5.0.0"
-    - rvm: 2.1.9
+    - rvm: 2.1.10
       env: RAILS_VERSION="~> 5.0.0"
+  allow_failures:
+    - rvm: ruby-head
+  fast_finish: true
 before_script:
   - "[ $TRAVIS_RUBY_VERSION = \"1.9.3\" ] && travis_retry gem install mime-types --version \"~> 2\" || true"
+  - "[ $TRAVIS_RUBY_VERSION = \"1.9.3\" -o $TRAVIS_RUBY_VERSION = \"2.0.0\" ] && travis_retry gem install nokogiri --version \"~> 1.6.8\" || true"
   - travis_retry gem install rails --version "$RAILS_VERSION"
