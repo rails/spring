@@ -162,6 +162,33 @@ module Spring
         watcher.add './foobar'
         assert watcher.files.empty?
       end
+
+      test "add symlink" do
+        File.write("#{dir}/bar", "bar")
+        File.symlink("#{dir}/bar", "#{dir}/foo")
+        watcher.add './foo'
+        assert_equal ["#{dir}/bar"], watcher.files.to_a
+      end
+
+      test "add dangling symlink" do
+        File.symlink("#{dir}/bar", "#{dir}/foo")
+        watcher.add './foo'
+        assert watcher.files.empty?
+      end
+
+      test "add directory with dangling symlink" do
+        subdir = "#{@dir}/subdir"
+        FileUtils.mkdir(subdir)
+        File.symlink("dangling", "#{subdir}/foo")
+
+        watcher.add subdir
+        assert_not_stale
+
+        # Adding a new file should mark as stale despite the dangling symlink.
+        File.write("#{subdir}/new-file", "new")
+        watcher.check_stale
+        assert_stale
+      end
     end
   end
 end

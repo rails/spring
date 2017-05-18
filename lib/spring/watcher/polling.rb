@@ -64,10 +64,24 @@ module Spring
       private
 
       def compute_mtime
-        expanded_files.map { |f| File.mtime(f).to_f }.max || 0
-      rescue Errno::ENOENT
-        # if a file does no longer exist, the watcher is always stale.
-        Float::MAX
+        expanded_files.map do |f|
+          # Get the mtime of symlink targets. Ignore dangling symlinks.
+          if File.symlink?(f)
+            begin
+              File.mtime(f)
+            rescue Errno::ENOENT
+              0
+            end
+          # If a file no longer exists, treat it as changed.
+          else
+            begin
+              File.mtime(f)
+            rescue Errno::ENOENT
+              debug { "compute_mtime: no longer exists: #{f}" }
+              Float::MAX
+            end
+          end.to_f
+        end.max || 0
       end
 
       def expanded_files
