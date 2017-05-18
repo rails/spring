@@ -30,7 +30,7 @@ provide a speed up on platforms which don't support forking (Windows, JRuby).
 Add spring to your Gemfile:
 
 ``` ruby
-gem "spring", group: :development
+gem "spring", group: :tools
 ```
 
 (Note: using `gem "spring", git: "..."` *won't* work and is not a
