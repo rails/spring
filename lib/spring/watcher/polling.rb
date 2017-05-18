@@ -12,7 +12,13 @@ module Spring
       end
 
       def check_stale
-        synchronize { mark_stale if mtime < compute_mtime }
+        synchronize do
+          computed = compute_mtime
+          if mtime < computed
+            debug { "check_stale: mtime=#{mtime.inspect} < computed=#{computed.inspect}" }
+            mark_stale
+          end
+        end
       end
 
       def add(*)
@@ -21,19 +27,28 @@ module Spring
       end
 
       def start
+        debug { "start: poller=#{@poller.inspect}" }
         unless @poller
           @poller = Thread.new {
             Thread.current.abort_on_exception = true
 
-            loop do
-              Kernel.sleep latency
-              check_stale
+            begin
+              loop do
+                Kernel.sleep latency
+                check_stale
+              end
+            rescue Exception => e
+              debug do
+                "poller: aborted: #{e.class}: #{e}\n  #{e.backtrace.join("\n  ")}"
+              end
+              raise
             end
           }
         end
       end
 
       def stop
+        debug { "stopping poller: #{@poller.inspect}" }
         if @poller
           @poller.kill
           @poller = nil
@@ -41,7 +56,9 @@ module Spring
       end
 
       def subjects_changed
-        @mtime = compute_mtime
+        computed = compute_mtime
+        debug { "subjects_changed: mtime #{@mtime} -> #{computed}" }
+        @mtime = computed
       end
 
       private

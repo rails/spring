@@ -23,9 +23,21 @@ module Spring
         @directories = Set.new
         @stale       = false
         @listeners   = []
+
+        @on_debug    = nil
+      end
+
+      def on_debug(&block)
+        @on_debug = block
+      end
+
+      def debug
+        @on_debug.call(yield) if @on_debug
       end
 
       def add(*items)
+        debug { "watcher: add: #{items.inspect}" }
+
         items = items.flatten.map do |item|
           item = Pathname.new(item)
 
@@ -56,16 +68,19 @@ module Spring
       end
 
       def on_stale(&block)
+        debug { "added listener: #{block.inspect}" }
         @listeners << block
       end
 
       def mark_stale
         return if stale?
         @stale = true
+        debug { "marked stale, calling listeners: listeners=#{@listeners.inspect}" }
         @listeners.each(&:call)
       end
 
       def restart
+        debug { "restarting" }
         stop
         start
       end

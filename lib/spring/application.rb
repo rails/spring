@@ -66,7 +66,17 @@ module Spring
 
     def start_watcher
       @watcher = Spring.watcher
-      @watcher.on_stale { state! :watcher_stale }
+
+      @watcher.on_stale do
+        state! :watcher_stale
+      end
+
+      if @watcher.respond_to? :on_debug
+        @watcher.on_debug do |message|
+          spring_env.log "[watcher:#{app_env}] #{message}"
+        end
+      end
+
       @watcher.start
     end
 
