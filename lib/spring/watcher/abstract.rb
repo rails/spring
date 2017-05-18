@@ -48,14 +48,30 @@ module Spring
           end
         end
 
-        items = items.select(&:exist?)
+        items = items.select do |item|
+          if item.symlink?
+            item.readlink.exist?.tap do |exists|
+              if !exists
+                debug { "add: ignoring dangling symlink: #{item.inspect} -> #{item.readlink.inspect}" }
+              end
+            end
+          else
+            item.exist?
+          end
+        end
 
         synchronize {
           items.each do |item|
             if item.directory?
               directories << item.realpath.to_s
             else
-              files << item.realpath.to_s
+              begin
+                files << item.realpath.to_s
+              rescue Errno::ENOENT
+                # Race condition. Ignore symlinks whose target was removed
+                # since the check above, or are deeply chained.
+                debug { "add: ignoring now-dangling symlink: #{item.inspect} -> #{item.readlink.inspect}" }
+              end
             end
           end
 
