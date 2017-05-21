@@ -12,6 +12,7 @@ rvm:
 env:
   - RAILS_VERSION="~> 4.2.0"
   - RAILS_VERSION="~> 5.0.0"
+  - RAILS_VERSION="~> 5.1.0"
 matrix:
   exclude: # Rails 5 is incompatible with Ruby < 2.2.2
     - rvm: 1.9.3
@@ -20,6 +21,12 @@ matrix:
       env: RAILS_VERSION="~> 5.0.0"
     - rvm: 2.1.10
       env: RAILS_VERSION="~> 5.0.0"
+    - rvm: 1.9.3
+      env: RAILS_VERSION="~> 5.1.0"
+    - rvm: 2.0.0
+      env: RAILS_VERSION="~> 5.1.0"
+    - rvm: 2.1.10
+      env: RAILS_VERSION="~> 5.1.0"
   allow_failures:
     - rvm: ruby-head
   fast_finish: true
