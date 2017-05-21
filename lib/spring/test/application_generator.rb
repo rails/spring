@@ -133,7 +133,7 @@ module Spring
 
       def generate_scaffold
         application.run! "bundle exec rails g scaffold post title:string"
-        application.run! "bundle exec rake db:migrate db:test:clone"
+        application.run! "bundle exec rake db:migrate db:test:prepare"
       end
 
       def gemspec(name)
