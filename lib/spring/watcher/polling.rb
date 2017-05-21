@@ -33,7 +33,7 @@ module Spring
             Thread.current.abort_on_exception = true
 
             begin
-              loop do
+              until stale?
                 Kernel.sleep latency
                 check_stale
               end
@@ -42,6 +42,8 @@ module Spring
                 "poller: aborted: #{e.class}: #{e}\n  #{e.backtrace.join("\n  ")}"
               end
               raise
+            ensure
+              @poller = nil
             end
           }
         end
@@ -53,6 +55,10 @@ module Spring
           @poller.kill
           @poller = nil
         end
+      end
+
+      def running?
+        @poller && @poller.alive?
       end
 
       def subjects_changed
