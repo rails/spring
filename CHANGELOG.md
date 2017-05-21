@@ -1,3 +1,9 @@
+## 2.0.2
+
+* Fix reloading when a watched directory contains a dangling symlink (#522)
+* Watcher logs its activity to the Spring log (#522)
+* Polling watcher stops polling after changes have been detected (#523)
+
 ## 2.0.1
 
 * Fix bug which could cause Spring to hang when `Thread.abort_on_exception` is `true` (#497)
