@@ -412,3 +412,4 @@ $ spring server
 
 Logging output will be printed to stdout. You can also send log output
 to a file with the `SPRING_LOG` environment variable.
+test
