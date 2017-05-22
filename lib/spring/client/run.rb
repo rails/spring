@@ -142,6 +142,8 @@ module Spring
       end
 
       def run_command(client, application)
+        require "spring/commands"
+
         log "sending command"
 
         application.send_io STDOUT
