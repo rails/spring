@@ -10,6 +10,7 @@ module Spring
       end
 
       def self.call(args)
+        require "spring/watcher"
         require "spring/commands"
         super
       end
