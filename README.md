@@ -23,6 +23,10 @@ boot it every time you run a test, rake task or migration.
 Spring makes extensive use of `Process.fork`, so won't be able to
 provide a speed up on platforms which don't support forking (Windows, JRuby).
 
+## Interoperability with other gems
+
+* [factory_girls_rails 4.4.1 or newer](thoughtbot/factory_girl_rails@b44b6b106b5275b7c6e1329a1530329547ed64d8)
+
 ## Walkthrough
 
 ### Setup
