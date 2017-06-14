@@ -260,6 +260,30 @@ module Spring
         end
       end
 
+      test "binstub preserve magic comments" do
+        File.write(app.path("bin/rake"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
+          # frozen_string_literal: true
+          #
+          # more comments
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+
+        assert_success "bin/spring binstub rake"
+
+        expected = <<-RUBY.gsub(/^          /, "")
+          #!/usr/bin/env ruby
+          # frozen_string_literal: true
+          #
+          # more comments
+          #{Spring::Client::Binstub::LOADER.strip}
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+        assert_equal expected, app.path("bin/rake").read
+      end
+
       test "binstub upgrade with old binstub" do
         File.write(app.path("bin/rake"), <<-RUBY.strip_heredoc)
           #!/usr/bin/env ruby

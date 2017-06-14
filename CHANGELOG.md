@@ -1,3 +1,7 @@
+## Next release
+
+* Preserve comments right after the shebang line which might include magic comments such as `frozen_string_literal: true'
+
 ## 2.0.2
 
 * Fix reloading when a watched directory contains a dangling symlink (#522)
