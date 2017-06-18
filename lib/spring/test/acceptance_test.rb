@@ -34,8 +34,8 @@ module Spring
 
       def assert_output(artifacts, expected)
         expected.each do |stream, output|
-          assert artifacts[stream].include?(output),
-                 "expected #{stream} to include '#{output}'.\n\n#{app.debug(artifacts)}"
+          assert_match output, artifacts[stream],
+            "expected #{stream} to include #{output.inspect}.\n\n#{app.debug(artifacts)}"
         end
       end
 
@@ -230,7 +230,7 @@ module Spring
       end
 
       test "binstub" do
-        assert_success "bin/rails server --help", stdout: "Usage: rails server" # rails command fallback
+        assert_success "bin/rails server --help", stdout: /Usage:\s+rails server/ # rails command fallback
 
         assert_success "#{app.spring} binstub rake", stdout: "bin/rake: spring already present"
 
