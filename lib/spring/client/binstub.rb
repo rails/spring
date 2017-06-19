@@ -3,7 +3,7 @@ require 'set'
 module Spring
   module Client
     class Binstub < Command
-      SHEBANG = /\#\!.*\n/
+      SHEBANG = /\#\!.*\n(\#.*\n)*/
 
       # If loading the bin/spring file works, it'll run spring which will
       # eventually call Kernel.exit. This means that in the client process
