@@ -173,7 +173,17 @@ module Spring
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         trap("TERM", "DEFAULT")
 
-        STDERR.puts "Running via Spring preloader in process #{Process.pid}" unless Spring.quiet
+        unless Spring.quiet
+          STDERR.puts "Running via Spring preloader in process #{Process.pid}"
+
+          if Rails.env.production?
+            STDERR.puts "WARNING: Spring is running in production. To fix "         \
+                        "this make sure the spring gem is only present "            \
+                        "in `development` and `test` groups in your Gemfile "       \
+                        "and make sure you always use "                             \
+                        "`bundle install --without development test` in production"
+          end
+        end
 
         ARGV.replace(args)
         $0 = command.exec_name
