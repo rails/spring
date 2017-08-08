@@ -1,5 +1,6 @@
 ## Next release
 
+* Prefer __dir__ over __FILE__ in File.expand_path (#535)
 * Preserve comments right after the shebang line which might include magic comments such as `frozen_string_literal: true'
 
 ## 2.0.2
