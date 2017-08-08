@@ -237,6 +237,9 @@ module Spring
         assert_success "#{app.spring} binstub --remove rake", stdout: "bin/rake: spring removed"
         assert !app.path("bin/rake").read.include?(Spring::Client::Binstub::LOADER)
         assert_success "bin/rake -T", stdout: "rake db:migrate"
+
+        assert_success "#{app.spring} binstub rake", stdout: "bin/rake: spring inserted"
+        assert app.path("bin/rake").read.include?(Spring::Client::Binstub::LOADER)
       end
 
       test "binstub remove all" do
