@@ -46,11 +46,10 @@ CODE
       OLD_BINSTUB = %{if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?}
 
       BINSTUB_VARIATIONS = Regexp.union [
-        %{begin\n  load File.expand_path("../spring", __FILE__)\nrescue LoadError\nend\n},
         %{begin\n  load File.expand_path('../spring', __FILE__)\nrescue LoadError\nend\n},
         %{begin\n  spring_bin_path = File.expand_path('../spring', __FILE__)\n  load spring_bin_path\nrescue LoadError => e\n  raise unless e.message.end_with? spring_bin_path, 'spring/binstub'\nend\n},
         LOADER
-      ]
+      ].map { |binstub| /#{Regexp.escape(binstub).gsub("'", "['\"]")}/ }
 
       class Item
         attr_reader :command, :existing
