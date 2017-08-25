@@ -163,6 +163,19 @@ module Spring
         assert watcher.files.empty?
       end
 
+      test "add multiple files" do
+        File.write("#{dir}/foo", "foo")
+        File.write("#{dir}/bar", "bar")
+        watcher.add "foo", "bar"
+        assert_equal ["#{dir}/foo", "#{dir}/bar"], watcher.files.to_a
+      end
+
+      test "add files as nested array" do
+        File.write("#{dir}/foo", "foo")
+        watcher.add [["foo"]]
+        assert_equal ["#{dir}/foo"], watcher.files.to_a
+      end
+
       test "add symlink" do
         File.write("#{dir}/bar", "bar")
         File.symlink("#{dir}/bar", "#{dir}/foo")
