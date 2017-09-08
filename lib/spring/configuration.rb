@@ -5,7 +5,7 @@ module Spring
     attr_accessor :application_root, :quiet
 
     def gemfile
-      ENV['BUNDLE_GEMFILE'] || "Gemfile"
+      Bundler.default_gemfile
     end
 
     def after_fork_callbacks

@@ -48,6 +48,18 @@ module Spring
         path "Gemfile"
       end
 
+      def gemfile_lock
+        path "Gemfile.lock"
+      end
+
+      def gems_rb
+        path "gems.rb"
+      end
+
+      def gems_locked
+        path "gems.locked"
+      end
+
       def gem_home
         path "../gems/#{RUBY_VERSION}"
       end

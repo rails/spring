@@ -503,9 +503,38 @@ module Spring
         assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
       end
 
+      test "changing the gems.rb works" do
+        FileUtils.mv(app.gemfile, app.gems_rb)
+        FileUtils.mv(app.gemfile_lock, app.gems_locked)
+
+        assert_success %(bin/rails runner 'require "sqlite3"')
+
+        File.write(app.gems_rb, app.gems_rb.read.sub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
+        app.await_reload
+
+        assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
+      end
+
       test "changing the Gemfile works when spring calls into itself" do
         File.write(app.path("script.rb"), <<-RUBY.strip_heredoc)
           gemfile = Rails.root.join("Gemfile")
+          File.write(gemfile, "\#{gemfile.read}gem 'text'\\n")
+          Bundler.with_clean_env do
+            system(#{app.env.inspect}, "bundle install")
+          end
+          output = `\#{Rails.root.join('bin/rails')} runner 'require "text"; puts "done";'`
+          exit output.include? "done\n"
+        RUBY
+
+        assert_success [%(bin/rails runner 'load Rails.root.join("script.rb")'), timeout: 60]
+      end
+
+      test "changing the gems.rb works when spring calls into itself" do
+        FileUtils.mv(app.gemfile, app.gems_rb)
+        FileUtils.mv(app.gemfile_lock, app.gems_locked)
+
+        File.write(app.path("script.rb"), <<-RUBY.strip_heredoc)
+          gemfile = Rails.root.join("gems.rb")
           File.write(gemfile, "\#{gemfile.read}gem 'text'\\n")
           Bundler.with_clean_env do
             system(#{app.env.inspect}, "bundle install")
