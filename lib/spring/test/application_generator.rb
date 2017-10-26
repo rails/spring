@@ -48,9 +48,9 @@ module Spring
 
         @version = RailsVersion.new(`ruby -e 'puts Gem::Specification.find_by_name("rails", "#{version_constraint}").version'`.chomp)
 
-        skips = %w(--skip-bundle --skip-javascript --skip-sprockets --skip-spring)
+        options = %w(--skip-bundle --skip-javascript --skip-sprockets --skip-spring --no-rc)
 
-        system("rails _#{version}_ new #{application.root} #{skips.join(' ')}")
+        system("rails _#{version}_ new #{application.root} #{options.join(' ')}")
         raise "application generation failed" unless application.exists?
 
         FileUtils.mkdir_p(application.gem_home)
