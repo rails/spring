@@ -92,7 +92,7 @@ module Spring
     def start_child(preload = false)
       @child, child_socket = UNIXSocket.pair
 
-      Bundler.with_clean_env do
+      Bundler.with_original_env do
         @pid = Process.spawn(
           {
             "RAILS_ENV"           => app_env,
