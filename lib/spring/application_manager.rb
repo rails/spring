@@ -32,7 +32,11 @@ module Spring
     end
 
     def alive?
-      @pid
+      return false if @pid.nil?
+      Process.getpgid(@pid)
+      true
+    rescue Errno::ESRCH
+      false
     end
 
     def with_child
