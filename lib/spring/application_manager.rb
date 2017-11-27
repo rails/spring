@@ -113,8 +113,18 @@ module Spring
         )
       end
 
-      start_wait_thread(pid, child) if child.gets
+      wait_for_child_to_boot
+      start_wait_thread(pid, child)
       child_socket.close
+    end
+
+    def wait_for_child_to_boot
+      timeout = 1
+      loop do
+        break if IO.select([child], nil, nil, timeout)
+        raise "child has exited unexpectedly" unless alive?
+      end
+      child.gets
     end
 
     def start_wait_thread(pid, child)
