@@ -115,6 +115,10 @@ module Spring
 
       wait_for_child_to_boot
       start_wait_thread(pid, child)
+    rescue => e
+      log "error while starting child: #{e.message}"
+      abort("error while starting child: #{e.message}")
+    ensure
       child_socket.close
     end
 
