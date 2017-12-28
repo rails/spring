@@ -2,6 +2,7 @@
 
 * Fix binstubs not being replaced when their quoting style was changed (#534)
 * Preserve comments right after the shebang line which might include magic comments such as `frozen_string_literal: true'
+* Fix `undefined method 'reject!' for nil:NilClass` when using Ruby 2.5.0
 
 ## 2.0.2
 

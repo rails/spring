@@ -296,7 +296,7 @@ module Spring
           begin
             old_raise.call(*args)
           ensure
-            if $!
+            if $! && $!.backtrace
               lib = File.expand_path("..", __FILE__)
               $!.backtrace.reject! { |line| line.start_with?(lib) }
             end
