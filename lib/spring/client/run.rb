@@ -74,7 +74,7 @@ module Spring
         env.socket_path.unlink if env.socket_path.exist?
 
         pid     = Process.spawn(gem_env, env.server_command, out: File::NULL)
-        timeout = Time.now + BOOT_TIMEOUT
+        timeout = Time.now + boot_timeout
 
         @server_booted = true
 
@@ -85,7 +85,7 @@ module Spring
             exit status.exitstatus
           elsif Time.now > timeout
             $stderr.puts "Starting Spring server with `#{env.server_command}` " \
-                         "timed out after #{BOOT_TIMEOUT} seconds"
+                         "timed out after #{boot_timeout} seconds"
             exit 1
           end
 
@@ -212,6 +212,10 @@ module Spring
 
       def default_rails_env
         ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+      end
+
+      def boot_timeout
+        ENV["SPRING_BOOT_TIMEOUT"] ? ENV["SPRING_BOOT_TIMEOUT"].to_i : BOOT_TIMEOUT
       end
     end
   end

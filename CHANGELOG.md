@@ -3,6 +3,10 @@
 * Fix binstubs not being replaced when their quoting style was changed (#534)
 * Preserve comments right after the shebang line which might include magic comments such as `frozen_string_literal: true'
 
+## Next Release
+
+* Add env variable for BOOT_TIMEOUT
+
 ## 2.0.2
 
 * Fix reloading when a watched directory contains a dangling symlink (#522)

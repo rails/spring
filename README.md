@@ -400,6 +400,7 @@ The following environment variables are used by Spring:
 * `SPRING_SERVER_COMMAND` - The command to run to start up the spring
   server when it is not already running. Defaults to `spring _[version]_
   server --background`.
+* `SPRING_BOOT_TIMEOUT` - If set, will overwrite default boot timeout.
 
 ## Troubleshooting
 
