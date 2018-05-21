@@ -34,7 +34,7 @@ $ RAILS_VERSION="~> 3.2.0" rake test:acceptance
 ```
 
 The apps in `test/apps` will be named based on the rails version and the
-spring version.
+Spring version.
 
 ## Testing with your app
 
