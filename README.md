@@ -176,23 +176,7 @@ $ bin/spring stop
 Spring stopped.
 ```
 
-From within your code, you can check whether Spring is active by checking whether the
-`Spring` constant is defined:
-
-```ruby
-# With Spring running
-defined?(Spring)
-# => "constant"
-
-# With Spring disabled
-defined?(Spring)
-# => nil
-
-# Since a string is truthy and `nil` is falsy, we can use this as our condition
-if defined?(Spring)
-  # Do something
-end
-```
+From within your code, you can check whether Spring is active with `if defined?(Spring)`.
 
 ### Removal
 
