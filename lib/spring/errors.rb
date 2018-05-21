@@ -24,7 +24,7 @@ module Spring
 
     def message
       "Spring was unable to find your config/application.rb file. " \
-        "Your project root was detected at #{project_root}, so spring " \
+        "Your project root was detected at #{project_root}, so Spring " \
         "looked for #{project_root}/config/application.rb but it doesn't exist. You can " \
         "configure the root of your application by setting Spring.application_root in " \
         "config/spring.rb."

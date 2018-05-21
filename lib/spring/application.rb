@@ -188,10 +188,10 @@ module Spring
         ARGV.replace(args)
         $0 = command.exec_name
 
-        # Delete all env vars which are unchanged from before spring started
+        # Delete all env vars which are unchanged from before Spring started
         original_env.each { |k, v| ENV.delete k if ENV[k] == v }
 
-        # Load in the current env vars, except those which *were* changed when spring started
+        # Load in the current env vars, except those which *were* changed when Spring started
         env.each { |k, v| ENV[k] ||= v }
 
         # requiring is faster, so if config.cache_classes was true in

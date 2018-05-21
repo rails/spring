@@ -32,7 +32,7 @@ module Spring
       def formatted_help
         ["Version: #{env.version}\n",
          "Usage: spring COMMAND [ARGS]\n",
-         *command_help("spring itself", spring_commands),
+         *command_help("Spring itself", spring_commands),
          '',
          *command_help("your application", application_commands)].join("\n")
       end

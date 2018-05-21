@@ -5,9 +5,9 @@ module Spring
     class Binstub < Command
       SHEBANG = /\#\!.*\n(\#.*\n)*/
 
-      # If loading the bin/spring file works, it'll run spring which will
+      # If loading the bin/spring file works, it'll run Spring which will
       # eventually call Kernel.exit. This means that in the client process
-      # we will never execute the lines after this block. But if the spring
+      # we will never execute the lines after this block. But if the Spring
       # client is not invoked for whatever reason, then the Kernel.exit won't
       # happen, and so we'll fall back to the lines after this block, which
       # should cause the "unsprung" version of the command to run.
@@ -26,7 +26,7 @@ CODE
       SPRING = <<'CODE'
 #!/usr/bin/env ruby
 
-# This file loads spring without using Bundler, in order to be fast.
+# This file loads Spring without using Bundler, in order to be fast.
 # It gets overwritten when you run the `spring binstub` command.
 
 unless defined?(Spring)
@@ -78,7 +78,7 @@ CODE
               generate(fallback)
               status "upgraded"
             elsif existing.include?(LOADER)
-              status "spring already present"
+              status "Spring already present"
             elsif existing =~ BINSTUB_VARIATIONS
               upgraded = existing.sub(BINSTUB_VARIATIONS, LOADER)
               File.write(command.binstub, upgraded)
@@ -93,15 +93,15 @@ CODE
                 end
 
                 File.write(command.binstub, "#{head}#{shebang}#{LOADER}#{tail}")
-                status "spring inserted"
+                status "Spring inserted"
               else
-                status "doesn't appear to be ruby, so cannot use spring", $stderr
+                status "doesn't appear to be ruby, so cannot use Spring", $stderr
                 exit 1
               end
             end
           else
             generate
-            status "generated with spring"
+            status "generated with Spring"
           end
         end
 
@@ -118,7 +118,7 @@ CODE
         def remove
           if existing
             File.write(command.binstub, existing.sub(BINSTUB_VARIATIONS, ""))
-            status "spring removed"
+            status "Spring removed"
           end
         end
       end
@@ -126,7 +126,7 @@ CODE
       attr_reader :bindir, :items
 
       def self.description
-        "Generate spring based binstubs. Use --all to generate a binstub for all known commands. Use --remove to revert."
+        "Generate Spring based binstubs. Use --all to generate a binstub for all known commands. Use --remove to revert."
       end
 
       def self.rails_command

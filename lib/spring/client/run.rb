@@ -44,7 +44,7 @@ module Spring
         require "spring/commands"
 
         if Spring.command?(args.first)
-          # Command installed since spring started
+          # Command installed since Spring started
           stop_server
           cold_run
         else
@@ -116,7 +116,7 @@ module Spring
       def verify_server_version
         server_version = server.gets.chomp
         if server_version != env.version
-          $stderr.puts "There is a version mismatch between the spring client " \
+          $stderr.puts "There is a version mismatch between the Spring client " \
                          "(#{env.version}) and the server (#{server_version})."
 
           if server_booted?

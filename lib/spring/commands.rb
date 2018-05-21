@@ -32,7 +32,7 @@ module Spring
   # then we need to be under bundler.
   require "bundler/setup"
 
-  # Auto-require any spring extensions which are in the Gemfile
+  # Auto-require any Spring extensions which are in the Gemfile
   Gem::Specification.map(&:name).grep(/^spring-/).each do |command|
     begin
       require command

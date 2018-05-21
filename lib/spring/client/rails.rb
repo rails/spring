@@ -14,7 +14,7 @@ module Spring
       }
 
       def self.description
-        "Run a rails command. The following sub commands will use spring: #{COMMANDS.to_a.join ', '}."
+        "Run a rails command. The following sub commands will use Spring: #{COMMANDS.to_a.join ', '}."
       end
 
       def call
