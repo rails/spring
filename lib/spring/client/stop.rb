@@ -4,7 +4,7 @@ module Spring
   module Client
     class Stop < Command
       def self.description
-        "Stop all spring processes for this project."
+        "Stop all Spring processes for this project."
       end
 
       def call

@@ -27,14 +27,14 @@ provide a speed up on platforms which don't support forking (Windows, JRuby).
 
 ### Setup
 
-Add spring to your Gemfile:
+Add Spring to your Gemfile:
 
 ``` ruby
 gem "spring", group: :development
 ```
 
 (Note: using `gem "spring", git: "..."` *won't* work and is not a
-supported way of using spring.)
+supported way of using Spring.)
 
 It's recommended to 'springify' the executables in your `bin/`
 directory:
@@ -54,8 +54,8 @@ rescue LoadError
 end
 ```
 
-On platforms where spring is installed and supported, this snippet
-hooks spring into the execution of commands. In other cases, the snippet
+On platforms where Spring is installed and supported, this snippet
+hooks Spring into the execution of commands. In other cases, the snippet
 will just be silently ignored and the lines after it will be executed as
 normal.
 
@@ -90,7 +90,7 @@ user    0m0.281s
 sys     0m0.066s
 ```
 
-That wasn't particularly fast because it was the first run, so spring
+That wasn't particularly fast because it was the first run, so Spring
 had to boot the application. It's now running:
 
 ```
@@ -167,7 +167,7 @@ Spring is running:
 26707 spring app    | spring-demo-app | started 2 secs ago | development mode
 ```
 
-There's no need to "shut down" spring. This will happen automatically
+There's no need to "shut down" Spring. This will happen automatically
 when you close your terminal. However if you do want to do a manual shut
 down, use the `stop` command:
 
@@ -180,7 +180,7 @@ From within your code, you can check whether Spring is active with `if defined?(
 
 ### Removal
 
-To remove spring:
+To remove Spring:
 
 * 'Unspring' your bin/ executables: `bin/spring binstub --remove --all`
 * Remove spring from your Gemfile
@@ -218,7 +218,7 @@ Spring::Commands::Rake.environment_matchers[:default] = "development"
 ### `rails console`, `rails generate`, `rails runner`
 
 These execute the rails command you already know and love. If you run
-a different sub command (e.g. `rails server`) then spring will automatically
+a different sub command (e.g. `rails server`) then Spring will automatically
 pass it through to the underlying `rails` executable (without the
 speed-up).
 
@@ -240,12 +240,12 @@ You can add these to your Gemfile for additional commands:
 
 ## Use without adding to bundle
 
-If you don't want spring-related code checked into your source
-repository, it's possible to use spring without adding to your Gemfile.
-However, using spring binstubs without adding spring to the Gemfile is not
+If you don't want Spring-related code checked into your source
+repository, it's possible to use Spring without adding to your Gemfile.
+However, using Spring binstubs without adding Spring to the Gemfile is not
 supported.
 
-To use spring like this, do a `gem install spring` and then prefix
+To use Spring like this, do a `gem install spring` and then prefix
 commands with `spring`. For example, rather than running `bin/rake -T`,
 you'd run `spring rake -T`.
 
@@ -401,14 +401,14 @@ The following environment variables are used by Spring:
   the long-running Spring server process. By default this is related to
   the socket path; if the socket path is `/foo/bar/spring.sock` the
   pidfile will be `/foo/bar/spring.pid`.
-* `SPRING_SERVER_COMMAND` - The command to run to start up the spring
+* `SPRING_SERVER_COMMAND` - The command to run to start up the Spring
   server when it is not already running. Defaults to `spring _[version]_
   server --background`.
 
 ## Troubleshooting
 
-If you want to get more information about what spring is doing, you can
-run spring explicitly in a separate terminal:
+If you want to get more information about what Spring is doing, you can
+run Spring explicitly in a separate terminal:
 
 ```
 $ spring server

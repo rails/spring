@@ -45,7 +45,7 @@ Version: #{Spring::VERSION}
 
 Usage: spring COMMAND [ARGS]
 
-Commands for spring itself:
+Commands for Spring itself:
 
   command  Random Spring Command
 

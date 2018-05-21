@@ -106,12 +106,12 @@ module Spring
         refute spring_env.server_running?
       end
 
-      test "tells the user that spring is being used when used automatically via binstubs" do
+      test "tells the user that Spring is being used when used automatically via binstubs" do
         assert_success "bin/rails runner ''", stderr: "Running via Spring preloader in process"
         assert_success app.spring_test_command, stderr: "Running via Spring preloader in process"
       end
 
-      test "does not tell the user that spring is being used when used automatically via binstubs but quiet is enabled" do
+      test "does not tell the user that Spring is being used when used automatically via binstubs but quiet is enabled" do
         File.write("#{app.user_home}/.spring.rb", "Spring.quiet = true")
         assert_success "bin/rails runner ''"
         refute_output_includes "bin/rails runner ''", stderr: 'Running via Spring preloader in process'
@@ -232,13 +232,13 @@ module Spring
       test "binstub" do
         assert_success "bin/rails server --help", stdout: /Usage:\s+rails server/ # rails command fallback
 
-        assert_success "#{app.spring} binstub rake", stdout: "bin/rake: spring already present"
+        assert_success "#{app.spring} binstub rake", stdout: "bin/rake: Spring already present"
 
-        assert_success "#{app.spring} binstub --remove rake", stdout: "bin/rake: spring removed"
+        assert_success "#{app.spring} binstub --remove rake", stdout: "bin/rake: Spring removed"
         assert !app.path("bin/rake").read.include?(Spring::Client::Binstub::LOADER)
         assert_success "bin/rake -T", stdout: "rake db:migrate"
 
-        assert_success "#{app.spring} binstub rake", stdout: "bin/rake: spring inserted"
+        assert_success "#{app.spring} binstub rake", stdout: "bin/rake: Spring inserted"
         assert app.path("bin/rake").read.include?(Spring::Client::Binstub::LOADER)
       end
 
@@ -409,8 +409,8 @@ module Spring
           require 'rails/commands'
         RUBY
 
-        assert_success "bin/spring binstub --remove rake", stdout: "bin/rake: spring removed"
-        assert_success "bin/spring binstub --remove rails", stdout: "bin/rails: spring removed"
+        assert_success "bin/spring binstub --remove rake", stdout: "bin/rake: Spring removed"
+        assert_success "bin/spring binstub --remove rails", stdout: "bin/rails: Spring removed"
 
         expected = <<-RUBY.strip_heredoc
           #!/usr/bin/env ruby
@@ -503,7 +503,7 @@ module Spring
         assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
       end
 
-      test "changing the Gemfile works when spring calls into itself" do
+      test "changing the Gemfile works when Spring calls into itself" do
         File.write(app.path("script.rb"), <<-RUBY.strip_heredoc)
           gemfile = Rails.root.join("Gemfile")
           File.write(gemfile, "\#{gemfile.read}gem 'text'\\n")
