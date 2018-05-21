@@ -176,6 +176,8 @@ $ bin/spring stop
 Spring stopped.
 ```
 
+From within your code, you can check whether Spring is active with `if defined?(Spring)`.
+
 ### Removal
 
 To remove spring:
