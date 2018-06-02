@@ -2,6 +2,7 @@
 
 * Fix binstubs not being replaced when their quoting style was changed (#534)
 * Preserve comments right after the shebang line which might include magic comments such as `frozen_string_literal: true'
+* Fix binstub failures when Bundler's `BUNDLE_APP_CONFIG` environment variable is present (#545)
 
 ## 2.0.2
 
