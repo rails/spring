@@ -3,7 +3,7 @@ require "spring/env"
 module Spring
   module Test
     class Application
-      DEFAULT_TIMEOUT = ENV['CI'] ? 30 : 10
+      DEFAULT_TIMEOUT = ENV['CI'] ? 300 : 10
 
       attr_reader :root, :spring_env
 

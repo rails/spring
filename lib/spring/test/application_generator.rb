@@ -97,6 +97,10 @@ module Spring
           append_to_file(application.gemfile, "gem 'nokogiri', '~> 1.6.8'")
         end
 
+        if RUBY_VERSION < "1.9"
+          append_to_file(application.gemfile, "gem 'rake', '12.2.1'")
+        end
+
         application.bundle
 
         FileUtils.rm_rf application.path("bin")
