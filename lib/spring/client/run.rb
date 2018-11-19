@@ -161,6 +161,8 @@ module Spring
         if pid && !pid.empty?
           log "got pid: #{pid}"
 
+          suspend_resume_on_tstp_cont(pid)
+
           forward_signals(application)
           status = application.read.to_i
 
@@ -179,6 +181,18 @@ module Spring
         FORWARDED_SIGNALS.each do |sig|
           trap(sig) { @signal_queue << sig }
         end
+      end
+
+      def suspend_resume_on_tstp_cont(pid)
+        trap("TSTP") {
+          log "suspended"
+          Process.kill("STOP", pid.to_i)
+          Process.kill("STOP", Process.pid)
+        }
+        trap("CONT") {
+          log "resumed"
+          Process.kill("CONT", pid.to_i)
+        }
       end
 
       def forward_signals(application)
