@@ -117,6 +117,12 @@ module Spring
         refute_output_includes "bin/rails runner ''", stderr: 'Running via Spring preloader in process'
       end
 
+      test "configures quiet mode from environment" do
+        app.env['SPRING_QUIET'] = '1'
+        assert_success "bin/rails runner ''"
+        refute_output_includes "bin/rails runner ''", stderr: 'Running via Spring preloader in process'
+      end
+
       test "test changes are picked up" do
         assert_speedup do
           assert_success app.spring_test_command, stdout: "0 failures"
