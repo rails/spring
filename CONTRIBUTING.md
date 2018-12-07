@@ -1,7 +1,7 @@
 # Don't use the issue tracker to ask questions
 
 Please use Stack Overflow or similar. If you subsequently feel that the
-documentation is inadequate then plase submit a pull request to fix it.
+documentation is inadequate then please submit a pull request to fix it.
 
 # Contributing guide
 
