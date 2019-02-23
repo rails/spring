@@ -92,11 +92,15 @@ module Spring
     def start_child(preload = false)
       @child, child_socket = UNIXSocket.pair
 
+      # If the user has specified a custom Gemfile, we must propogate that down
+      # into the preloaded runner's environment
+      gemfile = ENV['BUNDLE_GEMFILE']
       Bundler.with_original_env do
         @pid = Process.spawn(
           {
             "RAILS_ENV"           => app_env,
             "RACK_ENV"            => app_env,
+            "BUNDLE_GEMFILE"      => gemfile,
             "SPRING_ORIGINAL_ENV" => JSON.dump(Spring::ORIGINAL_ENV),
             "SPRING_PRELOAD"      => preload ? "1" : "0"
           },
