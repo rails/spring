@@ -6,3 +6,4 @@ gemspec
 if ENV["RAILS_VERSION"]
   gem "activesupport", ENV["RAILS_VERSION"]
 end
+gem "sqlite3", "1.3.13"
