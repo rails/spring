@@ -60,7 +60,7 @@ will just be silently ignored and the lines after it will be executed as
 normal.
 
 If you don't want to prefix every command you type with `bin/`, you
-can [use direnv](https://github.com/zimbatm/direnv#the-stdlib) to
+can [use direnv](https://github.com/direnv/direnv#the-stdlib) to
 automatically add `./bin` to your `PATH` when you `cd` into your application.
 Simply create an `.envrc` file with the command `PATH_add bin` in your
 Rails directory.
