@@ -404,7 +404,8 @@ The following environment variables are used by Spring:
 * `SPRING_SERVER_COMMAND` - The command to run to start up the Spring
   server when it is not already running. Defaults to `spring _[version]_
   server --background`.
-
+* `SPRING_QUIET` - If set, the "Running via Spring preloader" message will not
+  be shown each time a command runs (takes precedence over `Spring.quiet`).
 ## Troubleshooting
 
 If you want to get more information about what Spring is doing, you can

@@ -2,7 +2,8 @@ require "spring/errors"
 
 module Spring
   class << self
-    attr_accessor :application_root, :quiet
+    attr_accessor :application_root
+    attr_writer :quiet
 
     def gemfile
       ENV['BUNDLE_GEMFILE'] || "Gemfile"
@@ -14,6 +15,10 @@ module Spring
 
     def after_fork(&block)
       after_fork_callbacks << block
+    end
+
+    def quiet
+      @quiet || ENV.key?('SPRING_QUIET')
     end
 
     def verify_environment
