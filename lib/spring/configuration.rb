@@ -5,7 +5,11 @@ module Spring
     attr_accessor :application_root, :quiet
 
     def gemfile
-      ENV['BUNDLE_GEMFILE'] || "Gemfile"
+      if /\s1.9.[0-9]/ ===  Bundler.ruby_scope.gsub(/[\/\s]+/,'')
+        ENV["BUNDLE_GEMFILE"] || "Gemfile"
+      else
+        Bundler.default_gemfile
+      end
     end
 
     def after_fork_callbacks
