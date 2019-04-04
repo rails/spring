@@ -43,5 +43,5 @@ before_install:
 before_script:
   - "[ $TRAVIS_RUBY_VERSION = \"1.9.3\" ] && travis_retry gem install mime-types --version \"~> 2\" || true"
   - "[ $TRAVIS_RUBY_VERSION = \"1.9.3\" -o $TRAVIS_RUBY_VERSION = \"2.0.0\" ] && travis_retry gem install nokogiri --version \"~> 1.6.8\" || true"
-  - if [ $RAILS_VERSION == \"5.0.0\" ]; then travis_retry gem install sqlite fi
+  - if [ $RAILS_VERSION == \"5.0.0\" ]; then travis_retry gem install sqlite; fi
   - travis_retry gem install rails --version "$RAILS_VERSION"
