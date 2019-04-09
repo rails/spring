@@ -194,6 +194,23 @@ module Spring
         assert_success app.spring_test_command
       end
 
+      test "deleting the app root should kill the server" do
+        app.run app.spring_test_command
+        assert spring_env.server_running?, "The server should be running but it isn't"
+        FileUtils.rm_rf(app.root)
+        sleep 2 # wait for the watcher to notice and react
+        assert !spring_env.server_running?, "The server should not be running but it is"
+      end
+
+      test "server restarts when the app root is deleted and recreated" do
+        assert_success app.spring_test_command
+        FileUtils.rm_rf(app.root)
+        sleep 1 # wait for the watcher to notice and react
+
+        generator.copy_to(app.root)
+        assert_success app.spring_test_command
+      end
+
       test "stop command kills server" do
         app.run app.spring_test_command
         assert spring_env.server_running?, "The server should be running but it isn't"

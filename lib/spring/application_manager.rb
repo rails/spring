@@ -32,7 +32,11 @@ module Spring
     end
 
     def alive?
-      @pid
+      return false if @pid.nil?
+      Process.getpgid(@pid)
+      true
+    rescue Errno::ESRCH
+      false
     end
 
     def with_child
@@ -109,8 +113,22 @@ module Spring
         )
       end
 
-      start_wait_thread(pid, child) if child.gets
+      wait_for_child_to_boot
+      start_wait_thread(pid, child)
+    rescue => e
+      log "error while starting child: #{e.message}"
+      abort("error while starting child: #{e.message}")
+    ensure
       child_socket.close
+    end
+
+    def wait_for_child_to_boot
+      timeout = 1
+      loop do
+        break if IO.select([child], nil, nil, timeout)
+        raise "child has exited unexpectedly" unless alive?
+      end
+      child.gets
     end
 
     def start_wait_thread(pid, child)
