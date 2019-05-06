@@ -5,6 +5,10 @@
 * Fix binstub failures when Bundler's `BUNDLE_APP_CONFIG` environment variable is present (#545)
 * Properly suspend and resume on ctrl-z TSTP and CONT (#361)
 
+## Next Release
+
+* Add env variable for BOOT_TIMEOUT
+
 ## 2.0.2
 
 * Fix reloading when a watched directory contains a dangling symlink (#522)
