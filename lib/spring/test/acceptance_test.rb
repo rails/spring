@@ -497,7 +497,7 @@ module Spring
       test "changing the Gemfile works" do
         assert_success %(bin/rails runner 'require "sqlite3"')
 
-        File.write(app.gemfile, app.gemfile.read.sub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
+        File.write(app.gemfile, app.gemfile.read.gsub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
         app.await_reload
 
         assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
