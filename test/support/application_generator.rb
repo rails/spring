@@ -71,6 +71,7 @@ module Spring
 
         if RUBY_VERSION >= '2.5' && RUBY_VERSION < '2.6'
           append_to_file(application.gemfile, "gem 'fileutils'")
+          append_to_file(application.gemfile, "gem 'zlib'")
         end
 
         if application.path("bin").exist?
