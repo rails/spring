@@ -54,16 +54,20 @@ module Spring
 
         append_to_file(application.gemfile, "gem 'spring', '#{Spring::VERSION}'")
 
-        if @version.to_s < '5.2'
-          append_to_file(application.gemfile, "gem 'sqlite3', '< 1.4'")
-        end
-
         rewrite_file(application.gemfile) do |c|
           c.sub!("https://rubygems.org", "http://rubygems.org")
           c.gsub!(/(gem '(byebug|web-console|sdoc|jbuilder)')/, "# \\1")
+
+          if @version.to_s < '5.2'
+            c.gsub!(/(gem 'sqlite3')/, "# \\1")
+          end
+
           c
         end
 
+        if @version.to_s < '5.2'
+          append_to_file(application.gemfile, "gem 'sqlite3', '< 1.4'")
+        end
 
         if application.path("bin").exist?
           FileUtils.cp_r(application.path("bin"), application.path("bin_original"))
