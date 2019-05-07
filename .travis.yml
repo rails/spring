@@ -2,11 +2,6 @@ language: ruby
 cache: bundler
 sudo: false
 rvm:
-  - 1.9.3 # when removed, get rid of the before_script hack and also the one in application_generator.rb
-  - 2.0.0
-  - 2.1.10
-  - 2.2.10
-  - 2.3.8
   - 2.4.6
   - 2.5.5
   - 2.6.3
@@ -17,25 +12,7 @@ env:
   - RAILS_VERSION="~> 5.1.0"
   - RAILS_VERSION="~> 5.2.0"
 matrix:
-  exclude: # Rails 5 is incompatible with Ruby < 2.2.2
-    - rvm: 1.9.3
-      env: RAILS_VERSION="~> 5.0.0"
-    - rvm: 2.0.0
-      env: RAILS_VERSION="~> 5.0.0"
-    - rvm: 2.1.10
-      env: RAILS_VERSION="~> 5.0.0"
-    - rvm: 1.9.3
-      env: RAILS_VERSION="~> 5.1.0"
-    - rvm: 2.0.0
-      env: RAILS_VERSION="~> 5.1.0"
-    - rvm: 2.1.10
-      env: RAILS_VERSION="~> 5.1.0"
-    - rvm: 1.9.3
-      env: RAILS_VERSION="~> 5.2.0"
-    - rvm: 2.0.0
-      env: RAILS_VERSION="~> 5.2.0"
-    - rvm: 2.1.10
-      env: RAILS_VERSION="~> 5.2.0"
+  exclude:
     - rvm: 2.6.3
       env: RAILS_VERSION="~> 4.2.0"
   allow_failures:
@@ -45,6 +22,4 @@ before_install:
   - gem update --system 3.0.3
   - gem uninstall bundler && gem install bundler -v 1.17.3
 before_script:
-  - "[ $TRAVIS_RUBY_VERSION = \"1.9.3\" ] && travis_retry gem install mime-types --version \"~> 2\" || true"
-  - "[ $TRAVIS_RUBY_VERSION = \"1.9.3\" -o $TRAVIS_RUBY_VERSION = \"2.0.0\" ] && travis_retry gem install nokogiri --version \"~> 1.6.8\" || true"
   - travis_retry gem install rails --version "$RAILS_VERSION"

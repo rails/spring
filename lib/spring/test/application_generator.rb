@@ -38,11 +38,6 @@ module Spring
 
       # Sporadic SSL errors keep causing test failures so there are anti-SSL workarounds here
       def generate_files
-        if RUBY_VERSION == "1.9.3"
-          system("gem list '^mime-types$' --installed --version '~> 2' || " \
-                   "gem install mime-types --clear-sources --source http://rubygems.org --version '~> 2'")
-        end
-
         system("gem list '^rails$' --installed --version '#{version_constraint}' || " \
                  "gem install rails --clear-sources --source http://rubygems.org --version '#{version_constraint}'")
 
@@ -94,20 +89,7 @@ module Spring
       def install_spring
         return if @installed
 
-        if RUBY_VERSION < "2.2.2"
-          application.run! "gem install activesupport --version '#{version}'"
-        end
-
         build_and_install_gems
-
-        # TO prevent nokogiri install error in application.bundle.
-        if RUBY_VERSION < "2.1.0"
-          append_to_file(application.gemfile, "gem 'nokogiri', '~> 1.6.8'")
-        end
-
-        if RUBY_VERSION < "1.9"
-          append_to_file(application.gemfile, "gem 'rake', '12.2.1'")
-        end
 
         application.bundle
 
