@@ -16,8 +16,9 @@ env:
   - RAILS_VERSION="~> 5.0.0"
   - RAILS_VERSION="~> 5.1.0"
   - RAILS_VERSION="~> 5.2.0"
+  - RAILS_VERSION="~> 6.0.0.beta1"
 matrix:
-  exclude: # Rails 5 is incompatible with Ruby < 2.2.2
+  exclude:
     - rvm: 1.9.3
       env: RAILS_VERSION="~> 5.0.0"
     - rvm: 2.0.0
@@ -36,6 +37,18 @@ matrix:
       env: RAILS_VERSION="~> 5.2.0"
     - rvm: 2.1.10
       env: RAILS_VERSION="~> 5.2.0"
+    - rvm: 1.9.3
+      env: RAILS_VERSION="~> 6.0.0.beta1"
+    - rvm: 2.0.0
+      env: RAILS_VERSION="~> 6.0.0.beta1"
+    - rvm: 2.1.10
+      env: RAILS_VERSION="~> 6.0.0.beta1"
+    - rvm: 2.2.10
+      env: RAILS_VERSION="~> 6.0.0.beta1"
+    - rvm: 2.3.8
+      env: RAILS_VERSION="~> 6.0.0.beta1"
+    - rvm: 2.4.6
+      env: RAILS_VERSION="~> 6.0.0.beta1"
   allow_failures:
     - rvm: ruby-head
   fast_finish: true
