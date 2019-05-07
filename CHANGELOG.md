@@ -1,5 +1,6 @@
 ## Next release
 
+* Add explicit support for Rails 6 (no changes were needed)
 * Drop support to Ruby 1.9, 2.0, 2.1, and 2.3
 * Fix binstubs not being replaced when their quoting style was changed (#534)
 * Preserve comments right after the shebang line which might include magic comments such as `frozen_string_literal: true'
