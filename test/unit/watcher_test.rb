@@ -1,5 +1,5 @@
 require_relative "../helper"
-require "spring/test/watcher_test"
+require_relative "../support/watcher_test"
 require "spring/watcher/polling"
 
 class PollingWatcherTest < Spring::Test::WatcherTest
