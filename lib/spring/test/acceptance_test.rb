@@ -522,7 +522,7 @@ module Spring
 
         app.env["OMG"] = "1"
         app.env["FOO"] = "1"
-        app.env["RUBYOPT"] = "-rubygems"
+        app.env["RUBYOPT"] = "-rrubygems"
 
         assert_success %(bin/rails runner 'p ENV["OMG"]'), stdout: "1"
         assert_success %(bin/rails runner 'p ENV["BAR"]'), stdout: "bar"
