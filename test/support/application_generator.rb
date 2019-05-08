@@ -70,7 +70,7 @@ module Spring
         end
 
         rewrite_file(application.path("config/environments/test.rb")) do |c|
-          c.sub!(/config\.cache_classes\s*=\*true/, "config.cache_classes = false")
+          c.sub!(/config\.cache_classes\s*=\s*true/, "config.cache_classes = false")
           c
         end
 
