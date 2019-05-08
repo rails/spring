@@ -69,11 +69,6 @@ module Spring
           append_to_file(application.gemfile, "gem 'sqlite3', '< 1.4'")
         end
 
-        if RUBY_VERSION >= '2.5' && RUBY_VERSION < '2.6'
-          append_to_file(application.gemfile, "gem 'fileutils'")
-          append_to_file(application.gemfile, "gem 'zlib'")
-        end
-
         if application.path("bin").exist?
           FileUtils.cp_r(application.path("bin"), application.path("bin_original"))
         end
@@ -121,11 +116,7 @@ module Spring
             system("gem build #{name}.gemspec 2>&1")
           end
 
-          if RUBY_VERSION >= "2.6"
-            application.run! "gem install #{spec.gem_dir}/#{name}-*.gem --no-doc", timeout: nil
-          else
-            application.run! "gem install #{spec.gem_dir}/#{name}-*.gem --no-ri --no-rdoc", timeout: nil
-          end
+          application.run! "gem install #{spec.gem_dir}/#{name}-*.gem --no-doc", timeout: nil
         end
       end
 

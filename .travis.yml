@@ -21,5 +21,7 @@ matrix:
   allow_failures:
     - rvm: ruby-head
   fast_finish: true
+before_install:
+  - gem update --system 3.0.3
 before_script:
   - travis_retry gem install rails --version "$RAILS_VERSION"
