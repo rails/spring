@@ -71,6 +71,7 @@ module Spring
 
         rewrite_file(application.path("config/environments/test.rb")) do |c|
           c.sub!(/config\.cache_classes\s*=\*true/, "config.cache_classes = false")
+          c
         end
 
         if application.path("bin").exist?
