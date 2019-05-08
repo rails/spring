@@ -43,6 +43,7 @@ matrix:
   fast_finish: true
 before_install:
   - gem update --system 3.0.3
+  - gem uninstall bundler && gem install bundler -v 1.17.3
 before_script:
   - "[ $TRAVIS_RUBY_VERSION = \"1.9.3\" ] && travis_retry gem install mime-types --version \"~> 2\" || true"
   - "[ $TRAVIS_RUBY_VERSION = \"1.9.3\" -o $TRAVIS_RUBY_VERSION = \"2.0.0\" ] && travis_retry gem install nokogiri --version \"~> 1.6.8\" || true"
