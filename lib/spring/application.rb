@@ -147,7 +147,7 @@ module Spring
       log "got client"
       manager.puts
 
-      stdout, stderr, stdin = streams = 3.times.map { client.recv_io }
+      _stdout, stderr, _stdin = streams = 3.times.map { client.recv_io }
       [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
 
       preload unless preloaded?
