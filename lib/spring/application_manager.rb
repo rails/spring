@@ -7,6 +7,7 @@ module Spring
       @spring_env = spring_env
       @mutex      = Mutex.new
       @state      = :running
+      @pid        = nil
     end
 
     def log(message)
