@@ -91,6 +91,10 @@ module Spring
 
       require Spring.application_root_path.join("config", "application")
 
+      unless Rails.respond_to?(:gem_version) && Rails.gem_version >= Gem::Version.new('4.2.0')
+        raise "Spring only supports Rails >= 4.2.0"
+      end
+
       # config/environments/test.rb will have config.cache_classes = true. However
       # we want it to be false so that we can reload files. This is a hack to
       # override the effect of config.cache_classes = true. We can then actually
