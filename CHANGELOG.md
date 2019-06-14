@@ -1,4 +1,4 @@
-## Next release
+## 2.1.0
 
 * Add explicit support for Rails 6 (no changes were needed)
 * Drop support to Ruby 1.9, 2.0, 2.1, and 2.3
