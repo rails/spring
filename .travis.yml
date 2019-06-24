@@ -15,7 +15,7 @@ env:
 matrix:
   exclude:
     - rvm: 2.4.6
-      env: RAILS_VERSION="~> 6.0.0.beta1"
+      env: RAILS_VERSION="~> 6.0.0.rc1"
     - rvm: 2.6.3
       env: RAILS_VERSION="~> 4.2.0"
   allow_failures:
