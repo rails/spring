@@ -94,6 +94,7 @@ module Spring
       @child, child_socket = UNIXSocket.pair
 
       Bundler.with_original_env do
+        bundler_dir = File.expand_path("../..", $LOADED_FEATURES.grep(/bundler\/setup\.rb$/).first)
         @pid = Process.spawn(
           {
             "RAILS_ENV"           => app_env,
@@ -102,7 +103,7 @@ module Spring
             "SPRING_PRELOAD"      => preload ? "1" : "0"
           },
           "ruby",
-          "-I", File.expand_path("../..", $LOADED_FEATURES.grep(/bundler\/setup\.rb$/).first),
+          *(bundler_dir != RbConfig::CONFIG["rubylibdir"] ? ["-I", bundler_dir] : []),
           "-I", File.expand_path("../..", __FILE__),
           "-e", "require 'spring/application/boot'",
           3 => child_socket,
