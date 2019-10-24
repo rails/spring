@@ -1,21 +1,21 @@
 language: ruby
 cache: bundler
 rvm:
-  - 2.4.6
-  - 2.5.5
-  - 2.6.3
+  - 2.4.9
+  - 2.5.7
+  - 2.6.5
   - ruby-head
 env:
   - RAILS_VERSION="~> 4.2.0"
   - RAILS_VERSION="~> 5.0.0"
   - RAILS_VERSION="~> 5.1.0"
   - RAILS_VERSION="~> 5.2.0"
-  - RAILS_VERSION="~> 6.0.0.rc1"
+  - RAILS_VERSION="~> 6.0.0"
 matrix:
   exclude:
-    - rvm: 2.4.6
-      env: RAILS_VERSION="~> 6.0.0.rc1"
-    - rvm: 2.6.3
+    - rvm: 2.4.9
+      env: RAILS_VERSION="~> 6.0.0"
+    - rvm: 2.6.5
       env: RAILS_VERSION="~> 4.2.0"
   allow_failures:
     - rvm: ruby-head
@@ -23,5 +23,7 @@ matrix:
 before_install:
   - gem update --system 3.0.3
   - gem uninstall bundler && gem install bundler -v 1.17.3
+  # Sprockets 4.x only supports Ruby >= 2.5
+  - gem install sprockets -v 3.7
 before_script:
   - travis_retry gem install rails --version "$RAILS_VERSION"
