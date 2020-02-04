@@ -6,6 +6,10 @@
 * Preserve comments right after the shebang line which might include magic comments such as `frozen_string_literal: true`
 * Fix binstub failures when Bundler's `BUNDLE_APP_CONFIG` environment variable is present (#545)
 * Properly suspend and resume on ctrl-z TSTP and CONT (#361)
+* Added support for `gems.rb` with Gemfile file name detection using Bundler
+  method (#524)
+
+  *Michał Zalewski*, *JuPlutonic*
 
 ## 2.0.2
 
