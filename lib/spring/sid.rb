@@ -30,7 +30,7 @@ module Spring
           fiddle_func.call(0)
         else
           # last resort: shell out
-          `ps -p #{Process.pid} -o sid=`.to_i
+          `ps -p #{Process.pid} -o sess=`.to_i
         end
       end
     end
