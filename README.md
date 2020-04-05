@@ -238,6 +238,7 @@ You can add these to your Gemfile for additional commands:
 * [spring-commands-rubocop](https://github.com/p0deje/spring-commands-rubocop)
 * [spring-commands-rackup](https://github.com/wintersolutions/spring-commands-rackup)
 * [spring-commands-rack-console](https://github.com/wintersolutions/spring-commands-rack-console)
+* [spring-commands-standard](https://github.com/lakim/spring-commands-standard)
 
 ## Use without adding to bundle
 

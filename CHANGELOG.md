@@ -1,3 +1,7 @@
+## Next Release
+
+* Add link to [spring-commands-standard](https://github.com/lakim/spring-commands-standard) in README
+
 ## 2.1.0
 
 * Add explicit support for Rails 6 (no changes were needed)
