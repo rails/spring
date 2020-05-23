@@ -4,7 +4,6 @@ require "digest/md5"
 require "tmpdir"
 
 require "spring/version"
-require "spring/sid"
 require "spring/configuration"
 
 module Spring
