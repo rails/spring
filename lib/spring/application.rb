@@ -91,8 +91,8 @@ module Spring
 
       require Spring.application_root_path.join("config", "application")
 
-      unless Rails.respond_to?(:gem_version) && Rails.gem_version >= Gem::Version.new('5.0.0')
-        raise "Spring only supports Rails >= 5.0.0"
+      unless Rails.respond_to?(:gem_version) && Rails.gem_version >= Gem::Version.new('5.1.0')
+        raise "Spring only supports Rails >= 5.1.0"
       end
 
       # config/environments/test.rb will have config.cache_classes = true. However
