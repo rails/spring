@@ -91,8 +91,8 @@ module Spring
 
       require Spring.application_root_path.join("config", "application")
 
-      unless Rails.respond_to?(:gem_version) && Rails.gem_version >= Gem::Version.new('5.1.0')
-        raise "Spring only supports Rails >= 5.1.0"
+      unless Rails.respond_to?(:gem_version) && Rails.gem_version >= Gem::Version.new('5.2.0')
+        raise "Spring only supports Rails >= 5.2.0"
       end
 
       # config/environments/test.rb will have config.cache_classes = true. However
@@ -163,13 +163,7 @@ module Spring
       setup command
 
       if Rails.application.reloaders.any?(&:updated?)
-        # Rails 5.1 forward-compat. AD::R is deprecated to AS::R in Rails 5.
-        if defined? ActiveSupport::Reloader
-          Rails.application.reloader.reload!
-        else
-          ActionDispatch::Reloader.cleanup!
-          ActionDispatch::Reloader.prepare!
-        end
+        Rails.application.reloader.reload!
       end
 
       pid = fork {
