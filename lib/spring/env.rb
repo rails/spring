@@ -1,7 +1,5 @@
 require "pathname"
-require "fileutils"
 require "digest/md5"
-require "tmpdir"
 
 require "spring/version"
 require "spring/sid"
@@ -33,10 +31,12 @@ module Spring
     end
 
     def tmp_path
+      require "tmpdir"
       path = Pathname.new(
         ENV["SPRING_TMP_PATH"] ||
           File.join(ENV['XDG_RUNTIME_DIR'] || Dir.tmpdir, "spring-#{Process.uid}")
       )
+      require "fileutils"
       FileUtils.mkdir_p(path) unless path.exist?
       path
     end
