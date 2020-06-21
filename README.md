@@ -16,7 +16,7 @@ boot it every time you run a test, rake task or migration.
 
 ## Compatibility
 
-* Ruby versions: MRI 2.4, MRI 2.5, MRI 2.6
+* Ruby versions: MRI 2.5, MRI 2.6
 * Rails versions: 5.2, 6.0 (Spring is installed by default when you do
   `rails new` to generate your application)
 

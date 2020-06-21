@@ -1,7 +1,6 @@
 language: ruby
 cache: bundler
 rvm:
-  - 2.4.6
   - 2.5.5
   - 2.6.3
   - ruby-head
@@ -9,9 +8,6 @@ env:
   - RAILS_VERSION="~> 5.2.0"
   - RAILS_VERSION="~> 6.0.0.rc1"
 matrix:
-  exclude:
-    - rvm: 2.4.6
-      env: RAILS_VERSION="~> 6.0.0.rc1"
   allow_failures:
     - rvm: ruby-head
   fast_finish: true
