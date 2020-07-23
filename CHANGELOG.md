@@ -1,3 +1,7 @@
+## Next Release
+
+* Start server process in directory where command was called
+
 ## 2.1.0
 
 * Add explicit support for Rails 6 (no changes were needed)
