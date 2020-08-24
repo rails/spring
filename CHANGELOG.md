@@ -1,5 +1,8 @@
 ## Next Release
 
+## 2.1.1
+
+* Avoid -I rubylibdir with default-gem bundler
 * Start server process in directory where command was called
 
 ## 2.1.0
