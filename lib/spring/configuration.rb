@@ -1,4 +1,5 @@
 require "spring/errors"
+require "bundler"
 
 module Spring
   class << self
