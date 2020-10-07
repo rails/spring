@@ -291,6 +291,7 @@ module Spring
 
     def disconnect_database
       ActiveRecord::Base.remove_connection if active_record_configured?
+      Sequel::DATABASES.each(&:disconnect) if sequel_configured?
     end
 
     def connect_database
@@ -374,6 +375,10 @@ module Spring
 
     def active_record_configured?
       defined?(ActiveRecord::Base) && ActiveRecord::Base.configurations.any?
+    end
+
+    def sequel_configured?
+      defined?(Sequel)
     end
   end
 end
