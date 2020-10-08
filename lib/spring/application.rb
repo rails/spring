@@ -172,11 +172,6 @@ module Spring
         end
       end
 
-      # Ensure we boot the process in the directory the command was called from,
-      # not from the directory Spring started in
-      original_dir = Dir.pwd
-      Dir.chdir(env['PWD'] || original_dir)
-
       pid = fork {
         Process.setsid
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
@@ -242,7 +237,6 @@ module Spring
       # (i.e. to prevent `spring rake -T | grep db` from hanging forever),
       # even when exception is raised before forking (i.e. preloading).
       reset_streams
-      Dir.chdir(original_dir)
     end
 
     def terminate
