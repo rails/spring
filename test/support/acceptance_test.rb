@@ -510,7 +510,7 @@ module Spring
 
           assert_success %(bin/rails runner 'require "sqlite3"')
 
-          File.write(app.gems_rb, app.gems_rb.read.sub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
+          File.write(app.gems_rb, app.gems_rb.read.gsub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
           app.await_reload
 
           assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
