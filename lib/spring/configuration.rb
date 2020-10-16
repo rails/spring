@@ -12,6 +12,15 @@ module Spring
       end
     end
 
+    def gemfile_lock
+      case gemfile.to_s
+      when /\bgems\.rb\z/
+        gemfile.sub_ext('.locked')
+      else
+        gemfile.sub_ext('.lock')
+      end
+    end
+
     def after_fork_callbacks
       @after_fork_callbacks ||= []
     end
