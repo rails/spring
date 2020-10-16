@@ -6,7 +6,7 @@ module Spring
 
     def gemfile
       if /\s1.9.[0-9]/ ===  Bundler.ruby_scope.gsub(/[\/\s]+/,'')
-        ENV["BUNDLE_GEMFILE"] || "Gemfile"
+        Pathname.new(ENV["BUNDLE_GEMFILE"] || "Gemfile").expand_path
       else
         Bundler.default_gemfile
       end
