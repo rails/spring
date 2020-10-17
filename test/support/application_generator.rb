@@ -59,7 +59,7 @@ module Spring
           c.gsub!(/(gem '(byebug|web-console|sdoc|jbuilder)')/, "# \\1")
 
           if @version.to_s < '5.2'
-            c.gsub!(/(gem 'sqlite3')/, "\\1, '< 1.4'")
+            c.gsub!(/(gem 'sqlite3').*$/, "\\1, '< 1.4'")
           end
 
           c
