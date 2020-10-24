@@ -31,9 +31,7 @@ module Spring
       end
 
       def touch(file, mtime = nil)
-        options = {}
-        options[:mtime] = mtime if mtime
-        FileUtils.touch(file, options)
+        FileUtils.touch(file, mtime: mtime)
       end
 
       def assert_stale
