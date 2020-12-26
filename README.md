@@ -1,7 +1,7 @@
 # Spring
 
 [![Build Status](https://travis-ci.org/rails/spring.svg?branch=master)](https://travis-ci.org/rails/spring)
-[![Gem Version](https://badge.fury.io/rb/spring.svg)](http://badge.fury.io/rb/spring)
+[![Gem Version](https://badge.fury.io/rb/spring.svg)](https://badge.fury.io/rb/spring)
 
 Spring is a Rails application preloader. It speeds up development by
 keeping your application running in the background so you don't need to
