@@ -1,5 +1,9 @@
 ## Next Release
 
+## 2.1.2
+
+* Add `rails db:migrate` to Spring-enhanced commands
+
 ## 2.1.1
 
 * Avoid -I rubylibdir with default-gem bundler

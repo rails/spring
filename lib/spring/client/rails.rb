@@ -3,7 +3,7 @@ require "set"
 module Spring
   module Client
     class Rails < Command
-      COMMANDS = Set.new %w(console runner generate destroy test)
+      COMMANDS = Set.new %w(console runner generate destroy test db:migrate)
 
       ALIASES = {
         "c" => "console",
@@ -21,7 +21,7 @@ module Spring
         command_name = ALIASES[args[1]] || args[1]
 
         if COMMANDS.include?(command_name)
-          Run.call(["rails_#{command_name}", *args.drop(2)])
+          Run.call(["rails_#{command_name.gsub(':', '_')}", *args.drop(2)])
         else
           require "spring/configuration"
           ARGV.shift

@@ -33,6 +33,12 @@ module Spring
       end
     end
 
+    class RailsDbMigrate < Rails
+      def command_name
+        "db:migrate"
+      end
+    end
+
     class RailsGenerate < Rails
       def command_name
         "generate"
@@ -103,10 +109,11 @@ module Spring
       end
     end
 
-    Spring.register_command "rails_console",  RailsConsole.new
-    Spring.register_command "rails_generate", RailsGenerate.new
-    Spring.register_command "rails_destroy",  RailsDestroy.new
-    Spring.register_command "rails_runner",   RailsRunner.new
-    Spring.register_command "rails_test",     RailsTest.new
+    Spring.register_command "rails_console",    RailsConsole.new
+    Spring.register_command "rails_db_migrate", RailsDbMigrate.new
+    Spring.register_command "rails_generate",   RailsGenerate.new
+    Spring.register_command "rails_destroy",    RailsDestroy.new
+    Spring.register_command "rails_runner",     RailsRunner.new
+    Spring.register_command "rails_test",       RailsTest.new
   end
 end
