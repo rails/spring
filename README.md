@@ -50,7 +50,8 @@ code into relevant existing executables. The snippet looks like this:
 ``` ruby
 begin
   load File.expand_path('../spring', __FILE__)
-rescue LoadError
+rescue LoadError => e
+  raise unless e.message.include?('spring')
 end
 ```
 
