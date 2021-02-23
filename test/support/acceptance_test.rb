@@ -1,6 +1,5 @@
 require "io/wait"
 require "timeout"
-require "spring/sid"
 require "spring/client"
 require "active_support/core_ext/string/strip"
 
