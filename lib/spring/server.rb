@@ -17,15 +17,20 @@ module Spring
     attr_reader :env
 
     def initialize(options = {})
-      @foreground   = options.fetch(:foreground, false)
-      @env          = options[:env] || default_env
-      @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(k, env) }
-      @pidfile      = env.pidfile_path.open('a')
-      @mutex        = Mutex.new
+      @foreground     = options.fetch(:foreground, false)
+      @eager_preload  = options.fetch(:eager_preload, false)
+      @env            = options[:env] || default_env
+      @applications   = Hash.new { |h, k| h[k] = ApplicationManager.new(k, env) }
+      @pidfile        = env.pidfile_path.open('a')
+      @mutex          = Mutex.new
     end
 
     def foreground?
       @foreground
+    end
+
+    def eager_preload?
+      @eager_preload
     end
 
     def log(message)
@@ -46,6 +51,7 @@ module Spring
     def start_server
       server = UNIXServer.open(env.socket_name)
       log "started on #{env.socket_name}"
+      eager_preload! if eager_preload?
       loop { serve server.accept }
     rescue Interrupt
     end
@@ -88,6 +94,12 @@ module Spring
     # will kill the server/application.
     def ignore_signals
       IGNORE_SIGNALS.each { |sig| trap(sig, "IGNORE") }
+    end
+
+    def eager_preload!
+      log "eager loading env"
+      default_rails_env = ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+      @applications[default_rails_env].restart
     end
 
     def set_exit_hook
