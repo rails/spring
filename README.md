@@ -4,7 +4,7 @@
 [![Gem Version](https://badge.fury.io/rb/spring.svg)](http://badge.fury.io/rb/spring)
 
 Spring is a Rails application preloader. It speeds up development by
-keeping your application running in the background so you don't need to
+keeping your application running in the background, so you don't need to
 boot it every time you run a test, rake task or migration.
 
 ## Features
@@ -56,7 +56,7 @@ end
 
 On platforms where Spring is installed and supported, this snippet
 hooks Spring into the execution of commands. In other cases, the snippet
-will just be silently ignored and the lines after it will be executed as
+will just be silently ignored, and the lines after it will be executed as
 normal.
 
 If you don't want to prefix every command you type with `bin/`, you
@@ -168,7 +168,7 @@ Spring is running:
 ```
 
 There's no need to "shut down" Spring. This will happen automatically
-when you close your terminal. However if you do want to do a manual shut
+when you close your terminal. However, if you do want to do a manual shut
 down, use the `stop` command:
 
 ```
@@ -362,7 +362,7 @@ application restart, you can specify them with `Spring.watch`:
 Spring.watch "config/some_config_file.yml"
 ```
 
-By default Spring polls the filesystem for changes once every 0.2 seconds. This
+By default, Spring polls the filesystem for changes once every 0.2 seconds. This
 method requires zero configuration, but if you find that it's using too
 much CPU, then you can use event-based file system listening by
 installing the
@@ -382,24 +382,24 @@ Spring.quiet = true
 
 The following environment variables are used by Spring:
 
-* `DISABLE_SPRING` - If set, Spring will be bypassed and your
+* `DISABLE_SPRING` - If set, Spring will be bypassed, and your
   application will boot in a foreground process
 * `SPRING_LOG` - The path to a file which Spring will write log messages
   to.
 * `SPRING_TMP_PATH` - The directory where Spring should write its temporary
-  files (a pidfile and a socket). By default we use the
+  files (a pidfile and a socket). By default, we use the
   `XDG_RUNTIME_DIR` environment variable, or else `Dir.tmpdir`, and then
   create a directory in that named `spring-$UID`. We don't use your
   Rails application's `tmp/` directory because that may be on a
   filesystem which doesn't support UNIX sockets.
 * `SPRING_APPLICATION_ID` - Used to identify distinct Rails
-  applications. By default it is an MD5 hash of the current
+  applications. By default, it is an MD5 hash of the current
   `RUBY_VERSION`, and the path to your Rails project root.
 * `SPRING_SOCKET` - The path which should be used for the UNIX socket
   which Spring uses to communicate with the long-running Spring server
-  process. By default this is `SPRING_TMP_PATH/SPRING_APPLICATION_ID`.
+  process. By default, this is `SPRING_TMP_PATH/SPRING_APPLICATION_ID`.
 * `SPRING_PIDFILE` - The path which should be used to store the pid of
-  the long-running Spring server process. By default this is related to
+  the long-running Spring server process. By default, this is related to
   the socket path; if the socket path is `/foo/bar/spring.sock` the
   pidfile will be `/foo/bar/spring.pid`.
 * `SPRING_SERVER_COMMAND` - The command to run to start up the Spring
