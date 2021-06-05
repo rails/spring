@@ -9,12 +9,25 @@ require 'expedite/failsafe_thread'
 require 'expedite/signals'
 
 module Expedite
+  def self.variant
+    app.variant
+  end
+
+  def self.app=(app)
+    @app = app
+  end
+  def self.app
+    @app
+  end
+
   class Application
     include Signals
 
+    attr_reader :variant
     attr_reader :manager, :env, :original_env
 
-    def initialize(manager, original_env, env = Env.new)
+    def initialize(variant, manager, original_env, env = Env.new)
+      @variant      = variant
       @manager      = manager
       @original_env = original_env
       @env          = env
@@ -23,6 +36,19 @@ module Expedite
       @preloaded    = false
       @state        = :initialized
       @interrupt    = IO.pipe
+    end
+
+    def boot
+      # This is necessary for the terminal to work correctly when we reopen stdin.
+      Process.setsid rescue Errno::EPERM
+
+      Expedite.app = self
+
+      Signal.trap("TERM") { terminate }
+
+      load_helper
+      eager_preload if false #if ENV.delete("SPRING_PRELOAD") == "1"
+      run
     end
 
     def state(val)
@@ -34,10 +60,6 @@ module Expedite
     def state!(val)
       state val
       @interrupt.last.write "."
-    end
-
-    def variant
-      ENV['EXPEDITE_VARIANT']
     end
 
     def app_name
@@ -68,6 +90,14 @@ module Expedite
       @state == :initialized
     end
 
+    def load_helper
+      helper = "expedite_helper.rb"
+      if File.exists?(helper)
+        log "loading #{helper}"
+        load(helper)
+      end
+    end
+
     def preload
       log "preloading app"
 
@@ -83,6 +113,8 @@ module Expedite
 
     def run
       $0 = "expedite variant | #{app_name} | #{variant}"
+
+      Expedite::Variants.lookup(variant).after_fork(variant)
 
       state :running
       manager.puts

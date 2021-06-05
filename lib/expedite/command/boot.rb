@@ -2,26 +2,16 @@ module Expedite
   module Command
     class Boot
       def call
-        ENV['EXPEDITE_VARIANT'] = ARGV[0]
-
-        # This is necessary for the terminal to work correctly when we reopen stdin.
-        Process.setsid rescue Errno::EPERM
+        variant = ARGV[0]
 
         require "expedite/application"
-
-        app = Expedite::Application.new(
+        
+        Expedite::Application.new(
+          variant,
           UNIXSocket.for_fd(@child_socket.fileno),
           {},
           Expedite::Env.new(log_file: @log_file)
-        )
-
-        Signal.trap("TERM") { app.terminate }
-
-
-        load "expedite_helper.rb" if File.exists?("expedite_helper.rb")
-
-        app.eager_preload if false
-        app.run
+        ).boot
       end
 
       def exec_name

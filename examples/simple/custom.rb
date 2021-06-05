@@ -3,10 +3,10 @@ module Expedite
   module Command
     class Custom
       def call
-        puts "[#{ENV['EXPEDITE_VARIANT']}] sleeping for 5"
+        puts "[#{Expedite.variant}] sleeping for 5"
         puts "$sleep_parent = #{$sleep_parent}"
         puts "$sleep_child = #{$sleep_child}"
-        puts "[#{ENV['EXPEDITE_VARIANT']}] done"
+        puts "[#{Expedite.variant}] done"
       end
 
       def exec_name
