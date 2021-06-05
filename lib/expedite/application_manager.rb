@@ -171,7 +171,7 @@ module Expedite
         synchronize {
           if @pid == pid
             @pid = nil
-            restart
+            # restart
           end
         }
       end

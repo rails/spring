@@ -177,7 +177,12 @@ module Expedite
       log "forked #{pid}"
       manager.puts pid
 
-      wait pid, streams, client
+      # Boot makes a new application, so we don't wait for it
+      if command.is_a?(Expedite::Command::Boot)
+        Process.detach(pid)
+      else
+        wait pid, streams, client
+      end
     rescue Exception => e
       log "exception: #{e} at #{e.backtrace.join("\n")}"
       manager.puts unless pid

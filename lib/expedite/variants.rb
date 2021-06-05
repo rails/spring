@@ -1,13 +1,23 @@
 
 module Expedite
   class Variant
+    ##
+    # Name of the parent variant. This allows you to create variants from
+    # an existing variant.
+    # Defaults to nil.
     attr_accessor :parent
+
+    ##
+    # If set to true, variant will be restarted automatically if it is killed.
+    # Defaults to false.
+    attr_accessor :keep_alive
 
     ##
     # [parent] Name of parent variant.
     # [after_fork] Block is executed when variant is first preloaded.
-    def initialize(parent: nil, &after_fork)
+    def initialize(parent: nil, keep_alive: false, &after_fork)
       @parent = parent
+      @keep_alive = keep_alive
       @after_fork_proc = after_fork
     end
 
