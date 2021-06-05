@@ -6,6 +6,7 @@ require 'socket'
 require 'expedite/command'
 require 'expedite/env'
 require 'expedite/failsafe_thread'
+require 'expedite/load_helper'
 require 'expedite/signals'
 
 module Expedite
@@ -21,6 +22,7 @@ module Expedite
   end
 
   class Application
+    include LoadHelper
     include Signals
 
     attr_reader :variant
@@ -88,14 +90,6 @@ module Expedite
 
     def initialized?
       @state == :initialized
-    end
-
-    def load_helper
-      helper = "expedite_helper.rb"
-      if File.exists?(helper)
-        log "loading #{helper}"
-        load(helper)
-      end
     end
 
     def preload

@@ -3,10 +3,12 @@ require 'json'
 require 'socket'
 require "expedite/application_manager"
 require "expedite/env"
+require 'expedite/load_helper'
 require "expedite/signals"
 
 module Expedite
   class Server
+    include LoadHelper
     include Signals
 
     def self.boot(options = {})
@@ -31,7 +33,7 @@ module Expedite
     end
 
     def boot
-      load "expedite_helper.rb" if File.exists?("expedite_helper.rb")
+      load_helper
 
       write_pidfile
       set_pgid unless foreground?
@@ -39,9 +41,7 @@ module Expedite
       set_exit_hook
       set_process_title
       start_server
-    end
-
-    def stop
+      exit 0
     end
 
     def pid
@@ -86,7 +86,6 @@ module Expedite
     rescue Errno::ESRCH
       # already dead
     end
-
 
     def start_server
       server = UNIXServer.open(env.socket_path)

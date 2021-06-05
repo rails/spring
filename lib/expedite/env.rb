@@ -6,13 +6,20 @@ module Expedite
   class Env
     attr_accessor :root
     attr_accessor :application_id, :app_name, :log_file
+    attr_reader :applications
 
     def initialize(root: nil, app_name: nil, log_file: nil)
       @root = root || Dir.pwd
       @app_name = app_name || File.basename(@root)
       @log_file = log_file || File.open(File::NULL, "a")
+      @tmp_path = nil
 
       @application_id = Digest::SHA1.hexdigest(@root)
+
+      env = self
+      @applications = Hash.new do |h, k|
+        h[k] = ApplicationManager.new(k, env)
+      end
     end
 
     def version
@@ -44,15 +51,6 @@ module Expedite
 
     def server_command
       "#{File.expand_path("../../../bin/expedite", __FILE__)} server --background"
-    end
-
-    def applications
-      return @applications unless @applications.nil?
-
-      env = self
-      @applications = Hash.new do |h, k|
-        h[k] = ApplicationManager.new(k, env)
-      end
     end
 
     def graceful_termination_timeout
