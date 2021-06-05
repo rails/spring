@@ -106,21 +106,20 @@ module Expedite
 
       if variant == '__server__'
         case cmd
-        when 'info'
+        when 'application_pids'
           client.puts
           unix_socket = UNIXSocket.for_fd(app_client.fileno)
           _stdout, stderr, _stdin = streams = 3.times.map do
-            puts "4"
             unix_socket.recv_io
           end
-          puts "5"
           client.puts Process.pid
-          puts "6"
-          #send_json(env.application_pids.to_json)
-          unix_socket.puts 11 #application_pids.to_json
-          puts "7"
-          unix_socket.puts 10
-          puts "8"
+
+          application_pids = []
+          env.applications.each do |k, v|
+            application_pids << v.pid if v.pid
+          end
+          send_json(unix_socket, application_pids)
+
           unix_socket.close
           client.close
         else

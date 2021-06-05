@@ -56,7 +56,9 @@ module Expedite
       end
 
       def run
-        perform(*@args)
+        status = perform(*@args)
+
+        exit status.to_i
       rescue Errno::ECONNRESET
         exit 1
       end

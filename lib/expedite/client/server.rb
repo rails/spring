@@ -7,8 +7,8 @@ module Expedite
         super(env: env, variant: '__server__')
       end
 
-      def info
-        call("info")
+      def application_pids
+        call("application_pids")
       end
     end
   end

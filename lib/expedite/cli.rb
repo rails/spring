@@ -1,4 +1,5 @@
 require 'expedite/cli/server'
+require 'expedite/cli/status'
 require 'expedite/cli/stop'
 
 module Expedite
@@ -26,6 +27,7 @@ module Expedite
     COMMANDS = {
       'help'   => Cli::Help,
       'server' => Cli::Server,
+      'status' => Cli::Status,
       'stop'   => Cli::Stop,
     }
 

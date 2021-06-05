@@ -84,17 +84,12 @@ module Expedite
 
           ## forward_signals(application)
           ret = read_json(application)
+          log "got return value #{ret}"
 
-    
-          #puts application.read
-          status = application.read.to_i
-
-          log "got exit status #{status}"
-
-          exit status
+          ret
         else
           log "got no pid"
-          exit 1
+          raise UnknownError, "got no pid"
         end
       ensure
         application.close

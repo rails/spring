@@ -1,4 +1,5 @@
 # Based on https://github.com/rails/spring/blob/master/lib/spring/client/status.rb
+require 'expedite'
 require 'expedite/cli/server'
 require 'expedite/cli/stop'
 
@@ -13,7 +14,7 @@ module Expedite
           puts "Expedite is running (pid=#{server.pid})"
           puts
           print_process server.pid
-          server.application_pids.each do |pid|
+          Expedite.server.application_pids.each do |pid|
             print_process pid
           end
         else

@@ -5,4 +5,7 @@ module Expedite
 
   class CommandNotFound < Error
   end
+
+  class UnknownError < Error
+  end
 end
