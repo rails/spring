@@ -1,6 +1,6 @@
 # Expedite
 
-![main](https://github.com/github/docs/actions/workflows/main.yml/badge.svg)
+![main](https://github.com/johnny-lai/expedite/actions/workflows/ruby.yml/badge.svg)
 
 Expedite is a Ruby preloader manager that allows commands to be executed against 
 preloaded Ruby applications. Preloader applications can derive from other preloaders, allowing
