@@ -24,5 +24,10 @@ class VariantsTest < Minitest::Test
     assert_raises ::NotImplementedError do
       Expedite::Variants.lookup("dev/abc")
     end
+
+    # Should be able to re-register
+    Expedite::Variants.register("dev/*")
+  ensure
+    Expedite::Variants.reset
   end
 end

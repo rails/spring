@@ -82,7 +82,7 @@ module Expedite
     end
 
     def reset
-      @registrations = {}
+      @registrations = []
       nil
     end
   end
