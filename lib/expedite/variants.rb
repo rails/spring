@@ -57,7 +57,7 @@ module Expedite
     end
 
     ##
-    # Clears all existing registrations
+    # Resets registrations to default
     def self.reset
       self.current.reset
     end
@@ -82,7 +82,8 @@ module Expedite
     end
 
     def reset
-      @registrations.clear
+      @registrations = {}
+      nil
     end
   end
 end

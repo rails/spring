@@ -25,5 +25,3 @@ module Expedite
     end
   end
 end
-
-Expedite::Commands.register("expedite/boot", Expedite::Command::Boot)

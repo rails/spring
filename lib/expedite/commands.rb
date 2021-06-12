@@ -1,3 +1,6 @@
+require 'expedite/command/basic'
+require 'expedite/command/boot'
+
 module Expedite
   class Commands
     def self.current
@@ -22,13 +25,13 @@ module Expedite
     end
 
     ##
-    # Clears all existing registrations
+    # Restores existing registrations to default
     def self.reset
       self.current.reset
     end
 
     def initialize
-      @registrations = {}
+      reset
     end
 
     def lookup(name)
@@ -48,10 +51,12 @@ module Expedite
     end
 
     def reset
-      @registrations.clear
+      @registrations = {}
+
+      # Default registrations
+      register("expedite/boot", Expedite::Command::Boot)
+
+      nil
     end
   end
 end
-
-require 'expedite/command/basic'
-require 'expedite/command/boot'
