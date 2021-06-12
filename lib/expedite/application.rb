@@ -6,6 +6,7 @@ require 'socket'
 require 'expedite/commands'
 require 'expedite/env'
 require 'expedite/failsafe_thread'
+require 'expedite/send_json'
 require 'expedite/signals'
 require 'expedite/variants'
 
@@ -22,6 +23,7 @@ module Expedite
   end
 
   class Application
+    include SendJson
     include Signals
 
     attr_reader :variant
@@ -131,7 +133,7 @@ module Expedite
 
       preload unless preloaded?
 
-      args, env = JSON.load(client.read(client.gets.to_i)).values_at("args", "env")
+      args, env = read_json(client).values_at("args", "env")
 
       exec_name = args.shift
       command   = Expedite::Commands.lookup(exec_name)

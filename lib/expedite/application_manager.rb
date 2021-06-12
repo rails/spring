@@ -69,7 +69,6 @@ module Expedite
 
     # Returns the pid of the process running the command, or nil if the application process died.
     def run(client)
-      @client = client
       with_child do |child|
         child.send_io client
         child.gets or raise Errno::EPIPE
