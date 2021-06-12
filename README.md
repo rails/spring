@@ -41,3 +41,7 @@ Then you can execute a command in the variant using:
 ```
 Expedite.v("development/abc").call("custom")
 ```
+
+## Acknowledgements
+
+Expedite server core is modified from [Spring](https://github.com/rails/spring)
