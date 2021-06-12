@@ -29,21 +29,11 @@ You register commands by creating classes in the `Expedite::Command` module. For
 this defines a `custom` command.
 
 ```
-module Expedite
-  module Command
-    class Custom
-      def call
-        puts "custom command"
-      end
-
-      def exec_name
-        "custom"
-      end
-
-      def setup(client)
-      end
-    end
-  end
+Expedite::Commands.register("custom") do
+  puts "[#{Expedite.variant}] sleeping for 5"
+  puts "$sleep_parent = #{$sleep_parent}"
+  puts "$sleep_child = #{$sleep_child}"
+  puts "[#{Expedite.variant}] done"
 end
 ```
 
