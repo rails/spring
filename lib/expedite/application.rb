@@ -3,7 +3,7 @@ require 'json'
 require 'pty'
 require 'set'
 require 'socket'
-require 'expedite/command'
+require 'expedite/commands'
 require 'expedite/env'
 require 'expedite/failsafe_thread'
 require 'expedite/load_helper'
@@ -134,7 +134,9 @@ module Expedite
       preload unless preloaded?
 
       args, env = JSON.load(client.read(client.gets.to_i)).values_at("args", "env")
-      command   = Expedite.command(args.shift)
+
+      exec_name = args.shift
+      command   = Expedite::Commands.lookup(exec_name)
       command.setup(client)
 
       connect_database
@@ -145,7 +147,7 @@ module Expedite
         trap("TERM", "DEFAULT")
 
         ARGV.replace(args)
-        $0 = command.exec_name
+        $0 = exec_name
 
         # Delete all env vars which are unchanged from before Spring started
         original_env.each { |k, v| ENV.delete k if ENV[k] == v }

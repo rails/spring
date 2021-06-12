@@ -14,14 +14,16 @@ module Expedite
         ).boot
       end
 
-      def exec_name
-        "boot"
-      end
-
       def setup(client)
         @child_socket = client.recv_io
         @log_file = client.recv_io
       end
+
+      def runs_in
+        :server
+      end
     end
   end
 end
+
+Expedite::Commands.register("expedite/boot", Expedite::Command::Boot)

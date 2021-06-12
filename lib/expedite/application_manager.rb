@@ -121,7 +121,7 @@ module Expedite
       wr.send_io STDERR
       wr.send_io STDIN
 
-      send_json wr, 'args' => ['boot', variant], 'env' => {}
+      send_json wr, 'args' => ['expedite/boot', variant], 'env' => {}
       wr.send_io child_socket
       wr.send_io env.log_file
       wr.close

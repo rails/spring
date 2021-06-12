@@ -56,8 +56,22 @@ module Expedite
       self.current.register(matcher, **named_options, &after_fork)
     end
 
+    ##
+    # Clears all existing registrations
+    def self.reset
+      self.current.reset
+    end
+
     def initialize
       @registrations = []
+    end
+
+    def lookup(variant)
+      ret = @registrations.find do |r|
+        r.match?(variant)
+      end
+      raise NotImplementedError, "Variant #{variant.inspect} not found" if ret.nil?
+      ret.variant
     end
 
     def register(matcher, **named_options, &after_fork)
@@ -67,12 +81,8 @@ module Expedite
       )
     end
 
-    def lookup(variant)
-      ret = @registrations.find do |r|
-        r.match?(variant)
-      end
-      raise NotImplementedError, "Variant '#{variant.inspect}' not found" if ret.nil?
-      ret.variant
+    def reset
+      @registrations.clear
     end
   end
 end
