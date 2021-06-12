@@ -6,8 +6,8 @@ require 'socket'
 require 'expedite/commands'
 require 'expedite/env'
 require 'expedite/failsafe_thread'
-require 'expedite/load_helper'
 require 'expedite/signals'
+require 'expedite/variants'
 
 module Expedite
   def self.variant
@@ -22,16 +22,14 @@ module Expedite
   end
 
   class Application
-    include LoadHelper
     include Signals
 
     attr_reader :variant
-    attr_reader :manager, :env, :original_env
+    attr_reader :manager, :env
 
-    def initialize(variant, manager, original_env, env = Env.new)
+    def initialize(variant:, manager:, env:)
       @variant      = variant
       @manager      = manager
-      @original_env = original_env
       @env          = env
       @mutex        = Mutex.new
       @waiting      = Set.new
@@ -48,7 +46,7 @@ module Expedite
 
       Signal.trap("TERM") { terminate }
 
-      load_helper
+      env.load_helper
       eager_preload if false #if ENV.delete("SPRING_PRELOAD") == "1"
       run
     end
@@ -148,9 +146,6 @@ module Expedite
 
         ARGV.replace(args)
         $0 = exec_name
-
-        # Delete all env vars which are unchanged from before Spring started
-        original_env.each { |k, v| ENV.delete k if ENV[k] == v }
 
         # Load in the current env vars, except those which *were* changed when Spring started
         env.each { |k, v| ENV[k] = v }

@@ -56,5 +56,17 @@ module Expedite
     def graceful_termination_timeout
       2
     end
+
+    def helper_path
+      Pathname.new(root).join("expedite_helper.rb")
+    end
+
+    def load_helper
+      path = helper_path
+      if path.exist?
+        log "loading #{path}"
+        load(path)
+      end
+    end
   end
 end

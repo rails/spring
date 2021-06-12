@@ -9,18 +9,20 @@ module Expedite
   class ApplicationManager
     include SendJson
 
-    attr_reader :pid, :child, :variant, :env, :status
+    attr_reader :pid, :child, :name, :env, :status, :variant
 
-    def initialize(variant, env)
-      @variant    = variant
-      @env        = env
-      @mutex      = Mutex.new
-      @state      = :running
-      @pid        = nil
+    def initialize(name, env)
+      @name  = name
+      @env   = env
+      @mutex = Mutex.new
+      @state = :running
+      @pid   = nil
+
+      @variant = Expedite::Variants.lookup(@name)
     end
 
     def log(message)
-      env.log "[application_manager:#{variant}] #{message}"
+      env.log "[application_manager:#{name}] #{message}"
     end
 
     # We're not using @mutex.synchronize to avoid the weird "<internal:prelude>:10"
@@ -98,8 +100,12 @@ module Expedite
       # Don't care
     end
 
+    def keep_alive
+      variant.keep_alive
+    end
+
     def parent
-      Expedite::Variants.lookup(variant).parent
+      variant.parent
     end
 
     private
@@ -121,7 +127,7 @@ module Expedite
       wr.send_io STDERR
       wr.send_io STDIN
 
-      send_json wr, 'args' => ['expedite/boot', variant], 'env' => {}
+      send_json wr, 'args' => ['expedite/boot', name], 'env' => {}
       wr.send_io child_socket
       wr.send_io env.log_file
       wr.close
@@ -139,7 +145,8 @@ module Expedite
         bundler_dir = File.expand_path("../..", $LOADED_FEATURES.grep(/bundler\/setup\.rb$/).first)
         @pid = Process.spawn(
           {
-            "EXPEDITE_VARIANT" => variant,
+            "EXPEDITE_VARIANT" => name,
+            "EXPEDITE_ROOT" => env.root,
           },
           "ruby",
           *(bundler_dir != RbConfig::CONFIG["rubylibdir"] ? ["-I", bundler_dir] : []),
@@ -171,7 +178,7 @@ module Expedite
         synchronize {
           if @pid == pid
             @pid = nil
-            # restart
+            restart if keep_alive
           end
         }
       end

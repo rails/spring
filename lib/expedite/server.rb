@@ -3,12 +3,10 @@ require 'json'
 require 'socket'
 require "expedite/application_manager"
 require "expedite/env"
-require 'expedite/load_helper'
 require "expedite/signals"
 
 module Expedite
   class Server
-    include LoadHelper
     include Signals
 
     def self.boot(options = {})
@@ -33,7 +31,7 @@ module Expedite
     end
 
     def boot
-      load_helper
+      env.load_helper
 
       write_pidfile
       set_pgid unless foreground?
