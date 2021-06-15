@@ -12,6 +12,7 @@ module Spring
       @spring_env   = spring_env
       @mutex        = Mutex.new
       @waiting      = Set.new
+      @clients      = Set.new
       @preloaded    = false
       @state        = :initialized
       @interrupt    = IO.pipe
@@ -151,6 +152,8 @@ module Spring
       log "got client"
       manager.puts
 
+      @clients << client
+
       _stdout, stderr, _stdin = streams = 3.times.map { client.recv_io }
       [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
 
@@ -167,6 +170,10 @@ module Spring
       end
 
       pid = fork {
+        # Make sure to close other clients otherwise their graceful termination
+        # will be impossible due to reference from this fork.
+        @clients.select { |c| c != client }.each(&:close)
+
         Process.setsid
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         trap("TERM", "DEFAULT")

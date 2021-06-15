@@ -1,5 +1,7 @@
 ## Next Release
 
+* Fix bug which makes rails consoles to hang at exit when multiple of them are open (#647)
+
 ## 2.1.1
 
 * Avoid -I rubylibdir with default-gem bundler
