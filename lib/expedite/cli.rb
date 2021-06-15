@@ -31,6 +31,8 @@ module Expedite
 
     def run(args)
       command(args.first).run(args[1..])
+    rescue NotImplementedError
+      Cli::Help.new.run([])
     end
 
     def command(cmd)
