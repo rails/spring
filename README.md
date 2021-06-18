@@ -44,6 +44,7 @@ end
 After registering your variant and commands, you can then use it. In the simple
 example, the `main.rb` calls the `custom` command on the `development/abc`
 variant.
+
 ```
 require 'expedite'
 
@@ -60,7 +61,7 @@ variant.
 $sleep_parent = 1
 $sleep_child = development/abc
 [development/abc] done
-``
+```
 
 Calling `main.rb` automatically started the expedite server in the background.
 In the above example, it does the following:
