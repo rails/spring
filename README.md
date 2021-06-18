@@ -84,4 +84,4 @@ $ bundle exec expedite server
 
 ## Acknowledgements
 
-Expedite server core is modified from [Spring](https://github.com/rails/spring)
+Expedite's server core is modified from [Spring](https://github.com/rails/spring)
