@@ -92,7 +92,7 @@
 
 ## 1.4.2
 
-* Don't supress non-spring load errors in binstub
+* Don't suppress non-spring load errors in binstub
 
 ## 1.4.1
 
@@ -307,7 +307,7 @@
 * Don't stay connected to database in the application processes. There's
   no need to keep a connection open.
 * Avoid using the database in the application processes. Previously,
-  reloading the autoloaded constants would inadvertantly cause a
+  reloading the autoloaded constants would inadvertently cause a
   connection to the database, which would then prevent tasks like
   db:create from running (because at that point the database doesn't
   exist)
