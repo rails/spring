@@ -26,7 +26,10 @@ module Spring
       end
 
       def log_file
-        @log_file ||= path("tmp/spring.log").open("w+")
+        @log_file ||= begin
+          path("tmp").mkpath
+          path("tmp/spring.log").open("w+")
+        end
       end
 
       def env
