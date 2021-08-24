@@ -100,7 +100,9 @@ module Spring
       # override the effect of config.cache_classes = true. We can then actually
       # set config.cache_classes = false after loading the environment.
       Rails::Application.initializer :initialize_dependency_mechanism, group: :all do
-        ActiveSupport::Dependencies.mechanism = :load
+        if ActiveSupport::Dependencies.respond_to?(:mechanism=)
+          ActiveSupport::Dependencies.mechanism = :load
+        end
       end
 
       require Spring.application_root_path.join("config", "environment")
