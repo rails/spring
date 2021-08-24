@@ -100,6 +100,7 @@ module Spring
       # override the effect of config.cache_classes = true. We can then actually
       # set config.cache_classes = false after loading the environment.
       Rails::Application.initializer :initialize_dependency_mechanism, group: :all do
+        # Rails 7 dropped classic mode, and this setter does not exist anymore.
         if ActiveSupport::Dependencies.respond_to?(:mechanism=)
           ActiveSupport::Dependencies.mechanism = :load
         end
