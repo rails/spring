@@ -1,5 +1,7 @@
 ## Next Release
 
+## 2.2.0
+
 * Require applications to have reloading enabled in the managed environments.
 
 ## 2.1.1
