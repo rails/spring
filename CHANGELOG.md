@@ -1,8 +1,10 @@
 ## Next Release
 
-## 2.2.0
+## 3.0.0
 
 * Require applications to have reloading enabled in the managed environments.
+* Require Ruby 2.5.
+* Require Rails 5.2.
 
 ## 2.1.1
 
