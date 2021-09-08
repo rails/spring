@@ -65,6 +65,16 @@ automatically add `./bin` to your `PATH` when you `cd` into your application.
 Simply create an `.envrc` file with the command `PATH_add bin` in your
 Rails directory.
 
+### Enable reloading
+
+Spring reloads application code, and therefore needs the application to have
+reloading enabled.
+
+Please, make sure `config.cache_classes` is `false` in the environments that
+Spring manages. That setting is typically configured in
+`config/environments/*.rb`. In particular, make sure it is `false` for the
+`test` environment.
+
 ### Usage
 
 For this walkthrough I've generated a new Rails application, and run
@@ -257,12 +267,10 @@ run through Spring, set the `DISABLE_SPRING` environment variable.
 
 ## Class reloading
 
-Spring uses Rails' class reloading mechanism
-(`ActiveSupport::Dependencies`) to keep your code up to date between
-test runs. This is the same mechanism which allows you to see changes
-during development when you refresh the page. However, you may never
-have used this mechanism with your `test` environment before, and this
-can cause problems.
+Spring uses Rails' class reloading mechanism to keep your code up to date
+between test runs. This is the same mechanism which allows you to see changes
+during development when you refresh the page. However, you may never have used
+this mechanism with your `test` environment before, and this can cause problems.
 
 It's important to realise that code reloading means that the constants
 in your application are *different objects* after files have changed:
