@@ -1,5 +1,7 @@
 ## Next Release
 
+* Require applications to have reloading enabled in the managed environments.
+
 ## 2.1.1
 
 * Avoid -I rubylibdir with default-gem bundler

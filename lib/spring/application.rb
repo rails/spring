@@ -95,21 +95,16 @@ module Spring
         raise "Spring only supports Rails >= 5.2.0"
       end
 
-      # config/environments/test.rb will have config.cache_classes = true. However
-      # we want it to be false so that we can reload files. This is a hack to
-      # override the effect of config.cache_classes = true. We can then actually
-      # set config.cache_classes = false after loading the environment.
-      Rails::Application.initializer :initialize_dependency_mechanism, group: :all do
-        # Rails 7 dropped classic mode, and this setter does not exist anymore.
-        if ActiveSupport::Dependencies.respond_to?(:mechanism=)
-          ActiveSupport::Dependencies.mechanism = :load
+      Rails::Application.initializer :ensure_reloading_is_enabled, group: :all do
+        if Rails.application.config.cache_classes
+          raise <<-MSG.strip_heredoc
+            Spring reloads, and therefore needs the application to have reloading enabled.
+            Please, set config.cache_classes to false in config/environments/#{Rails.env}.rb.
+          MSG
         end
       end
 
       require Spring.application_root_path.join("config", "environment")
-
-      @original_cache_classes = Rails.application.config.cache_classes
-      Rails.application.config.cache_classes = false
 
       disconnect_database
 
@@ -194,14 +189,6 @@ module Spring
 
         # Load in the current env vars, except those which *were* changed when Spring started
         env.each { |k, v| ENV[k] ||= v }
-
-        # requiring is faster, so if config.cache_classes was true in
-        # the environment's config file, then we can respect that from
-        # here on as we no longer need constant reloading.
-        if @original_cache_classes
-          ActiveSupport::Dependencies.mechanism = :require
-          Rails.application.config.cache_classes = true
-        end
 
         connect_database
         srand

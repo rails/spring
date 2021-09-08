@@ -121,6 +121,15 @@ module Spring
         refute_output_includes "bin/rails runner ''", stderr: 'Running via Spring preloader in process'
       end
 
+      test "raises if config.cache_classes is true" do
+        config_path = app.path("config/environments/development.rb")
+        config = File.read(config_path)
+        config.sub!(/config.cache_classes\s*=\s*false/, "config.cache_classes = true")
+        File.write(config_path, config)
+
+        assert_failure "bin/rails runner 1", stderr: "Please, set config.cache_classes to false"
+      end
+
       test "test changes are picked up" do
         assert_speedup do
           assert_success app.spring_test_command, stdout: "0 failures"
