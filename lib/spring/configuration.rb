@@ -2,7 +2,7 @@ require "spring/errors"
 
 module Spring
   class << self
-    attr_accessor :application_root, :quiet
+    attr_accessor :application_root, :quiet, :env_override
 
     def gemfile
       if /\s1.9.[0-9]/ ===  Bundler.ruby_scope.gsub(/[\/\s]+/,'')
@@ -55,4 +55,5 @@ module Spring
   end
 
   self.quiet = false
+  self.env_override = false
 end
