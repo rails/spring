@@ -8,9 +8,18 @@ module Spring
       require "bundler"
 
       if /\s1.9.[0-9]/ ===  Bundler.ruby_scope.gsub(/[\/\s]+/,'')
-        ENV["BUNDLE_GEMFILE"] || "Gemfile"
+        Pathname.new(ENV["BUNDLE_GEMFILE"] || "Gemfile").expand_path
       else
         Bundler.default_gemfile
+      end
+    end
+
+    def gemfile_lock
+      case gemfile.to_s
+      when /\bgems\.rb\z/
+        gemfile.sub_ext('.locked')
+      else
+        gemfile.sub_ext('.lock')
       end
     end
 

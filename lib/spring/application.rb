@@ -116,7 +116,7 @@ module Spring
       raise e unless initialized?
     ensure
       watcher.add loaded_application_features
-      watcher.add Spring.gemfile, "#{Spring.gemfile}.lock"
+      watcher.add Spring.gemfile, Spring.gemfile_lock
 
       if defined?(Rails) && Rails.application
         watcher.add Rails.application.paths["config/initializers"]
