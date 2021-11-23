@@ -1,6 +1,12 @@
 ## Next Release
 
-* Fix bug which makes rails consoles to hang at exit when multiple of them are open (#647)
+## 3.1.0
+
+* Fix bug which makes rails consoles to hang at exit when multiple of them are open (#647).
+* Fix support to `gems.rb` file.
+* Ensure bundler is required when used.
+* Support `rails db:*` tasks.
+* Check that app preload was successful before sending a command.
 
 ## 3.0.0
 
