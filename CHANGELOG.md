@@ -1,5 +1,7 @@
 ## Next Release
 
+* Fix bug which makes rails consoles to hang at exit when multiple of them are open (#647)
+
 ## 3.0.0
 
 * Require applications to have reloading enabled in the managed environments.
