@@ -54,6 +54,8 @@ module Spring
 
         append_to_file(application.gemfile, "gem 'spring', '#{Spring::VERSION}'")
 
+        append_to_file(application.path("config/boot.rb"), "raise 'BOOM' if ENV['CRASH_ON_BOOT']")
+
         rewrite_file(application.gemfile) do |c|
           c.sub!("https://rubygems.org", "http://rubygems.org")
           c.gsub!(/(gem '(byebug|web-console|sdoc|jbuilder)')/, "# \\1")
