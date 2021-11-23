@@ -630,6 +630,12 @@ module Spring
         app.env["DISABLE_SPRING"] = "1"
         refute_output_includes "bin/rails runner ''", stderr: "WARN"
       end
+
+      test "rails db:migrate" do
+        assert_speedup do
+          2.times { app.run "bin/rails db:migrate" }
+        end
+      end
     end
   end
 end

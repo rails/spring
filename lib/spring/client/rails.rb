@@ -22,6 +22,8 @@ module Spring
 
         if COMMANDS.include?(command_name)
           Run.call(["rails_#{command_name}", *args.drop(2)])
+        elsif command_name.start_with?("db:")
+          Run.call(["rake", *args.drop(1)])
         else
           require "spring/configuration"
           ARGV.shift
