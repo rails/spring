@@ -1,11 +1,12 @@
 require "spring/errors"
-require "bundler"
 
 module Spring
   class << self
     attr_accessor :application_root, :quiet
 
     def gemfile
+      require "bundler"
+
       if /\s1.9.[0-9]/ ===  Bundler.ruby_scope.gsub(/[\/\s]+/,'')
         ENV["BUNDLE_GEMFILE"] || "Gemfile"
       else
