@@ -20,7 +20,7 @@ Rails app in `test/apps/`. On each test run, the dummy app is copied to
 `test/apps/tmp/` so that any changes won't affect the pre-generated app
 (this saves us having to regenerate the app on each run).
 
-If tests are failing and you don't know why, it might be that the
+If tests are failing, and you don't know why, it might be that the
 pre-generated app has become inconsistent in some way. In that case the
 best solution is to purge it with `rm -rf test/apps/*` and then run the
 acceptance tests again, which will generate a new app.
@@ -33,7 +33,7 @@ You can set the `RAILS_VERSION` environment variable:
 $ RAILS_VERSION="~> 3.2.0" rake test:acceptance
 ```
 
-The apps in `test/apps` will be named based on the rails version and the
+The apps in `test/apps` will be named based on the rails version, and the
 Spring version.
 
 ## Testing with your app

@@ -240,7 +240,7 @@
   `APP_ROOT/tmp/spring`, which caused problems on filesystems which did
   not support sockets, and also caused problems if `APP_ROOT` was
   sufficiently deep in the filesystem to exhaust the operating system's
-  socket name limit. Hence we had a `SPRING_TMP_PATH` environment
+  socket name limit. Hence, we had a `SPRING_TMP_PATH` environment
   variable for configuration. We now use `/tmp/spring/[md5(APP_ROOT)]`
   for the socket and `/tmp/spring/[md5(APP_ROOT)].pid` for the pid file.
   Thanks @Kriechi for the suggestion. Setting `SPRING_TMP_PATH` no longer
@@ -295,7 +295,7 @@
   `SPRING_LOG` environment variable.
 * Fix hang on "Run `bundle install` to install missing gems"
 * Added hack to make backtraces generated when running a command
-  quieter (by stripping out all of the lines relating to spring)
+  quieter (by stripping out all the lines relating to spring)
 * Rails 4 is officially supported
 
 ## 0.0.10
@@ -309,7 +309,7 @@
   an error either.
 * Don't preload `test_helper` or `spec_helper` by default. This was
   causing people subtle problems (for example see #113) and is perhaps
-  surprising behaviour. It may be desirable but it depends on the
+  surprising behaviour. It may be desirable, but it depends on the
   application, therefore we suggest it to people in the README but no
   longer do it by default.
 * Don't stay connected to database in the application processes. There's
@@ -342,7 +342,7 @@
   [console|runner|generate]`.
 * `config/spring.rb` is only loaded in the server process, so you can
   require stuff from other gems there without performance implications.
-* File watcher no longer pays attention to files outside of your
+* File watcher no longer pays attention to files outside your
   application root directory.
 * You can use the `listen` gem for less CPU intensive file watching. See
   README.
