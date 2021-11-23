@@ -152,7 +152,18 @@ module Spring
       _stdout, stderr, _stdin = streams = 3.times.map { client.recv_io }
       [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
 
-      preload unless preloaded?
+      if preloaded?
+        client.puts(0) # preload success
+      else
+        begin
+          preload
+          client.puts(0) # preload success
+        rescue Exception
+          log "preload failed"
+          client.puts(1) # preload failure
+          raise
+        end
+      end
 
       args, env = JSON.load(client.read(client.gets.to_i)).values_at("args", "env")
       command   = Spring.command(args.shift)

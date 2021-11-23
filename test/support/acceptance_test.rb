@@ -98,6 +98,15 @@ module Spring
         end
       end
 
+      test "crash on boot" do
+        app.run app.spring_test_command, env: {
+          "CRASH_ON_BOOT" => "1",
+          # If the command is small enough, it might fit in the socket buffer and writing the command won't block.
+          # So we send a big environment variable to better reproduce the problem.
+          "FOO" => "bar" * 4_000,
+      }
+      end
+
       test "help message when called without arguments" do
         assert_success "bin/spring", stdout: 'Usage: spring COMMAND [ARGS]'
         assert spring_env.server_running?

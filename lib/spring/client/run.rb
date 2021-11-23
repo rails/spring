@@ -142,12 +142,17 @@ module Spring
       end
 
       def run_command(client, application)
-        log "sending command"
-
         application.send_io STDOUT
         application.send_io STDERR
         application.send_io STDIN
 
+        log "waiting for the application to be preloaded"
+        preload_status = application.gets
+        preload_status = preload_status.chomp if preload_status
+        log "app preload status: #{preload_status}"
+        exit 1 if preload_status == "1"
+
+        log "sending command"
         send_json application, "args" => args, "env" => ENV.to_hash
 
         pid = server.gets
