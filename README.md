@@ -199,12 +199,13 @@ To remove Spring:
 ### Deployment
 
 You must not install Spring on your production environment. To prevent it from
-being installed, provide the `--without development test` argument to the
+being installed, run the `bundle config set without 'development test'` before
 `bundle install` command which is used to install gems on your production
 machines:
 
 ```
-$ bundle install --without development test
+$ bundle config set without 'development test'
+$ bundle install
 ```
 
 ## Commands
