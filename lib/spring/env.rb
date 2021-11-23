@@ -2,7 +2,6 @@ require "pathname"
 require "digest/md5"
 
 require "spring/version"
-require "spring/sid"
 require "spring/configuration"
 
 module Spring
