@@ -46,8 +46,6 @@ end
 
 # See https://github.com/kr/okjson for updates.
 
-require 'stringio'
-
 # Some parts adapted from
 # https://golang.org/src/pkg/json/decode.go and
 # https://golang.org/src/pkg/utf8/utf8.go
@@ -468,19 +466,18 @@ private
 
 
   def strenc(s)
-    t = StringIO.new
-    t.putc(?")
+    t = '"'.b
     r = 0
 
     while r < s.length
       case s[r]
-      when ?"  then t.print('\\"')
-      when ?\\ then t.print('\\\\')
-      when ?\b then t.print('\\b')
-      when ?\f then t.print('\\f')
-      when ?\n then t.print('\\n')
-      when ?\r then t.print('\\r')
-      when ?\t then t.print('\\t')
+      when ?"  then t << '\\"'
+      when ?\\ then t << '\\\\'
+      when ?\b then t << '\\b'
+      when ?\f then t << '\\f'
+      when ?\n then t << '\\n'
+      when ?\r then t << '\\r'
+      when ?\t then t << '\\t'
       else
         c = s[r]
         # In ruby >= 1.9, s[r] is a codepoint, not a byte.
@@ -490,14 +487,14 @@ private
             if c.ord < Spc.ord
               c = "\\u%04x" % [c.ord]
             end
-            t.write(c)
+            t << c
           rescue
-            t.write(Ustrerr)
+            t << Ustrerr
           end
         elsif c < Spc
-          t.write("\\u%04x" % c)
+          t << "\\u%04x" % c
         elsif Spc <= c && c <= ?~
-          t.putc(c)
+          t << c
         else
           n = ucharcopy(t, s, r) # ensure valid UTF-8 output
           r += n - 1 # r is incremented below
@@ -505,8 +502,8 @@ private
       end
       r += 1
     end
-    t.putc(?")
-    t.string
+    t << '"'
+    t
   end
 
 
@@ -531,7 +528,7 @@ private
 
     # 1-byte, 7-bit sequence?
     if c0 < Utagx
-      t.putc(c0)
+      t << c0
       return 1
     end
 
@@ -544,8 +541,8 @@ private
     # 2-byte, 11-bit sequence?
     if c0 < Utag3
       raise Utf8Error if ((c0&Umask2)<<6 | (c1&Umaskx)) <= Uchar1max
-      t.putc(c0)
-      t.putc(c1)
+      t << c0
+      t << c1
       return 2
     end
 
@@ -559,9 +556,9 @@ private
     if c0 < Utag4
       u = (c0&Umask3)<<12 | (c1&Umaskx)<<6 | (c2&Umaskx)
       raise Utf8Error if u <= Uchar2max
-      t.putc(c0)
-      t.putc(c1)
-      t.putc(c2)
+      t << c0
+      t << c1
+      t << c2
       return 3
     end
 
@@ -574,16 +571,16 @@ private
     if c0 < Utag5
       u = (c0&Umask4)<<18 | (c1&Umaskx)<<12 | (c2&Umaskx)<<6 | (c3&Umaskx)
       raise Utf8Error if u <= Uchar3max
-      t.putc(c0)
-      t.putc(c1)
-      t.putc(c2)
-      t.putc(c3)
+      t << c0
+      t << c1
+      t << c2
+      t << c3
       return 4
     end
 
     raise Utf8Error
   rescue Utf8Error
-    t.write(Ustrerr)
+    t << Ustrerr
     return 1
   end
 
