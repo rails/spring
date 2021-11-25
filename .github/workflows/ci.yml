@@ -29,6 +29,11 @@ jobs:
           bundler-cache: true
 
       - name: Run unit tests
+        run: gem update --system
+        timeout-minutes: 3
+        if: ${{ matrix.ruby == '3.0' }} Ruby 3.0.3 has a bug with old Rubygems
+
+      - name: Run unit tests
         run: bundle exec rake test:unit
         timeout-minutes: 3
 
