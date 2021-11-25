@@ -111,7 +111,7 @@ module Spring
       def run(command, opts = {})
         start_time = Time.now
 
-        Bundler.with_clean_env do
+        Bundler.with_original_env do
           Process.spawn(
             env.merge(opts[:env] || {}),
             command.to_s,
