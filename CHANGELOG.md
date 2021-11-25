@@ -1,5 +1,10 @@
 ## Next Release
 
+## 3.1.1
+
+* Fix compatibility issues with code that raises exceptions with frozen backtraces.
+* Better support Ruby 3.0.
+
 ## 3.1.0
 
 * Fix bug which makes rails consoles to hang at exit when multiple of them are open (#647).
