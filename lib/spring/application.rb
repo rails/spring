@@ -304,7 +304,7 @@ module Spring
           ensure
             if $!
               lib = File.expand_path("..", __FILE__)
-              $!.backtrace.reject! { |line| line.start_with?(lib) }
+              $!.backtrace.reject! { |line| line.start_with?(lib) } unless $!.backtrace.frozen?
             end
           end
         end
