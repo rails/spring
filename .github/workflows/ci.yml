@@ -32,10 +32,6 @@ jobs:
         run: bundle exec rake test:unit
         timeout-minutes: 3
 
-      - name: Run unit tests
-        run: bundle exec rake test:unit
-        timeout-minutes: 3
-
       - name: Run acceptance tests
         run: bundle exec rake test:acceptance
         timeout-minutes: 10
