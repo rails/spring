@@ -11,8 +11,8 @@ module Spring
       @original_env = original_env
       @spring_env   = spring_env
       @mutex        = Mutex.new
-      @waiting      = Set.new
-      @clients      = Set.new
+      @waiting      = {}
+      @clients      = {}
       @preloaded    = false
       @state        = :initialized
       @interrupt    = IO.pipe
@@ -150,7 +150,7 @@ module Spring
       log "got client"
       manager.puts
 
-      @clients << client
+      @clients[client] = true
 
       _stdout, stderr, _stdin = streams = 3.times.map { client.recv_io }
       [STDOUT, STDERR, STDIN].zip(streams).each { |a, b| a.reopen(b) }
@@ -181,7 +181,7 @@ module Spring
       pid = fork {
         # Make sure to close other clients otherwise their graceful termination
         # will be impossible due to reference from this fork.
-        @clients.select { |c| c != client }.each(&:close)
+        @clients.each_key { |c| c.close if c != client }
 
         Process.setsid
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
@@ -245,7 +245,7 @@ module Spring
       if exiting?
         # Ensure that we do not ignore subsequent termination attempts
         log "forced exit"
-        @waiting.each { |pid| Process.kill("TERM", pid) }
+        @waiting.each_key { |pid| Process.kill("TERM", pid) }
         Kernel.exit
       else
         state! :terminating
@@ -337,7 +337,7 @@ module Spring
     end
 
     def wait(pid, streams, client)
-      @mutex.synchronize { @waiting << pid }
+      @mutex.synchronize { @waiting[pid] = true }
 
       # Wait in a separate thread so we can run multiple commands at once
       Spring.failsafe_thread {

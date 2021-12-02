@@ -1,5 +1,8 @@
 ## Next Release
 
+* Stop requiring `set` before bundler can select the proper version. This could result in
+  `already defined constant` warnings during boot (#659).
+
 ## 3.1.1
 
 * Fix compatibility issues with code that raises exceptions with frozen backtraces.

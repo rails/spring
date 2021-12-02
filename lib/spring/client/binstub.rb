@@ -146,7 +146,7 @@ CODE
         @mode   = :add
         @items  = args.drop(1)
                       .map { |name| find_commands name }
-                      .inject(Set.new, :|)
+                      .flatten.uniq
                       .map { |command| Item.new(command) }
       end
 

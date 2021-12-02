@@ -91,7 +91,7 @@ module Spring
       end
 
       def expanded_files
-        files + Dir["{#{directories.map { |d| "#{d}/**/*" }.join(",")}}"]
+        (files.keys + Dir["{#{directories.keys.map { |d| "#{d}/**/*" }.join(",")}}"]).uniq
       end
     end
   end
