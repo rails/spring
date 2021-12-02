@@ -19,8 +19,8 @@ module Spring
 
         @root        = File.realpath(root)
         @latency     = latency
-        @files       = Set.new
-        @directories = Set.new
+        @files       = {}
+        @directories = {}
         @stale       = false
         @listeners   = []
 
@@ -63,10 +63,10 @@ module Spring
         synchronize {
           items.each do |item|
             if item.directory?
-              directories << item.realpath.to_s
+              directories[item.realpath.to_s] = true
             else
               begin
-                files << item.realpath.to_s
+                files[item.realpath.to_s] = true
               rescue Errno::ENOENT
                 # Race condition. Ignore symlinks whose target was removed
                 # since the check above, or are deeply chained.

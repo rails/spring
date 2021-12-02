@@ -3,7 +3,7 @@ require "set"
 module Spring
   module Client
     class Rails < Command
-      COMMANDS = Set.new %w(console runner generate destroy test)
+      COMMANDS = %w(console runner generate destroy test)
 
       ALIASES = {
         "c" => "console",

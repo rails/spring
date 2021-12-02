@@ -149,13 +149,13 @@ module Spring
       test "add relative path" do
         File.write("#{dir}/foo", "foo")
         watcher.add "foo"
-        assert_equal ["#{dir}/foo"], watcher.files.to_a
+        assert_equal ["#{dir}/foo"], watcher.files.keys
       end
 
       test "add dot relative path" do
         File.write("#{dir}/foo", "foo")
         watcher.add "./foo"
-        assert_equal ["#{dir}/foo"], watcher.files.to_a
+        assert_equal ["#{dir}/foo"], watcher.files.keys
       end
 
       test "add non existent file" do
@@ -167,20 +167,20 @@ module Spring
         File.write("#{dir}/foo", "foo")
         File.write("#{dir}/bar", "bar")
         watcher.add "foo", "bar"
-        assert_equal ["#{dir}/foo", "#{dir}/bar"], watcher.files.to_a
+        assert_equal ["#{dir}/foo", "#{dir}/bar"], watcher.files.keys
       end
 
       test "add files as nested array" do
         File.write("#{dir}/foo", "foo")
         watcher.add [["foo"]]
-        assert_equal ["#{dir}/foo"], watcher.files.to_a
+        assert_equal ["#{dir}/foo"], watcher.files.keys
       end
 
       test "add symlink" do
         File.write("#{dir}/bar", "bar")
         File.symlink("#{dir}/bar", "#{dir}/foo")
         watcher.add './foo'
-        assert_equal ["#{dir}/bar"], watcher.files.to_a
+        assert_equal ["#{dir}/bar"], watcher.files.keys
       end
 
       test "add dangling symlink" do
