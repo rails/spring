@@ -271,6 +271,7 @@ module Spring
       test "binstub when spring gem is missing" do
         without_gem "spring-#{Spring::VERSION}" do
           File.write(app.gemfile, app.gemfile.read.gsub(/gem 'spring.*/, ""))
+          app.run! "bundle install", timeout: nil
           assert_success "bin/rake -T", stdout: "rake db:migrate"
         end
       end
@@ -540,7 +541,7 @@ module Spring
         File.write(app.path("script.rb"), <<-RUBY.strip_heredoc)
           gemfile = Rails.root.join("Gemfile")
           File.write(gemfile, "\#{gemfile.read}gem 'text'\\n")
-          Bundler.with_clean_env do
+          Bundler.with_unbundled_env do
             system(#{app.env.inspect}, "bundle install")
           end
           output = `\#{Rails.root.join('bin/rails')} runner 'require "text"; puts "done";'`
@@ -557,7 +558,7 @@ module Spring
         File.write(app.path("script.rb"), <<-RUBY.strip_heredoc)
           gemfile = Rails.root.join("gems.rb")
           File.write(gemfile, "\#{gemfile.read}gem 'text'\\n")
-          Bundler.with_clean_env do
+          Bundler.with_unbundled_env do
             system(#{app.env.inspect}, "bundle install")
           end
           output = `\#{Rails.root.join('bin/rails')} runner 'require "text"; puts "done";'`

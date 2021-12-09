@@ -31,7 +31,7 @@ module Spring
       end
 
       def generate
-        Bundler.with_original_env { generate_files }
+        Bundler.with_unbundled_env { generate_files }
         install_spring
         generate_scaffold
       end
