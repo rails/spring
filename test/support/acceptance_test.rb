@@ -271,7 +271,7 @@ module Spring
       test "binstub when spring gem is missing" do
         without_gem "spring-#{Spring::VERSION}" do
           File.write(app.gemfile, app.gemfile.read.gsub(/gem 'spring.*/, ""))
-          app.run! "bundle install", timeout: nil
+          app.run! "bundle install", timeout: 300
           assert_success "bin/rake -T", stdout: "rake db:migrate"
         end
       end
