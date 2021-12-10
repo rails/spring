@@ -14,7 +14,7 @@ module Spring
         if ENV['RAILS_VERSION'] == "edge"
           "7.0.0.alpha"
         else
-          '~> 6.0.0'
+          "~> #{ENV['RAILS_VERSION'] || "6.1"}.0"
         end
       end
 
