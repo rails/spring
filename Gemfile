@@ -5,6 +5,9 @@ gemspec
 
 if ENV["RAILS_VERSION"] == "edge"
   gem "activesupport", github: "rails/rails", branch: "main"
+elsif ENV['RAILS_VERSION'] == "7.0"
+  gem "activesupport", ">= 7.0.0.alpha"
+  ">= 7.0.0.alpha"
 elsif ENV["RAILS_VERSION"]
-  gem "activesupport", "~> #{ENV["RAILS_VERSION"] || "6.1"}.0"
+  gem "activesupport", "~> #{ENV["RAILS_VERSION"]}.0"
 end

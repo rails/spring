@@ -12,7 +12,9 @@ module Spring
 
       def rails_version
         if ENV['RAILS_VERSION'] == "edge"
-          "7.0.0.alpha"
+          "7.1.0.alpha"
+        elsif ENV['RAILS_VERSION'] == "7.0"
+          ">= 7.0.0.alpha"
         else
           "~> #{ENV['RAILS_VERSION'] || "6.1"}.0"
         end
@@ -157,7 +159,7 @@ module Spring
       end
 
       test "code changes in pre-referenced app files are picked up" do
-        File.write(app.path("config/initializers/load_posts_controller.rb"), "PostsController\n")
+        File.write(app.path("config/initializers/load_posts_controller.rb"), "Rails.application.config.to_prepare { PostsController }\n")
 
         assert_speedup do
           assert_success app.spring_test_command, stdout: "0 failures"
@@ -519,7 +521,8 @@ module Spring
       test "changing the Gemfile works" do
         assert_success %(bin/rails runner 'require "sqlite3"')
 
-        File.write(app.gemfile, app.gemfile.read.gsub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
+        File.write(app.gemfile, app.gemfile.read.gsub(%r{gem ['"]sqlite3['"]}, %{# gem "sqlite3"}))
+        puts app.gemfile.read
         app.await_reload
 
         assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
@@ -531,7 +534,7 @@ module Spring
 
         assert_success %(bin/rails runner 'require "sqlite3"')
 
-        File.write(app.gems_rb, app.gems_rb.read.sub(%{gem 'sqlite3'}, %{# gem 'sqlite3'}))
+        File.write(app.gems_rb, app.gems_rb.read.gsub(%r{gem ['"]sqlite3['"]}, %{# gem "sqlite3"}))
         app.await_reload
 
         assert_failure %(bin/rails runner 'require "sqlite3"'), stderr: "sqlite3"
