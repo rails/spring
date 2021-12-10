@@ -11,41 +11,36 @@ module Spring
       # client is not invoked for whatever reason, then the Kernel.exit won't
       # happen, and so we'll fall back to the lines after this block, which
       # should cause the "unsprung" version of the command to run.
-      LOADER = <<CODE
-begin
-  load File.expand_path('../spring', __FILE__)
-rescue LoadError => e
-  raise unless e.message.include?('spring')
-end
-CODE
+      LOADER = <<~CODE
+        load File.expand_path("spring", __dir__)
+      CODE
 
       # The defined? check ensures these lines don't execute when we load the
       # binstub from the application process. Which means that in the application
       # process we'll execute the lines which come after the LOADER block, which
       # is what we want.
-      SPRING = <<'CODE'
-#!/usr/bin/env ruby
+      SPRING = <<~CODE
+        #!/usr/bin/env ruby
 
-# This file loads Spring without using Bundler, in order to be fast.
-# It gets overwritten when you run the `spring binstub` command.
+        # This file loads Spring without using loading other gems in the Gemfile, in order to be fast.
+        # It gets overwritten when you run the `spring binstub` command.
 
-unless defined?(Spring)
-  require 'rubygems'
-  require 'bundler'
+        if !defined?(Spring) && [nil, "development", "test"].include?(ENV["RAILS_ENV"])
+          require "bundler"
 
-  lockfile = Bundler::LockfileParser.new(Bundler.default_lockfile.read)
-  spring = lockfile.specs.detect { |spec| spec.name == 'spring' }
-  if spring
-    Gem.use_paths Gem.dir, Bundler.bundle_path.to_s, *Gem.path
-    gem 'spring', spring.version
-    require 'spring/binstub'
-  end
-end
-CODE
+          Bundler.locked_gems.specs.find { |spec| spec.name == "spring" }&.tap do |spring|
+            Gem.use_paths Gem.dir, Bundler.bundle_path.to_s, *Gem.path
+            gem "spring", spring.version
+            require "spring/binstub"
+          end
+        end
+      CODE
 
       OLD_BINSTUB = %{if !Process.respond_to?(:fork) || Gem::Specification.find_all_by_name("spring").empty?}
 
       BINSTUB_VARIATIONS = Regexp.union [
+        %{load File.expand_path("spring", __dir__)\n},
+        %{begin\n  load File.expand_path('../spring', __FILE__)\nrescue LoadError => e\n  raise unless e.message.include?('spring')\nend\n},
         %{begin\n  load File.expand_path('../spring', __FILE__)\nrescue LoadError\nend\n},
         %{begin\n  spring_bin_path = File.expand_path('../spring', __FILE__)\n  load spring_bin_path\nrescue LoadError => e\n  raise unless e.message.end_with? spring_bin_path, 'spring/binstub'\nend\n},
         LOADER

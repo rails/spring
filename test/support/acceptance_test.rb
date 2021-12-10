@@ -281,7 +281,7 @@ module Spring
       test "binstub when spring binary is missing" do
         begin
           File.rename(app.path("bin/spring"), app.path("bin/spring.bak"))
-          assert_success "bin/rake -T", stdout: "rake db:migrate"
+          assert_failure "bin/rake -T", stderr: "`load': cannot load such file"
         ensure
           File.rename(app.path("bin/spring.bak"), app.path("bin/spring"))
         end
@@ -407,6 +407,65 @@ module Spring
 
         assert_success "bin/spring binstub rake", stdout: "bin/rake: upgraded"
         assert_equal expected, app.path("bin/rake").read
+
+        # newer variation which checks end of exception message using include
+        File.write(app.path("bin/rake"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
+          begin
+            load File.expand_path('../spring', __FILE__)
+          rescue LoadError => e
+            raise unless e.message.include?('spring')
+          end
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+
+        assert_success "bin/spring binstub rake", stdout: "bin/rake: upgraded"
+        assert_equal expected, app.path("bin/rake").read
+      end
+
+      test "binstub remove with new binstub variations which checks end of the exception message using include" do
+        # newer variation which checks end of exception message using include
+        File.write(app.path("bin/rake"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
+          begin
+            load File.expand_path('../spring', __FILE__)
+          rescue LoadError => e
+            raise unless e.message.include?('spring')
+          end
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+
+        File.write(app.path("bin/rails"), <<-RUBY.strip_heredoc)
+          #!/usr/bin/env ruby
+          begin
+            load File.expand_path('../spring', __FILE__)
+          rescue LoadError => e
+            raise unless e.message.include?('spring')
+          end
+          APP_PATH = File.expand_path('../../config/application',  __FILE__)
+          require_relative '../config/boot'
+          require 'rails/commands'
+        RUBY
+
+        assert_success "bin/spring binstub --remove rake", stdout: "bin/rake: Spring removed"
+        assert_success "bin/spring binstub --remove rails", stdout: "bin/rails: Spring removed"
+
+        expected = <<-RUBY.strip_heredoc
+          #!/usr/bin/env ruby
+          require 'bundler/setup'
+          load Gem.bin_path('rake', 'rake')
+        RUBY
+        assert_equal expected, app.path("bin/rake").read
+
+        expected = <<-RUBY.strip_heredoc
+          #!/usr/bin/env ruby
+          APP_PATH = File.expand_path('../../config/application',  __FILE__)
+          require_relative '../config/boot'
+          require 'rails/commands'
+        RUBY
+        assert_equal expected, app.path("bin/rails").read
       end
 
       test "binstub remove with new binstub variations" do
