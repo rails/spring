@@ -8,13 +8,6 @@ jobs:
       matrix:
         ruby: [ '2.7', '3.0.2', 'head' ]
         rails: [ '6.0', '6.1', 'edge' ]
-        include:
-          - ruby: '2.6'
-            rails: '5.2'
-          - ruby: '2.6'
-            rails: '6.0'
-          - ruby: '2.6'
-            rails: '6.1'
 
     env:
       RAILS_VERSION: ${{ matrix.rails }}

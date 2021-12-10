@@ -60,15 +60,7 @@ module Spring
           c.sub!("https://rubygems.org", "http://rubygems.org")
           c.gsub!(/(gem '(byebug|web-console|sdoc|jbuilder)')/, "# \\1")
 
-          if @version.to_s < '5.2'
-            c.gsub!(/(gem 'sqlite3')/, "# \\1")
-          end
-
           c
-        end
-
-        if @version.to_s < '5.2'
-          append_to_file(application.gemfile, "gem 'sqlite3', '< 1.4'")
         end
 
         rewrite_file(application.path("config/environments/test.rb")) do |c|
