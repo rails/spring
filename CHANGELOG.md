@@ -1,5 +1,7 @@
 ## Next Release
 
+## 4.0.0
+
 * Stop requiring `set` before bundler can select the proper version. This could result in
   `already defined constant` warnings during boot (#659).
 * Require Ruby 2.7.
