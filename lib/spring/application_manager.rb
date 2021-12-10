@@ -93,7 +93,7 @@ module Spring
     def start_child(preload = false)
       @child, child_socket = UNIXSocket.pair
 
-      Bundler.with_original_env do
+      Bundler.with_unbundled_env do
         bundler_dir = File.expand_path("../..", $LOADED_FEATURES.grep(/bundler\/setup\.rb$/).first)
         @pid = Process.spawn(
           {

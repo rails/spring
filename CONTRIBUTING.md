@@ -30,7 +30,7 @@ acceptance tests again, which will generate a new app.
 You can set the `RAILS_VERSION` environment variable:
 
 ```
-$ RAILS_VERSION="~> 3.2.0" rake test:acceptance
+$ RAILS_VERSION="6.1" rake test:acceptance
 ```
 
 The apps in `test/apps` will be named based on the rails version, and the

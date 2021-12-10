@@ -92,8 +92,8 @@ module Spring
 
       require Spring.application_root_path.join("config", "application")
 
-      unless Rails.respond_to?(:gem_version) && Rails.gem_version >= Gem::Version.new('5.2.0')
-        raise "Spring only supports Rails >= 5.2.0"
+      unless Rails.respond_to?(:gem_version) && Rails.gem_version >= Gem::Version.new('6.0.0')
+        raise "Spring only supports Rails >= 6.0.0"
       end
 
       Rails::Application.initializer :ensure_reloading_is_enabled, group: :all do
