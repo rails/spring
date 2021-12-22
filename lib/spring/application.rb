@@ -1,5 +1,4 @@
 require "spring/boot"
-require "set"
 require "pty"
 
 module Spring

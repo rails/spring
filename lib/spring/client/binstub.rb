@@ -1,5 +1,3 @@
-require 'set'
-
 module Spring
   module Client
     class Binstub < Command

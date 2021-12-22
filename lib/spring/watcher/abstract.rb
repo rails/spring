@@ -1,4 +1,3 @@
-require "set"
 require "pathname"
 require "mutex_m"
 
