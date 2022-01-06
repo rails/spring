@@ -1,5 +1,6 @@
 
 module Expedite
+  # Definition of a Variant
   class Variant
     ##
     # Name of the parent variant. This allows you to create variants from

@@ -118,14 +118,14 @@ module Expedite
           env.applications.each do |k, v|
             application_pids << v.pid if v.pid
           end
-          send_json(unix_socket, application_pids)
+          send_json(unix_socket, { "return" => application_pids })
 
           unix_socket.close
           client.close
         else
         end
       elsif Expedite::Commands.lookup(cmd)
-        log "running command #{cmd}"
+        log "running command #{cmd}: #{args}"
         client.puts
 
         target = env.applications[variant]

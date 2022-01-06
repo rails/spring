@@ -14,7 +14,7 @@ module Expedite
           puts "Expedite is running (pid=#{server.pid})"
           puts
           print_process server.pid
-          Expedite.server.application_pids.each do |pid|
+          Expedite.v("__server__").invoke("application_pids").each do |pid|
             print_process pid
           end
         else

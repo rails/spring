@@ -1,8 +1,8 @@
 module Expedite
   module Command
     class Boot
-      def call
-        variant = ARGV[0]
+      def call(*args)
+        variant = args[0]
 
         require "expedite/application"
         

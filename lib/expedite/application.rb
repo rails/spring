@@ -141,13 +141,10 @@ module Expedite
 
       connect_database
 
-      pid = fork {
+      pid = fork do
         Process.setsid
         IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
         trap("TERM", "DEFAULT")
-
-        ARGV.replace(args)
-        $0 = exec_name
 
         # Load in the current env vars, except those which *were* changed when Spring started
         env.each { |k, v| ENV[k] = v }
@@ -166,8 +163,14 @@ module Expedite
         invoke_after_fork_callbacks
         shush_backtraces
 
-        command.call
-      }
+        begin
+          ret = command.call(*args)
+        rescue => e
+          send_json(client, { "exception" => e })
+        else
+          send_json(client, { "return" => ret })
+        end
+      end
 
       disconnect_database
 

@@ -5,14 +5,14 @@ require 'bundler'
 require 'rbconfig'
 require 'socket'
 
-require 'expedite/client/base'
+require 'expedite/client/invoke'
 require 'expedite/env'
 require 'expedite/errors'
 require 'expedite/send_json'
 
 module Expedite
   module Client
-    class Exec < Base
+    class Exec < Invoke
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
 
       def initialize(env: nil, variant: nil)
@@ -61,16 +61,6 @@ module Expedite
         exit status.to_i
       rescue Errno::ECONNRESET
         exit 1
-      end
-
-      def gem_env
-        bundle = Bundler.bundle_path.to_s
-        paths  = Gem.path + ENV["GEM_PATH"].to_s.split(File::PATH_SEPARATOR)
-
-        {
-          "GEM_PATH" => [bundle, *paths].uniq.join(File::PATH_SEPARATOR),
-          "GEM_HOME" => bundle
-        }
       end
 
       def verify_server_version

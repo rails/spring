@@ -6,7 +6,7 @@ require 'expedite/send_json'
 
 module Expedite
   module Client
-    class Base
+    class Invoke
       include SendJson
 
       CONNECT_TIMEOUT   = 1
@@ -83,10 +83,16 @@ module Expedite
           ## suspend_resume_on_tstp_cont(pid)
 
           ## forward_signals(application)
-          ret = read_json(application)
-          log "got return value #{ret}"
+          result = read_json(application)
+          if result.key?("exception")
+            e = result["exception"]
+            log "got exception #{e}"
+            raise e
+          end
 
-          ret
+          ret = result["return"]
+          log "got return value #{ret}"
+          return ret
         else
           log "got no pid"
           raise UnknownError, "got no pid"
@@ -130,11 +136,21 @@ module Expedite
       end
 
       def log(message)
-        env.log "[client] #{message}"
+        puts  "[client] #{message}"
       end
 
       def connect
         @server = UNIXSocket.open(env.socket_path)
+      end
+
+      def gem_env
+        bundle = Bundler.bundle_path.to_s
+        paths  = Gem.path + ENV["GEM_PATH"].to_s.split(File::PATH_SEPARATOR)
+
+        {
+          "GEM_PATH" => [bundle, *paths].uniq.join(File::PATH_SEPARATOR),
+          "GEM_HOME" => bundle
+        }
       end
     end
   end
