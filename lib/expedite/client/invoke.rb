@@ -2,22 +2,20 @@ require 'socket'
 
 require 'expedite/env'
 require 'expedite/errors'
-require 'expedite/send_json'
+require 'expedite/protocol'
 
 module Expedite
   module Client
     class Invoke
-      include SendJson
-
       CONNECT_TIMEOUT   = 1
       BOOT_TIMEOUT      = 20
 
-      attr_reader :args, :env, :variant
+      attr_reader :args, :env, :agent
       attr_reader :server
 
-      def initialize(env: nil, variant: nil)
+      def initialize(env: nil, agent: nil)
         @env = env || Env.new
-        @variant = variant
+        @agent = agent
 
         @server_booted = false
       end
@@ -38,9 +36,9 @@ module Expedite
       def perform(*args)
         verify_server_version
 
-        application, client = UNIXSocket.pair
-        connect_to_application(client, args)
-        run_command(client, application, args)
+        agent, client = UNIXSocket.pair
+        connect_to_agent(client, args)
+        run_command(client, agent, args)
       end
 
       def verify_server_version
@@ -48,10 +46,10 @@ module Expedite
         raise ArgumentError, "Server mismatch. Expected #{env.version}, got #{server_version}." if server_version != env.version
       end
 
-      def connect_to_application(client, args)
+      def connect_to_agent(client, args)
         server.send_io client
 
-        send_json server, "args" => args, "variant" => variant
+        server.send_object("args" => args, "agent" => agent)
 
         if IO.select([server], [], [], CONNECT_TIMEOUT)
           server.gets or raise CommandNotFound
@@ -60,14 +58,14 @@ module Expedite
         end
       end
 
-      def run_command(client, application, args)
+      def run_command(client, agent, args)
         log "sending command"
 
-        application.send_io STDOUT
-        application.send_io STDERR
-        application.send_io STDIN
+        agent.send_io STDOUT
+        agent.send_io STDERR
+        agent.send_io STDIN
 
-        send_json application, "args" => args, "env" => ENV.to_hash
+        agent.send_object("args" => args, "env" => ENV.to_hash)
 
         pid = server.gets
         pid = pid.chomp if pid
@@ -83,7 +81,7 @@ module Expedite
           ## suspend_resume_on_tstp_cont(pid)
 
           ## forward_signals(application)
-          result = read_json(application)
+          result = agent.recv_object
           if result.key?("exception")
             e = result["exception"]
             log "got exception #{e}"
@@ -98,7 +96,7 @@ module Expedite
           raise UnknownError, "got no pid"
         end
       ensure
-        application.close
+        agent.close
       end
 
       def boot_server
@@ -136,7 +134,7 @@ module Expedite
       end
 
       def log(message)
-        puts  "[client] #{message}"
+        env.log "[client] #{message}"
       end
 
       def connect

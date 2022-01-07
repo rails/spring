@@ -7,14 +7,14 @@ module Expedite
   module Cli
     class Status
       def run(args)
-        require 'expedite/server'
+        require 'expedite/server/controller'
 
-        server = Expedite::Server.new(foreground: true)
-        if server.running?
-          puts "Expedite is running (pid=#{server.pid})"
+        ctrl = Expedite::Server::Controller.new(foreground: true)
+        if ctrl.running?
+          puts "Expedite is running (pid=#{ctrl.pid})"
           puts
-          print_process server.pid
-          Expedite.v("__server__").invoke("application_pids").each do |pid|
+          print_process ctrl.pid
+          Expedite.agent("__server__").invoke("application_pids").each do |pid|
             print_process pid
           end
         else

@@ -8,52 +8,52 @@ derivatives to start faster.
 
 ## Usage
 
-To use expedite you need to register variants and commands in an `expedite_helper.rb`
+To use expedite you need to register agents and commands in an `expedite_helper.rb`
 that is placed in the root directory of your application. The sample discussed
 in this section is in the [examples/simple](examples/simple) folder.
 
-This is the "parent" variant:
+This is the "parent" agent:
 ```
-# You can pass `keep_alive: true` if you want the variant to restart
+# You can pass `keep_alive: true` if you want the agent to restart
 # automatically if it is terminated. This option defaults to false.
-Expedite::Variants.register('parent') do
+Expedite::Agents.register('parent') do
   $sleep_parent = 1
 end
 ```
 
-You can register variants that are based on other variants. You can also have wildcard
+You can register agents that are based on other agents. You can also have wildcard
 matchers.
 ```
-Expedite::Variants.register('development/*', parent: 'parent') do |name|
+Expedite::Agents.register('development/*', parent: 'parent') do |name|
   $sleep_child = name
 end
 ```
 
-You register commands by creating classes in the `Expedite::Command` module. For example,
+You register commands by creating classes in the `Expedite::Action` module. For example,
 this defines a `custom` command.
 
 ```
-Expedite::Commands.register("custom") do
-  puts "[#{Expedite.variant}] sleeping for 5"
+Expedite::Actions.register("custom") do
+  puts "[#{Expedite.agent}] sleeping for 5"
   puts "$sleep_parent = #{$sleep_parent}"
   puts "$sleep_child = #{$sleep_child}"
-  puts "[#{Expedite.variant}] done"
+  puts "[#{Expedite.agent}] done"
 end
 ```
 
-After registering your variant and commands, you can then use it. In the simple
+After registering your agent and commands, you can then use it. In the simple
 example, the `main.rb` calls the `custom` command on the `development/abc`
-variant.
+agent.
 
 ```
 require 'expedite'
 
-Expedite.v("development/abc").call("custom")
+Expedite.agent("development/abc").invoke("custom")
 ```
 
 When you run `main.rb`, the following output is produced. Note that `$sleep_parent`
-comes from teh `parent` variant, and `$sleep_child` comes from the `development/abc`
-variant.
+comes from teh `parent` agent, and `$sleep_child` comes from the `development/abc`
+agent.
 
 ```
 # bundle exec ./main.rb
@@ -66,11 +66,11 @@ $sleep_child = development/abc
 Calling `main.rb` automatically started the expedite server in the background.
 In the above example, it does the following:
 
-1. Launch the `base` variant
-2. Fork from the `base` variant to create the `development/abc` variant
-3. Fork from the `development/abc` variant
+1. Launch the `base` agent
+2. Fork from the `base` agent to create the `development/abc` agent
+3. Fork from the `development/abc` agent
 
-To explicitly stop the server and all the variants, you use:
+To explicitly stop the server and all the agents, you use:
 
 ```
 $ bundle exec expedite stop

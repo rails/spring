@@ -1,3 +1,1 @@
-puts "list users"
-puts User.count
-puts User.all
+puts "[#{Process.pid}] list_users.rb: User.count=#{User.count}; First name=#{User.first&.name}"

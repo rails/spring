@@ -1,7 +1,7 @@
 
 module Expedite
-  module Command
-    class Basic
+  module Action
+    class Block
       attr_reader :runs_in
       
       def initialize(runs_in: :application, &block)

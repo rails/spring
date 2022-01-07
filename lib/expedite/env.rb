@@ -1,6 +1,7 @@
 require 'digest'
 require 'pathname'
 require 'expedite/version'
+require 'expedite/server/agent_manager'
 
 module Expedite
   class Env
@@ -18,7 +19,7 @@ module Expedite
 
       env = self
       @applications = Hash.new do |h, k|
-        h[k] = ApplicationManager.new(k, env)
+        h[k] = Server::AgentManager.new(k, env)
       end
     end
 

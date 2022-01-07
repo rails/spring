@@ -1,7 +1,7 @@
-require "expedite/application"
+require "expedite/server/agent"
 
-app = Expedite::Application.new(
-  variant: ENV['EXPEDITE_VARIANT'],
+app = Expedite::Server::Agent.new(
+  agent: ENV['EXPEDITE_VARIANT'],
   manager: UNIXSocket.for_fd(3),
   env: Expedite::Env.new(
     root: ENV['EXPEDITE_ROOT'],

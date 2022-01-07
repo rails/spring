@@ -2,9 +2,9 @@ module Expedite
   module Cli
     class Server
       def run(args)
-        require 'expedite/server'
+        require 'expedite/server/controller'
 
-        server = Expedite::Server.new(foreground: true)
+        server = Expedite::Server::Controller.new(foreground: true)
         server.boot
       end
 

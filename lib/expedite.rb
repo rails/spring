@@ -1,44 +1,35 @@
 require 'expedite/client/exec'
 require 'expedite/client/invoke'
-require 'expedite/client/server'
+require 'expedite/syntax'
 
 module Expedite
-  class VariantProxy
-    attr_accessor :env, :variant
+  class AgentProxy
+    attr_accessor :env, :agent
 
-    def initialize(env:, variant:)
+    def initialize(env:, agent:)
       self.env = env
-      self.variant = variant
+      self.agent = agent
     end
 
     def exec(*args)
-      Client::Exec.new(env: env, variant: variant).call(*args)
+      Client::Exec.new(env: env, agent: agent).call(*args)
     end
 
     def invoke(*args)
-      Client::Invoke.new(env: env, variant: variant).call(*args)
+      Client::Invoke.new(env: env, agent: agent).call(*args)
     end
   end
 end
 
 module Expedite
   ##
-  # Returns a client to dispatch actions to the specified variant
-  def self.variant(variant)
+  # Returns a client to dispatch actions to the specified agent
+  def self.agent(agent)
     @clients ||= Hash.new do |h, k|
-      VariantProxy.new(env: Env.new, variant: variant)
+      AgentProxy.new(env: Env.new, agent: agent)
     end
-    @clients[variant]
-  end
-
-  ##
-  # Alias for self.variant
-  def self.v(variant)
-    self.variant(variant)
-  end
-
-  def self.server
-    @server = Client::Server.new(env: Env.new)
+    @clients[agent]
   end
 end
+
 

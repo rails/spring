@@ -1,9 +1,13 @@
 require 'test_helper.rb'
-require 'expedite/server'
+require 'expedite/server/controller'
 
-class ServerTest < Minitest::Test
+class ControllerTest < Minitest::Test
   def setup
-    @srv = Expedite::Server.new
+    @srv = Expedite::Server::Controller.new
+  end
+
+  def teardown
+    @srv.stop
   end
 
   def test_server_starts_and_stops

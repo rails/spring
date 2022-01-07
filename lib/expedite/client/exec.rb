@@ -8,14 +8,14 @@ require 'socket'
 require 'expedite/client/invoke'
 require 'expedite/env'
 require 'expedite/errors'
-require 'expedite/send_json'
+require 'expedite/protocol'
 
 module Expedite
   module Client
     class Exec < Invoke
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
 
-      def initialize(env: nil, variant: nil)
+      def initialize(env: nil, agent: nil)
         super
 
         @signal_queue  = []

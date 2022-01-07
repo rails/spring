@@ -1,13 +1,13 @@
 module Expedite
-  module Command
+  module Action
     class Boot
       def call(*args)
-        variant = args[0]
+        agent = args[0]
 
-        require "expedite/application"
+        require "expedite/server/agent"
         
-        Expedite::Application.new(
-          variant: variant,
+        Expedite::Server::Agent.new(
+          agent: agent,
           manager: UNIXSocket.for_fd(@child_socket.fileno),
           env: Expedite::Env.new(
             root: ENV['EXPEDITE_ROOT'],

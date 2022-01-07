@@ -1,33 +1,33 @@
 require "test_helper"
-require "expedite/variants"
+require "expedite/agents"
 
-class VariantsTest < Minitest::Test
+class AgentsTest < Minitest::Test
   def test_register
     assert_raises ::NotImplementedError do
-      Expedite::Variants.lookup("missing")
+      Expedite::Agents.lookup("missing")
     end
 
-    Expedite::Variants.register("dev/*") do |name|
+    Expedite::Agents.register("dev/*") do |name|
       assert name != nil
     end
 
     ["dev/abc", "dev/bcd"].each do |name|
-      v = Expedite::Variants.lookup(name)
+      v = Expedite::Agents.lookup(name)
       assert v != nil
       v.after_fork(name)
     end
     assert_raises ::NotImplementedError do
-      Expedite::Variants.lookup("dev")
+      Expedite::Agents.lookup("dev")
     end
 
-    Expedite::Variants.reset
+    Expedite::Agents.reset
     assert_raises ::NotImplementedError do
-      Expedite::Variants.lookup("dev/abc")
+      Expedite::Agents.lookup("dev/abc")
     end
 
     # Should be able to re-register
-    Expedite::Variants.register("dev/*")
+    Expedite::Agents.register("dev/*")
   ensure
-    Expedite::Variants.reset
+    Expedite::Agents.reset
   end
 end

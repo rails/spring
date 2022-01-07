@@ -2,10 +2,10 @@ module Expedite
   module Cli
     class Stop
       def run(args)
-        require 'expedite/server'
+        require 'expedite/server/controller'
 
-        server = Expedite::Server.new
-        server.stop
+        ctrl = Expedite::Server::Controller.new
+        ctrl.stop
       end
 
       def summary

@@ -1,5 +1,5 @@
 require "test_helper"
-require "expedite/application_manager"
+require "expedite/server/agent_manager"
 require "expedite/env"
 
 class ApplicationManagerTest < Minitest::Test
@@ -7,7 +7,7 @@ class ApplicationManagerTest < Minitest::Test
     env = Expedite::Env.new(root: "#{File.dirname(__FILE__)}/fixtures")
     env.load_helper
 
-    parent = Expedite::ApplicationManager.new("parent", env)
+    parent = Expedite::Server::AgentManager.new("parent", env)
 
     assert parent.parent == nil
     assert parent.keep_alive == false
@@ -17,6 +17,6 @@ class ApplicationManagerTest < Minitest::Test
     assert parent.pid != nil
   ensure
     parent&.stop
-    Expedite::Variants.reset
+    Expedite::Agents.reset
   end
 end
