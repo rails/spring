@@ -693,6 +693,10 @@ module Spring
         refute_output_includes "bin/rails runner ''", stderr: "WARN"
       end
 
+      test "rails without arguments" do
+        assert_success "bin/rails"
+      end
+
       test "rails db:migrate" do
         assert_speedup do
           2.times { app.run "bin/rails db:migrate" }
