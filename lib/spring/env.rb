@@ -1,5 +1,4 @@
 require "pathname"
-require "digest/md5"
 
 require "spring/version"
 require "spring/configuration"
@@ -41,6 +40,7 @@ module Spring
     end
 
     def application_id
+      require "digest/md5"
       ENV["SPRING_APPLICATION_ID"] || Digest::MD5.hexdigest(RUBY_VERSION + project_root.to_s)
     end
 
