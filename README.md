@@ -8,47 +8,54 @@ derivatives to start faster.
 
 ## Usage
 
-To use expedite you need to register agents and commands in an `expedite_helper.rb`
+To use expedite you need to define agents and actions in an `expedite_helper.rb`
 that is placed in the root directory of your application. The sample discussed
 in this section is in the [examples/simple](examples/simple) folder.
 
 This is the "parent" agent:
 ```
-# You can pass `keep_alive: true` if you want the agent to restart
-# automatically if it is terminated. This option defaults to false.
-Expedite::Agents.register('parent') do
-  $sleep_parent = 1
+Expedite.define do
+  agent :parent do
+    $parent_var = 1
+  end
 end
 ```
 
-You can register agents that are based on other agents. You can also have wildcard
+You can define agents that are based on other agents. You can also have wildcard
 matchers.
+
 ```
-Expedite::Agents.register('development/*', parent: 'parent') do |name|
-  $sleep_child = name
+Expedite.define do
+  agent "development/*", parent: :parent do |name|
+    $development_var = name
+  end
 end
 ```
 
-You register commands by creating classes in the `Expedite::Action` module. For example,
-this defines a `custom` command.
+The following defines an `info` action.
 
 ```
-Expedite::Actions.register("custom") do
-  puts "[#{Expedite.agent}] sleeping for 5"
-  puts "$sleep_parent = #{$sleep_parent}"
-  puts "$sleep_child = #{$sleep_child}"
-  puts "[#{Expedite.agent}] done"
+Expedite.define do
+  action :info do
+    puts "     Process.pid = #{Process.pid}"
+    puts "    Process.ppid = #{Process.ppid}"
+    puts "     $parent_var = #{$parent_var}"
+    puts "$development_var = #{$development_var}"
+  end
 end
 ```
 
-After registering your agent and commands, you can then use it. In the simple
-example, the `main.rb` calls the `custom` command on the `development/abc`
+After defining your agents and actions, you can then use it. In the simple
+example, the `main.rb` calls the `info` command on the `development/abc`
 agent.
 
+The `invoke` method will execute the action, and return the result. There
+is also an `exec` method that will replace the current executable with
+the action; in that case, the return result is the exit code.
 ```
 require 'expedite'
 
-Expedite.agent("development/abc").invoke("custom")
+Expedite.agent("development/abc").invoke("info")
 ```
 
 When you run `main.rb`, the following output is produced. Note that `$sleep_parent`
@@ -57,18 +64,18 @@ agent.
 
 ```
 # bundle exec ./main.rb
-[development/abc] sleeping for 5
-$sleep_parent = 1
-$sleep_child = development/abc
-[development/abc] done
+     Process.pid = 3855
+    Process.ppid = 3854
+     $parent_var = 1
+$development_var = development/abc
 ```
 
 Calling `main.rb` automatically started the expedite server in the background.
 In the above example, it does the following:
 
-1. Launch the `base` agent
-2. Fork from the `base` agent to create the `development/abc` agent
-3. Fork from the `development/abc` agent
+1. Launch the `parent` agent.
+2. Fork from the `parent` agent to create the `development/abc` agent.
+3. Fork from the `development/abc` agent to run the `info` command, and then quit.
 
 To explicitly stop the server and all the agents, you use:
 
