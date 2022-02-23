@@ -1,14 +1,14 @@
 Run the `main.rb` script.
 
 ```
-$ bundle exec ruby main.rb
-[development/abc] sleeping for 5
-$sleep_parent = 1
-$sleep_child = development/abc
-[development/abc] done
+$ bundle exec ./main.rb
+     Process.pid = 3855
+    Process.ppid = 3854
+     $parent_var = 1
+$development_var = development/abc
 ```
 
-Notice how `$sleep_parent` is set to `1`. This value was set in the parent process, and
+Notice how `$parent_var` is set to `1`. This value was set in the parent process, and
 then inherited in the child.
 
 You can see the preloader agents from `expedite status`
