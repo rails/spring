@@ -35,9 +35,9 @@ module Expedite
     end
 
     def lookup(name)
-       ret = @registrations[name]
-       raise NotImplementedError, "Action #{name.inspect} not found" if ret.nil?
-       ret
+      ret = @registrations[name.to_s]
+      raise NotImplementedError, "Action #{name.inspect} not found" if ret.nil?
+      ret
     end
 
     def register(name, klass_or_nil = nil, **named_options, &block)
@@ -47,7 +47,7 @@ module Expedite
         klass_or_nil.new(**named_options)
       end
 
-      @registrations[name] = cmd
+      @registrations[name.to_s] = cmd
     end
 
     def reset

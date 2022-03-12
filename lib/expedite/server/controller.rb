@@ -101,12 +101,12 @@ module Expedite
         app_client = client.recv_io
         command    = client.recv_object
 
-        args, agent = command.values_at('args', 'agent')
+        args, agent = command.values_at("args", "agent")
         cmd = args.first
 
-        if agent == '__server__'
+        if agent == "__server__"
           case cmd
-          when 'application_pids'
+          when "application_pids"
             # Corresponds to Client::Invoke#run_command
             client.puts
 
@@ -118,10 +118,10 @@ module Expedite
             client.puts Process.pid
 
             application_pids = []
-            env.applications.each do |k, v|
-              application_pids << v.pid if v.pid
+            env.applications.pools.each do |k, pool|
+              application_pids.concat(pool.all.map(&:pid))
             end
-            unix_socket.send_object("return" => application_pids)
+            unix_socket.send_object({"return" => application_pids}, env)
 
             unix_socket.close
             client.close
@@ -134,9 +134,9 @@ module Expedite
           client.puts
 
           begin
-            target = env.applications[agent]
-
-            client.puts target.run(app_client)
+            env.applications.with(agent) do |target|
+              client.puts target.run(app_client)
+            end
           rescue AgentNotFoundError => e
             unix_socket = UNIXSocket.for_fd(app_client.fileno)
             _stdout = unix_socket.recv_io
@@ -150,7 +150,7 @@ module Expedite
             # boot only
             #@child_socket = client.recv_io
             #@log_file = client.recv_io
-            unix_socket.send_object("exception" => e)
+            unix_socket.send_object({"exception" => e}, env)
 
             unix_socket.close
             client.close
@@ -195,7 +195,13 @@ module Expedite
           end
         end
 
-        env.applications.values.map { |a| Expedite.failsafe_thread { a.stop } }.map(&:join)
+        thrs = []
+        env.applications.pools.each do |k, pool|
+          pool.all.each do |a|
+            thrs << Expedite.failsafe_thread { a.stop }
+          end
+        end
+        thrs.map(&:join)
       end
 
       def write_pidfile

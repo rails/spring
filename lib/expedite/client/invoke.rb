@@ -49,7 +49,7 @@ module Expedite
       def connect_to_agent(client, args)
         server.send_io client
 
-        server.send_object("args" => args, "agent" => agent)
+        server.send_object({"args" => args, "agent" => agent}, env)
 
         if IO.select([server], [], [], CONNECT_TIMEOUT)
           server.gets or raise CommandNotFound
@@ -65,7 +65,11 @@ module Expedite
         agent.send_io STDERR
         agent.send_io STDIN
 
-        agent.send_object("args" => args, "env" => ENV.to_hash)
+        agent.send_object({
+          "args" => args,
+          "env" => ENV.to_hash,
+          "method" => "invoke"
+        }, env)
 
         pid = server.gets
         pid = pid.chomp if pid

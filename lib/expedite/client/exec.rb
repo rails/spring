@@ -58,7 +58,16 @@ module Expedite
       def run
         status = perform(*@args)
 
-        exit status.to_i
+        code = if status.respond_to?(:to_i)
+          status.to_i
+        elsif status == true
+          0
+        elsif status == false
+          1
+        else
+          126
+        end
+        exit code
       rescue Errno::ECONNRESET
         exit 1
       end

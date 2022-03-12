@@ -23,6 +23,13 @@ module Expedite
   end
 
   module Server
+    # This code runs in the process that has the actual code pre-loaded, and is
+    # used to serve requests.
+    # * An "invoke" request is handled in the agent itself.
+    # * A "fork" request causes the agent to fork, and the forked process handles
+    #   the request.
+    # Each agent processes a single request at a time, unless it is an
+    # Expedite::Action::Boot request which is used to make derived agents.
     class Agent
       include Signals
 
@@ -125,7 +132,7 @@ module Expedite
       end
 
       def serve(client)
-        log "got client"
+        puts "got client"
         manager.puts
 
         _stdout, stderr, _stdin = streams = 3.times.map { client.recv_io }
@@ -133,48 +140,23 @@ module Expedite
 
         preload unless preloaded?
 
-        args, env = client.recv_object.values_at("args", "env")
+        args, env, method = client.recv_object.values_at("args", "env", "method")
 
         exec_name = args.shift
         action    = Expedite::Actions.lookup(exec_name)
         action.setup(client)
 
-        connect_database
-
-        pid = fork do
-          Process.setsid
-          IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
-          trap("TERM", "DEFAULT")
-
-          # Load in the current env vars, except those which *were* changed when Spring started
-          env.each { |k, v| ENV[k] = v }
-
-          # requiring is faster, so if config.cache_classes was true in
-          # the environment's config file, then we can respect that from
-          # here on as we no longer need constant reloading.
-          if @original_cache_classes
-            ActiveSupport::Dependencies.mechanism = :require
-            Rails.application.config.cache_classes = true
-          end
-
-          connect_database
-          srand
-
-          invoke_after_fork_callbacks
-          shush_backtraces
-
-          begin
-            ret = action.call(*args)
-          rescue => e
-            client.send_object("exception" => e)
-          else
-            client.send_object("return" => ret )
-          end
+        connect_database # why are we connecting prior? is this for invoke?
+        pid = case method
+        when "invoke"
+          serve_invoke(client, action, args, env)
+        else
+          serve_fork(client, action, args, env)
         end
 
         disconnect_database
 
-        log "forked #{pid}"
+        log "forked #{pid}" # pid is current process
         manager.puts pid
 
         # Boot makes a new application, so we don't wait for it
@@ -199,6 +181,51 @@ module Expedite
         # (i.e. to prevent `spring rake -T | grep db` from hanging forever),
         # even when exception is raised before forking (i.e. preloading).
         reset_streams
+      end
+
+      # Returns pid of the current process
+      def serve_invoke(client, action, args, env)
+        begin
+          ret = action.call(*args)
+        rescue Exception => e
+          client.send_object({"exception" => e}, self.env)
+        else
+          client.send_object({"return" => ret}, self.env)
+        end
+        Process.pid
+      end
+
+      def serve_fork(client, action, args, env)
+        fork do
+          Process.setsid
+          IGNORE_SIGNALS.each { |sig| trap(sig, "DEFAULT") }
+          trap("TERM", "DEFAULT")
+
+          # Load in the current env vars, except those which *were* changed when Spring started
+          env.each { |k, v| ENV[k] = v }
+
+          # requiring is faster, so if config.cache_classes was true in
+          # the environment's config file, then we can respect that from
+          # here on as we no longer need constant reloading.
+          if @original_cache_classes
+            ActiveSupport::Dependencies.mechanism = :require
+            Rails.application.config.cache_classes = true
+          end
+
+          connect_database
+          srand
+
+          invoke_after_fork_callbacks
+          shush_backtraces
+
+          begin
+            ret = action.call(*args)
+          rescue => e
+            client.send_object({"exception" => e}, self.env)
+          else
+            client.send_object({"return" => ret}, self.env)
+          end
+        end
       end
 
       def terminate
@@ -283,19 +310,28 @@ module Expedite
       end
 
       def wait(pid, streams, client)
-        @mutex.synchronize { @waiting << pid }
+        if pid != Process.pid
+          @mutex.synchronize { @waiting << pid }
+        end
 
         # Wait in a separate thread so we can run multiple actions at once
         Expedite.failsafe_thread {
           begin
-            _, status = Process.wait2 pid
-            log "#{pid} exited with #{status.exitstatus}"
+            exitstatue = if pid == Process.pid
+              log "#{pid} is current process"
+              0
+            else
+              _, status = Process.wait2 pid
+              log "#{pid} exited with #{status.exitstatus}"
+            end
 
             streams.each(&:close)
-            client.puts(status.exitstatus)
+            client.puts(exitstatus)
             client.close
           ensure
-            @mutex.synchronize { @waiting.delete pid }
+            if pid != Process.pid
+              @mutex.synchronize { @waiting.delete pid }
+            end
             exit_if_finished
           end
         }

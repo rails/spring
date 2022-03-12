@@ -1,7 +1,7 @@
 require 'digest'
 require 'pathname'
 require 'expedite/version'
-require 'expedite/server/agent_manager'
+require 'expedite/server/application_manager'
 
 module Expedite
   class Env
@@ -18,9 +18,7 @@ module Expedite
       @application_id = Digest::SHA1.hexdigest(@root)
 
       env = self
-      @applications = Hash.new do |h, k|
-        h[k] = Server::AgentManager.new(k, env)
-      end
+      @applications = Server::ApplicationManager.new(env)
     end
 
     def version

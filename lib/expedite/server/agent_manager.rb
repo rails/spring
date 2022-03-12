@@ -7,6 +7,7 @@ require 'expedite/agents'
 
 module Expedite
   module Server
+    # Locates agent processes and spawns them if necessary
     class AgentManager
       attr_reader :pid, :child, :name, :env, :status, :agent
 
@@ -81,7 +82,7 @@ module Expedite
         end
       rescue Exception => e
         # NotImplementedError is an Exception, not StandardError
-        client.send_object("exception" => e)
+        client.send_object({"exception" => e}, env)
         return Process.pid
       rescue Errno::ECONNRESET, Errno::EPIPE => e
         log "#{e} while reading from child; returning no pid"
@@ -120,6 +121,7 @@ module Expedite
         end
       end
 
+      # Creates a child that is forked from a parent
       def fork_child(preload = false)
         @child, child_socket = UNIXSocket.pair
 
@@ -129,21 +131,25 @@ module Expedite
         wr.send_io STDERR
         wr.send_io STDIN
 
-        wr.send_object(
+        wr.send_object({
           'args' => ['expedite/boot', name],
-          'env' => {}
-        )
+          'env' => {},
+          'method' => "fork",
+        }, env)
 
         wr.send_io child_socket
         wr.send_io env.log_file
         wr.close
 
-        @pid = env.applications[parent].run(rd)
+        @pid = env.applications.with(parent) do |target|
+          target.run(rd)
+        end
 
         start_wait_thread(pid, child) if child.gets
         child_socket.close
       end
 
+      # Creates a child that is started from scratch
       def spawn_child(preload = false)
         @child, child_socket = UNIXSocket.pair
 
