@@ -2,7 +2,8 @@ require "spring/errors"
 
 module Spring
   class << self
-    attr_accessor :application_root, :quiet
+    attr_accessor :application_root
+    attr_writer :quiet
 
     def gemfile
       require "bundler"
@@ -50,6 +51,10 @@ module Spring
 
     def project_root_path
       @project_root_path ||= find_project_root(Pathname.new(File.expand_path(Dir.pwd)))
+    end
+
+    def quiet
+      @quiet ||= ENV.key?('SPRING_QUIET') 
     end
 
     private

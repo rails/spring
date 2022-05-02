@@ -1,5 +1,7 @@
 ## Next Release
 
+* Add support for `SPRING_QUIET` environment variable.
+
 ## 4.0.0
 
 * Stop requiring `set` before bundler can select the proper version. This could result in

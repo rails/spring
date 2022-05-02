@@ -388,6 +388,12 @@ a command runs:
 Spring.quiet = true
 ```
 
+You can also set the initial state of the `quiet` configuration option to true
+by setting the `SPRING_QUIET` environment variable before executing Spring.
+This is useful if you want to set quiet mode when invoking the Spring executable
+in a subprocess, and cannot or prefer not to set it programmatically
+via the `Spring.quiet` option in `~/.spring.rb` or the app's `config/spring.rb`.
+
 ### Environment variables
 
 The following environment variables are used by Spring:
@@ -412,6 +418,8 @@ The following environment variables are used by Spring:
   the long-running Spring server process. By default, this is related to
   the socket path; if the socket path is `/foo/bar/spring.sock` the
   pidfile will be `/foo/bar/spring.pid`.
+* `SPRING_QUIET` - If set, the initial state of the `Spring.quiet`
+  configuration option will default to `true`.
 * `SPRING_SERVER_COMMAND` - The command to run to start up the Spring
   server when it is not already running. Defaults to `spring _[version]_
   server --background`.
