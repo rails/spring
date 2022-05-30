@@ -702,6 +702,10 @@ module Spring
           2.times { app.run "bin/rails db:migrate" }
         end
       end
+
+      test "rails db:system:change" do
+        assert_success "bin/rails db:system:change --to=sqlite3"
+      end
     end
   end
 end
