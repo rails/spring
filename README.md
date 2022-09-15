@@ -18,6 +18,7 @@ boot it every time you run a test, rake task or migration.
 
 * Ruby versions: MRI 2.7, MRI 3.0, MRI 3.1
 * Rails versions: 6.0, 6.1, 7.0
+* Bundler v2.1+
 
 Spring makes extensive use of `Process.fork`, so won't be able to
 provide a speed up on platforms which don't support forking (Windows, JRuby).
