@@ -209,13 +209,27 @@ module Spring
         # Delete all env vars which are unchanged from before Spring started
         original_env.each { |k, v| ENV.delete k if ENV[k] == v }
 
+        # if env_override is an array, delete the variables listed
+        if Spring.env_override.is_a? Array
+          Spring.env_override.each { |k| ENV.delete k }
+        end
+
         # Load in the current env vars, except those which *were* changed when Spring started
-        env.each { |k, v| ENV[k] ||= v }
+        # if env_override is true, load in *all* the current vars
+        env.each do |k, v|
+          if Spring.env_override == true
+            ENV[k] = v
+          else
+            ENV[k] ||= v
+          end
+        end
 
         connect_database
         srand
 
-        invoke_after_fork_callbacks
+        invoke_after_fork_callbacks(OpenStruct.new(
+          env: env,
+          original_env: original_env))
         shush_backtraces
 
         command.call
@@ -278,9 +292,13 @@ module Spring
       end
     end
 
-    def invoke_after_fork_callbacks
+    def invoke_after_fork_callbacks(arg)
       Spring.after_fork_callbacks.each do |callback|
-        callback.call
+        if callback.arity == 1
+          callback.call(arg)
+        else
+          callback.call
+        end
       end
     end
 

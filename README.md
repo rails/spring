@@ -360,6 +360,16 @@ end
 If you want to register multiple callbacks you can simply call
 `Spring.after_fork` multiple times with different blocks.
 
+If you accept an argument, it will contain an object with information about the
+Spring client request and server state. You can use it to detect environment
+variable mismatch between the invocation and the spring instance startup:
+
+```ruby
+Spring.after_fork do |cb|
+  raise "error" if cb.env['MASTER'].present? && cb.env['MASTER'] != ENV['MASTER']
+end
+```
+
 ### Watching files and directories
 
 Spring will automatically detect file changes to any file loaded when the server
@@ -387,6 +397,23 @@ a command runs:
 ``` ruby
 Spring.quiet = true
 ```
+
+### Environment variable overrides
+
+When the spring server starts up a new instance of the application, it does not
+set all environment variables by default. Only the environment variables that
+were set when the spring server started and were not changed by the application
+are propagated.
+
+This can be customized with `Spring.env_override`:
+
+- `Spring.env_override = false` : default behavior noted above
+
+- `Spring.env_override = true` : all variables are applied, regardless of if
+  they were changed by the application or not.
+
+- `Spring.env_override = []` (array of strings) : in addition to the usual
+  behavior, the variable listed here will be propagated
 
 ### Environment variables
 

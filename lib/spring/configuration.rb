@@ -2,7 +2,7 @@ require "spring/errors"
 
 module Spring
   class << self
-    attr_accessor :application_root, :quiet
+    attr_accessor :application_root, :quiet, :env_override
 
     def gemfile
       require "bundler"
@@ -66,4 +66,5 @@ module Spring
   end
 
   self.quiet = false
+  self.env_override = false
 end
