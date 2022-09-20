@@ -54,7 +54,7 @@ module Spring
     end
 
     def quiet
-      @quiet ||= ENV.key?('SPRING_QUIET') 
+      @quiet || ENV.key?('SPRING_QUIET')
     end
 
     private
