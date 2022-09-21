@@ -28,9 +28,16 @@ module Spring
   config = File.expand_path("~/.spring.rb")
   require config if File.exist?(config)
 
-  # If the config/spring.rb contains requires for commands from other gems,
-  # then we need to be under bundler.
-  require "bundler/setup"
+  # We force the TTY so bundler doesn't show a backtrace in case gems are missing.
+  old_env = ENV["BUNDLER_FORCE_TTY"]
+  ENV["BUNDLER_FORCE_TTY"] = "true"
+  begin
+    # If the config/spring.rb contains requires for commands from other gems,
+    # then we need to be under bundler.
+    require "bundler/setup"
+  ensure
+    ENV["BUNDLER_FORCE_TTY"] = old_env
+  end
 
   # Auto-require any Spring extensions which are in the Gemfile
   Gem::Specification.map(&:name).grep(/^spring-/).each do |command|
