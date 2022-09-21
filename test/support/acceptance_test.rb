@@ -659,12 +659,14 @@ module Spring
       end
 
       test "custom bundle path" do
+        skip if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("3.1.0") && ENV["RAILS_VERSION"] == "7.0"
+
         bundle_path = app.path(".bundle/#{Bundler.ruby_scope}")
         bundle_path.dirname.mkpath
 
         FileUtils.cp_r "#{app.gem_home}/", bundle_path.to_s
 
-        app.run! "bundle install --path .bundle --clean --prefer-local"
+        app.run! "bundle install --path .bundle --local"
 
         assert_speedup do
           2.times { assert_success "bundle exec rails runner ''" }
