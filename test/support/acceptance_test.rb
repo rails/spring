@@ -666,7 +666,7 @@ module Spring
 
         FileUtils.cp_r "#{app.gem_home}/", bundle_path.to_s
 
-        app.run! "bundle install --path .bundle --clean --prefer-local"
+        app.run! "bundle install --path .bundle --local"
 
         assert_speedup do
           2.times { assert_success "bundle exec rails runner ''" }
