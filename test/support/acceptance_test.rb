@@ -659,6 +659,8 @@ module Spring
       end
 
       test "custom bundle path" do
+        skip if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("3.1.0") && ENV["RAILS_VERSION"] == "7.0"
+
         bundle_path = app.path(".bundle/#{Bundler.ruby_scope}")
         bundle_path.dirname.mkpath
 
