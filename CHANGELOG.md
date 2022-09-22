@@ -2,7 +2,7 @@
 
 ## 4.1.0
 
-* * Fix bug which makes commands to freeze when the Rails application is writing to STDERR.
+* Fix bug which makes commands to freeze when the Rails application is writing to STDERR.
 * Fix rails db:system:change command failure issue.
 * Defer digest loading.
 * Add support for `SPRING_QUIET` environment variable.
