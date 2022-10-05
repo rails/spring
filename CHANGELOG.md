@@ -1,5 +1,7 @@
 ## Next Release
 
+* Skip spring without error if spring is not in installed bundler groups.
+
 ## 4.1.0
 
 * * Fix bug which makes commands to freeze when the Rails application is writing to STDERR.
