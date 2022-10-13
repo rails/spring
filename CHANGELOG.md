@@ -1,5 +1,7 @@
 ## Next Release
 
+* Don't load spring gem in bin/spring when spring is disabled
+
 ## 4.1.0
 
 * * Fix bug which makes commands to freeze when the Rails application is writing to STDERR.
