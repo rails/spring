@@ -23,7 +23,7 @@ module Spring
         # This file loads Spring without using loading other gems in the Gemfile, in order to be fast.
         # It gets overwritten when you run the `spring binstub` command.
 
-        if !defined?(Spring) && [nil, "development", "test"].include?(ENV["RAILS_ENV"])
+        if !defined?(Spring) && [nil, "development", "test"].include?(ENV["RAILS_ENV"] && !ENV["DISABLE_SPRING"])
           require "bundler"
 
           Bundler.locked_gems.specs.find { |spec| spec.name == "spring" }&.tap do |spring|
