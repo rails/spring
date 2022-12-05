@@ -71,10 +71,13 @@ Rails directory.
 Spring reloads application code, and therefore needs the application to have
 reloading enabled.
 
-Please, make sure `config.cache_classes` is `false` in the environments that
+Ensure that `config.enable_reloading` is `true` in the environments that
 Spring manages. That setting is typically configured in
-`config/environments/*.rb`. In particular, make sure it is `false` for the
+`config/environments/*.rb`. In particular, make sure it is `true` for the
 `test` environment.
+
+Note: in versions of Rails before 7, the setting is called `cache_classes`,
+and it needs to be `false` for Spring to work.
 
 ### Usage
 
