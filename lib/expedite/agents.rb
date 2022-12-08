@@ -82,7 +82,7 @@ module Expedite
       ret = @registrations.find do |r|
         r.match?(agent)
       end
-      raise NotImplementedError, "Agent #{agent.inspect} not found" if ret.nil?
+      raise AgentNotFoundError, "Agent #{agent.inspect} not found" if ret.nil?
       ret.agent
     end
 

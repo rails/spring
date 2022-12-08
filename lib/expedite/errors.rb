@@ -8,4 +8,7 @@ module Expedite
 
   class UnknownError < Error
   end
+
+  class AgentNotFoundError < Error
+  end
 end

@@ -31,5 +31,3 @@ module Expedite
     @clients[agent]
   end
 end
-
-

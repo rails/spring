@@ -3,7 +3,7 @@ require "expedite/agents"
 
 class AgentsTest < Minitest::Test
   def test_register
-    assert_raises ::NotImplementedError do
+    assert_raises Expedite::AgentNotFoundError do
       Expedite::Agents.lookup("missing")
     end
 
@@ -16,12 +16,12 @@ class AgentsTest < Minitest::Test
       assert v != nil
       v.after_fork(name)
     end
-    assert_raises ::NotImplementedError do
+    assert_raises Expedite::AgentNotFoundError do
       Expedite::Agents.lookup("dev")
     end
 
     Expedite::Agents.reset
-    assert_raises ::NotImplementedError do
+    assert_raises Expedite::AgentNotFoundError do
       Expedite::Agents.lookup("dev/abc")
     end
 
