@@ -143,22 +143,19 @@ module Expedite
       def spawn_child(preload = false)
         @child, child_socket = UNIXSocket.pair
 
-        Bundler.with_original_env do
-          puts File.expand_path("..", __FILE__)
-          bundler_dir = File.expand_path("../..", $LOADED_FEATURES.grep(/bundler\/setup\.rb$/).first)
-          @pid = Process.spawn(
-            {
-              "EXPEDITE_VARIANT" => name,
-              "EXPEDITE_ROOT" => env.root,
-            },
-            "ruby",
-            *(bundler_dir != RbConfig::CONFIG["rubylibdir"] ? ["-I", bundler_dir] : []),
-            "-I", File.expand_path("../../..", __FILE__),
-            "-e", "require 'expedite/server/agent_boot'",
-            3 => child_socket,
-            4 => env.log_file,
-          )
-        end
+        bundler_dir = File.expand_path("../..", $LOADED_FEATURES.grep(/bundler\/setup\.rb$/).first)
+        @pid = Process.spawn(
+          {
+            "EXPEDITE_VARIANT" => name,
+            "EXPEDITE_ROOT" => env.root,
+          },
+          "ruby",
+          *(bundler_dir != RbConfig::CONFIG["rubylibdir"] ? ["-I", bundler_dir] : []),
+          "-I", File.expand_path("../../..", __FILE__),
+          "-e", "require 'expedite/server/agent_boot'",
+          3 => child_socket,
+          4 => env.log_file,
+        )
 
         start_wait_thread(pid, child) if child.gets
         child_socket.close
