@@ -79,6 +79,10 @@ module Expedite
           log "got worker pid #{pid}"
           pid
         end
+      rescue Exception => e
+        # NotImplementedError is an Exception, not StandardError
+        client.send_object("exception" => e)
+        return Process.pid
       rescue Errno::ECONNRESET, Errno::EPIPE => e
         log "#{e} while reading from child; returning no pid"
         nil
@@ -157,7 +161,7 @@ module Expedite
           4 => env.log_file,
         )
 
-        start_wait_thread(pid, child) if child.gets
+        start_wait_thread(@pid, child) if child.gets
         child_socket.close
       end
 
