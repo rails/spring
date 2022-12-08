@@ -97,6 +97,7 @@ module Expedite
         log "accepted client"
         client.puts env.version
 
+        # Corresponds to Client::Invoke#connect_to_agent
         app_client = client.recv_io
         command    = client.recv_object
 
@@ -106,11 +107,14 @@ module Expedite
         if agent == '__server__'
           case cmd
           when 'application_pids'
+            # Corresponds to Client::Invoke#run_command
             client.puts
+
             unix_socket = UNIXSocket.for_fd(app_client.fileno)
-            _stdout, _stderr, _stdin = streams = 3.times.map do
-              unix_socket.recv_io
-            end
+            _stdout = unix_socket.recv_io
+            _stderr = unix_socket.recv_io
+            _stdin = unix_socket.recv_io
+
             client.puts Process.pid
 
             application_pids = []
@@ -124,15 +128,38 @@ module Expedite
           else
           end
         elsif Expedite::Actions.lookup(cmd)
+          # Corresponds to Client::Invoke#run_command
           log "running command #{cmd}: #{args}"
+
           client.puts
 
-          target = env.applications[agent]
-          client.puts target.run(app_client)
+          begin
+            target = env.applications[agent]
+
+            client.puts target.run(app_client)
+          rescue AgentNotFoundError => e
+            unix_socket = UNIXSocket.for_fd(app_client.fileno)
+            _stdout = unix_socket.recv_io
+            _stderr = unix_socket.recv_io
+            _stdin = unix_socket.recv_io
+
+            args, env = unix_socket.recv_object.values_at("args", "env")
+
+            client.puts Process.pid
+
+            # boot only
+            #@child_socket = client.recv_io
+            #@log_file = client.recv_io
+            unix_socket.send_object("exception" => e)
+
+            unix_socket.close
+            client.close
+          end
         else
           log "command not found #{cmd}"
           client.close
         end
+      rescue AgentNotFoundError => e
       rescue SocketError => e
         raise e unless client.eof?
       ensure
@@ -201,10 +228,19 @@ module Expedite
 
       def default_log_file
         if foreground? && !ENV["SPRING_LOG"]
-          $stdout
+          $stderr
         else
           nil
         end
+      end
+
+      # Server command
+      def application_pids
+        pids = []
+        env.applications.each do |k, v|
+          pids << v.pid if v.pid
+        end
+        return pids
       end
     end
   end
