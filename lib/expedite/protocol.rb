@@ -5,14 +5,16 @@ module Expedite
     def send_object(object)
       data = Marshal.dump(object)
 
-      self.puts  data.bytesize
+      self.puts  data.bytesize.to_i
       self.write data
     end
 
     def recv_object
-      Marshal.load(self.read(self.gets.to_i))
+      len = self.gets.to_i
+      data = self.read(len)
+      Marshal.load(data)
     end
   end
 end
 
-UNIXSocket.include ::Expedite::Protocol
+IO.include ::Expedite::Protocol
