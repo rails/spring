@@ -4,6 +4,9 @@ require 'expedite/cli/stop'
 
 module Expedite
   module Cli
+    class UnknownCommandError < StandardError
+    end
+
     class Help
       def run(args)
         puts "Expected: <command>"
@@ -33,13 +36,14 @@ module Expedite
 
     def run(args)
       command(args.first).run(args[1..])
-    rescue NotImplementedError
+    rescue UnknownCommandError => e
+      STDERR.puts e
       Cli::Help.new.run([])
     end
 
     def command(cmd)
       klass = COMMANDS[cmd]
-      raise NotImplementedError, "Unknown command '#{cmd}'" if klass.nil?
+      raise UnknownCommandError, "Unknown command '#{cmd}'" if klass.nil?
       klass.new
     end
   end
