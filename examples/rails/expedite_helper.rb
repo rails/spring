@@ -1,17 +1,8 @@
 require 'expedite'
+require 'expedite/helper/rails'
 
 Expedite.define do
-  agent :rails do
-    require "rack"
-
-    app_root = Dir.pwd
-    rackup_file = "#{app_root}/config.ru"
-    Rack::Builder.load_file(rackup_file).first
-
-    Rails.application.eager_load!
-  end
-
-  agent 'development/*', parent: 'rails'
+  agent 'development/*', parent: :rails_environment
 
   # https://github.com/rails/rails/blob/main/railties/lib/rails/commands/runner/runner_command.rb
   action :runner do |args|
