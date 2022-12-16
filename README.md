@@ -89,6 +89,14 @@ You can also start the server in the foreground.
 $ bundle exec expedite server
 ```
 
+If `rails` is in the `Gemfile`, then you can also start the rails commands through expedite.
+
+```
+$ bundle exec expedite rails console
+$ echo "puts ActiveRecord::Base.connection" | bundle exec expedite rails runner -
+
+```
+
 ## Acknowledgements
 
 Expedite's server core is modified from [Spring](https://github.com/rails/spring)
