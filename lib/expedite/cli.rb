@@ -1,3 +1,4 @@
+require 'expedite/cli/rails'
 require 'expedite/cli/server'
 require 'expedite/cli/status'
 require 'expedite/cli/stop'
@@ -13,7 +14,7 @@ module Expedite
         puts
         puts "Commands:"
 
-        cmds = Expedite::Cli::COMMANDS
+        cmds = Expedite::Cli.commands
         cmds.keys.sort!.each do |cmd|
           c = cmds[cmd].new
           puts "  #{cmd}: #{c.summary}"
@@ -27,12 +28,18 @@ module Expedite
 
     module_function
 
-    COMMANDS = {
-      'help'   => Cli::Help,
-      'server' => Cli::Server,
-      'status' => Cli::Status,
-      'stop'   => Cli::Stop,
-    }
+    def commands
+      return @commands unless @commands.nil?
+
+      cmds = {
+        'help'   => Cli::Help,
+        'server' => Cli::Server,
+        'status' => Cli::Status,
+        'stop'   => Cli::Stop,
+      }
+      cmds['rails'] = Cli::Rails if Gem.loaded_specs["rails"]
+      @commands = cmds
+    end
 
     def run(args)
       command(args.first).run(args[1..])
@@ -42,7 +49,7 @@ module Expedite
     end
 
     def command(cmd)
-      klass = COMMANDS[cmd]
+      klass = commands[cmd]
       raise UnknownCommandError, "Unknown command '#{cmd}'" if klass.nil?
       klass.new
     end
