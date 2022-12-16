@@ -94,7 +94,6 @@ If `rails` is in the `Gemfile`, then you can also start the rails commands throu
 ```
 $ bundle exec expedite rails console
 $ echo "puts ActiveRecord::Base.connection" | bundle exec expedite rails runner -
-
 ```
 
 ## Acknowledgements
