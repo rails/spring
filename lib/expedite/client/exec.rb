@@ -1,18 +1,10 @@
 
 # Based on https://github.com/rails/spring/blob/master/lib/spring/client/run.rb
-
-require 'bundler'
-require 'rbconfig'
-require 'socket'
-
-require 'expedite/client/invoke'
-require 'expedite/env'
-require 'expedite/errors'
-require 'expedite/protocol'
+require 'expedite/client/base'
 
 module Expedite
   module Client
-    class Exec < Invoke
+    class Exec < Base
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
 
       def initialize(env: nil, agent: nil)
