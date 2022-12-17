@@ -68,7 +68,7 @@ module Expedite
         agent.send_object({
           "args" => args,
           "env" => ENV.to_hash,
-          "method" => "invoke"
+          "method" => run_command_method,
         }, env)
 
         pid = server.gets
@@ -153,6 +153,12 @@ module Expedite
           "GEM_PATH" => [bundle, *paths].uniq.join(File::PATH_SEPARATOR),
           "GEM_HOME" => bundle
         }
+      end
+
+
+    protected
+      def run_command_method
+        "invoke"
       end
     end
   end

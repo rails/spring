@@ -128,6 +128,11 @@ module Expedite
         application.puts(sig)
         application.gets.to_i
       end
+
+    protected
+      def run_command_method
+        "exec"
+      end
     end
   end
 end

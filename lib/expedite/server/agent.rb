@@ -141,6 +141,7 @@ module Expedite
         preload unless preloaded?
 
         args, env, method = client.recv_object.values_at("args", "env", "method")
+        log "serve #{args} using #{method}"
 
         exec_name = args.shift
         action    = Expedite::Actions.lookup(exec_name)
@@ -149,6 +150,7 @@ module Expedite
         connect_database # why are we connecting prior? is this for invoke?
         pid = case method
         when "invoke"
+          # TODO: Invoke in a worker process instead of the preloader
           serve_invoke(client, action, args, env)
         else
           serve_fork(client, action, args, env)
