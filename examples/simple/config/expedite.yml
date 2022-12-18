@@ -1,0 +1,7 @@
+pools:
+  development:
+    parent: parent
+  parent:
+    max: 10
+commands:
+  custom:

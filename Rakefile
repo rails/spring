@@ -1,21 +1,11 @@
-require "bundler/setup"
-require "bundler/gem_tasks"
-require "rake/testtask"
-require "bump/tasks"
+require 'rake/testtask'
 
-namespace :test do
-  Rake::TestTask.new(:unit) do |t|
-    t.test_files = FileList["test/unit/**/*_test.rb"]
-    t.verbose = true
-  end
+task :default => :test
 
-  Rake::TestTask.new(:acceptance) do |t|
-    t.test_files = FileList["test/acceptance_test.rb"]
-    t.verbose = true
-  end
-
-  desc 'run all tests'
-  task all: [:unit, :acceptance]
+Rake::TestTask.new do |test|
+  test.verbose = true
+  test.libs << "test"
+  test.libs << "lib"
+  test.test_files = FileList['test/**/*_test.rb']
 end
 
-task default: 'test:all'
