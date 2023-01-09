@@ -302,9 +302,9 @@ module Spring
       Kernel.module_eval do
         old_raise = Kernel.method(:raise)
         remove_method :raise
-        define_method :raise do |*args|
+        define_method :raise do |*args, **kwargs|
           begin
-            old_raise.call(*args)
+            old_raise.call(*args, **kwargs)
           ensure
             if $!
               lib = File.expand_path("..", __FILE__)
