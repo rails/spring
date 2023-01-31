@@ -48,17 +48,10 @@ This generates a `bin/spring` executable, and inserts a small snippet of
 code into relevant existing executables. The snippet looks like this:
 
 ``` ruby
-begin
   load File.expand_path('../spring', __FILE__)
-rescue LoadError => e
-  raise unless e.message.include?('spring')
-end
 ```
 
-On platforms where Spring is installed and supported, this snippet
-hooks Spring into the execution of commands. In other cases, the snippet
-will just be silently ignored, and the lines after it will be executed as
-normal.
+This will cause the application to fail to load on platforms which do not install the Spring gem, e.g. Production.
 
 If you don't want to prefix every command you type with `bin/`, you
 can [use direnv](https://github.com/direnv/direnv#the-stdlib) to
