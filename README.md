@@ -76,7 +76,7 @@ Spring manages. That setting is typically configured in
 `config/environments/*.rb`. In particular, make sure it is `true` for the
 `test` environment.
 
-Note: in versions of Rails before 7, the setting is called `cache_classes`,
+Note: in versions of Rails before 7.1, the setting is called `cache_classes`,
 and it needs to be `false` for Spring to work.
 
 ### Usage
