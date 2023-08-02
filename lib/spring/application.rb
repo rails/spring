@@ -302,13 +302,26 @@ module Spring
       Kernel.module_eval do
         old_raise = Kernel.method(:raise)
         remove_method :raise
-        define_method :raise do |*args, **kwargs|
-          begin
-            old_raise.call(*args, **kwargs)
-          ensure
-            if $!
-              lib = File.expand_path("..", __FILE__)
-              $!.backtrace.reject! { |line| line.start_with?(lib) } unless $!.backtrace.frozen?
+        if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.2.0')
+          define_method :raise do |*args, **kwargs|
+            begin
+              old_raise.call(*args, **kwargs)
+            ensure
+              if $!
+                lib = File.expand_path("..", __FILE__)
+                $!.backtrace.reject! { |line| line.start_with?(lib) } unless $!.backtrace.frozen?
+              end
+            end
+          end
+        else
+          define_method :raise do |*args|
+            begin
+              old_raise.call(*args)
+            ensure
+              if $!
+                lib = File.expand_path("..", __FILE__)
+                $!.backtrace.reject! { |line| line.start_with?(lib) } unless $!.backtrace.frozen?
+              end
             end
           end
         end
