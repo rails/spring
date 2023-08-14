@@ -20,7 +20,7 @@ module Spring
       SPRING = <<~CODE
         #!/usr/bin/env ruby
 
-        # This file loads Spring without using loading other gems in the Gemfile, in order to be fast.
+        # This file loads Spring without loading other gems in the Gemfile in order to be fast.
         # It gets overwritten when you run the `spring binstub` command.
 
         if !defined?(Spring) && [nil, "development", "test"].include?(ENV["RAILS_ENV"])
