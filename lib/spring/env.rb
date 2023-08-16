@@ -79,8 +79,13 @@ module Spring
       end
     end
 
+    def time_now
+      time = Time.now
+      time.respond_to?(:to_fs) ? time.to_fs : time.to_s
+    end
+
     def log(message)
-      log_file.puts "[#{Time.now}] [#{Process.pid}] #{message}"
+      log_file.puts "[#{time_now}] [#{Process.pid}] #{message}"
       log_file.flush
     end
 
