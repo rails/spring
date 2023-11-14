@@ -1,5 +1,9 @@
 ## Next Release
 
+## 4.1.2
+
+* Drop dependency on `mutex_m`. Avoid issues with loading the wrong version before bundler kicks in.
+
 ## 4.1.1
 
 * Fix a small compatibility issue with Ruby 3.2 causing `Kernel#raise` to not accept a `cause`.
