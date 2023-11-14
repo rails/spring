@@ -12,7 +12,7 @@ module Spring
       end
 
       def check_stale
-        synchronize do
+        @mutex.synchronize do
           computed = compute_mtime
           if mtime < computed
             debug { "check_stale: mtime=#{mtime.inspect} < computed=#{computed.inspect}" }
