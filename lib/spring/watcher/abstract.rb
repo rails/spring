@@ -1,5 +1,4 @@
 require "pathname"
-require "mutex_m"
 
 module Spring
   module Watcher
@@ -9,13 +8,10 @@ module Spring
     #   IO.select([watcher]) # watcher is running in background
     #   watcher.stale? # => true
     class Abstract
-      include Mutex_m
-
       attr_reader :files, :directories, :root, :latency
 
       def initialize(root, latency)
-        super()
-
+        @mutex       = Mutex.new
         @root        = File.realpath(root)
         @latency     = latency
         @files       = {}
@@ -59,7 +55,7 @@ module Spring
           end
         end
 
-        synchronize {
+        @mutex.synchronize do
           items.each do |item|
             if item.directory?
               directories[item.realpath.to_s] = true
@@ -75,7 +71,7 @@ module Spring
           end
 
           subjects_changed
-        }
+        end
       end
 
       def stale?

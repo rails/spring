@@ -15,8 +15,6 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = ">= 2.7.0"
 
-  gem.add_dependency 'mutex_m'
-
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'bump'
   gem.add_development_dependency 'activesupport'
