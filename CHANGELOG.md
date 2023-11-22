@@ -1,5 +1,7 @@
 ## Next Release
 
+## 4.1.3
+
 * Bring back `Spring::Watcher::Abstract#synchronize` method to fix compatibility with `spring-watcher-listen`.
 
 ## 4.1.2
