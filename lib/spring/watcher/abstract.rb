@@ -22,6 +22,11 @@ module Spring
         @on_debug    = nil
       end
 
+      def synchronize(&block)
+        # Used by some gems.
+        @mutex.synchronize(&block)
+      end
+
       def on_debug(&block)
         @on_debug = block
       end
