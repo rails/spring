@@ -28,6 +28,11 @@ module Spring
       @interrupt.last.write "."
     end
 
+    def spawn_env
+      env = JSON.load(ENV["SPRING_SPAWN_ENV"].dup).map { |key, value| "#{key}=#{value}" }
+      env.join(", ") if env.any?
+    end
+
     def app_env
       ENV['RAILS_ENV']
     end

@@ -1,9 +1,10 @@
 module Spring
   class ApplicationManager
-    attr_reader :pid, :child, :app_env, :spring_env, :status
+    attr_reader :pid, :child, :app_env, :spawn_env, :spring_env, :status
 
-    def initialize(app_env, spring_env)
+    def initialize(app_env, spawn_env, spring_env)
       @app_env    = app_env
+      @spawn_env  = spawn_env
       @spring_env = spring_env
       @mutex      = Mutex.new
       @state      = :running
@@ -100,7 +101,9 @@ module Spring
             "RAILS_ENV"           => app_env,
             "RACK_ENV"            => app_env,
             "SPRING_ORIGINAL_ENV" => JSON.dump(Spring::ORIGINAL_ENV),
-            "SPRING_PRELOAD"      => preload ? "1" : "0"
+            "SPRING_PRELOAD"      => preload ? "1" : "0",
+            "SPRING_SPAWN_ENV"    => JSON.dump(spawn_env),
+            **spawn_env,
           },
           "ruby",
           *(bundler_dir != RbConfig::CONFIG["rubylibdir"] ? ["-I", bundler_dir] : []),

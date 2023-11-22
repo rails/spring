@@ -19,7 +19,9 @@ module Spring
     def initialize(options = {})
       @foreground   = options.fetch(:foreground, false)
       @env          = options[:env] || default_env
-      @applications = Hash.new { |h, k| h[k] = ApplicationManager.new(k, env) }
+      @applications = Hash.new do |hash, key|
+        hash[key] = ApplicationManager.new(*key, env)
+      end
       @pidfile      = env.pidfile_path.open('a')
       @mutex        = Mutex.new
     end
@@ -57,12 +59,12 @@ module Spring
       app_client = client.recv_io
       command    = JSON.load(client.read(client.gets.to_i))
 
-      args, default_rails_env = command.values_at('args', 'default_rails_env')
+      args, default_rails_env, spawn_env = command.values_at('args', 'default_rails_env', 'spawn_env')
 
       if Spring.command?(args.first)
         log "running command #{args.first}"
         client.puts
-        client.puts @applications[rails_env_for(args, default_rails_env)].run(app_client)
+        client.puts @applications[rails_env_for(args, default_rails_env, spawn_env)].run(app_client)
       else
         log "command not found #{args.first}"
         client.close
@@ -73,8 +75,8 @@ module Spring
       redirect_output
     end
 
-    def rails_env_for(args, default_rails_env)
-      Spring.command(args.first).env(args.drop(1)) || default_rails_env
+    def rails_env_for(args, default_rails_env, spawn_env)
+      [Spring.command(args.first).env(args.drop(1)) || default_rails_env, spawn_env]
     end
 
     # Boot the server into the process group of the current session.

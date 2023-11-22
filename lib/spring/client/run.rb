@@ -132,7 +132,7 @@ module Spring
 
       def connect_to_application(client)
         server.send_io client
-        send_json server, "args" => args, "default_rails_env" => default_rails_env
+        send_json server, "args" => args, "default_rails_env" => default_rails_env, "spawn_env" => spawn_env
 
         if IO.select([server], [], [], CONNECT_TIMEOUT)
           server.gets or raise CommandNotFound
@@ -231,6 +231,10 @@ module Spring
 
       def default_rails_env
         ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+      end
+
+      def spawn_env
+        ENV.slice(*Spring.spawn_on_env)
       end
     end
   end
