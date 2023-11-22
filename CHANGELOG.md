@@ -1,5 +1,7 @@
 ## Next Release
 
+* Bring back `Spring::Watcher::Abstract#synchronize` method to fix compatibility with `spring-watcher-listen`.
+
 ## 4.1.2
 
 * Drop dependency on `mutex_m`. Avoid issues with loading the wrong version before bundler kicks in.
