@@ -139,7 +139,11 @@ module Spring
       test "raises if config.cache_classes is true" do
         config_path = app.path("config/environments/development.rb")
         config = File.read(config_path)
-        config.sub!(/config.cache_classes\s*=\s*false/, "config.cache_classes = true")
+        if config.include?("config.cache_classes")
+          config.sub!(/config\.cache_classes\s*=\s*false/, "config.cache_classes = true")
+        else # 7.1+ doesn't have config.cache_classes in the config at all
+          config.sub!(/config.enable_reloading = true/, "config.enable_reloading = true\nconfig.cache_classes = true")
+        end
         File.write(config_path, config)
 
         assert_failure "bin/rails runner 1", stderr: "Please, set config.cache_classes to false"
@@ -258,7 +262,7 @@ module Spring
       end
 
       test "binstub" do
-        assert_success "bin/rails server --help", stdout: /Usage:\s+rails server/ # rails command fallback
+        assert_success "bin/rails server --help", stdout: /Usage:\s+(bin\/)?rails server/ # rails command fallback
 
         assert_success "#{app.spring} binstub rake", stdout: "bin/rake: Spring already present"
 

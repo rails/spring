@@ -64,7 +64,11 @@ module Spring
         end
 
         rewrite_file(application.path("config/environments/test.rb")) do |c|
-          c.sub!(/config\.cache_classes\s*=\s*true/, "config.cache_classes = false")
+          if c.include?("config.cache_classes")
+            c.sub!(/config\.cache_classes\s*=\s*true/, "config.cache_classes = false")
+          else # 7.1+ doesn't have config.cache_classes in the config at all
+            c.sub!(/config.enable_reloading = false/, "config.enable_reloading = false\nconfig.cache_classes = false")
+          end
           c
         end
 
