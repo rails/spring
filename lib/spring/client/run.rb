@@ -114,6 +114,10 @@ module Spring
       end
 
       def verify_server_version
+        unless IO.select([server], [], [], CONNECT_TIMEOUT)
+          raise "Error connecting to Spring server"
+        end
+
         server_version = server.gets.chomp
         if server_version != env.version
           $stderr.puts "There is a version mismatch between the Spring client " \
