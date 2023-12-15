@@ -36,6 +36,10 @@ module Spring
       @spawn_on_env ||= []
     end
 
+    def reset_on_env
+      @reset_on_env ||= []
+    end
+
     def verify_environment
       application_root_path
     end

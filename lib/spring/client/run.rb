@@ -73,7 +73,7 @@ module Spring
       def boot_server
         env.socket_path.unlink if env.socket_path.exist?
 
-        pid     = Process.spawn(gem_env, env.server_command, out: File::NULL)
+        pid     = Process.spawn(server_process_env, env.server_command, out: File::NULL)
         timeout = Time.now + BOOT_TIMEOUT
 
         @server_booted = true
@@ -105,6 +105,14 @@ module Spring
           "GEM_PATH" => [bundle, *paths].uniq.join(File::PATH_SEPARATOR),
           "GEM_HOME" => bundle
         }
+      end
+
+      def reset_env
+        ENV.slice(*Spring.reset_on_env)
+      end
+
+      def server_process_env
+        reset_env.merge(gem_env)
       end
 
       def stop_server
@@ -141,7 +149,7 @@ module Spring
 
       def connect_to_application(client)
         server.send_io client
-        send_json server, "args" => args, "default_rails_env" => default_rails_env, "spawn_env" => spawn_env
+        send_json server, "args" => args, "default_rails_env" => default_rails_env, "spawn_env" => spawn_env, "reset_env" => reset_env
 
         if IO.select([server], [], [], CONNECT_TIMEOUT)
           server.gets or raise CommandNotFound
