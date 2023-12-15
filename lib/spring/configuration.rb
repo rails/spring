@@ -32,6 +32,10 @@ module Spring
       after_fork_callbacks << block
     end
 
+    def spawn_on_env
+      @spawn_on_env ||= []
+    end
+
     def verify_environment
       application_root_path
     end
