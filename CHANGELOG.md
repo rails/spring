@@ -1,5 +1,11 @@
 ## Next Release
 
+## 4.2.0
+
+* Added `Spring.reset_on_env` to define environment variables which should cause spring to reload when they change.
+* Added `Spring.spawn_on_en` to define environment variables that should cause spring to start a distinct server.
+* Better handle a case where the server could hang.
+
 ## 4.1.3
 
 * Bring back `Spring::Watcher::Abstract#synchronize` method to fix compatibility with `spring-watcher-listen`.
