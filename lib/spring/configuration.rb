@@ -1,8 +1,11 @@
 require "spring/errors"
 
 module Spring
+  @connect_timeout = 5
+  @boot_timeout = 20
+
   class << self
-    attr_accessor :application_root
+    attr_accessor :application_root, :connect_timeout, :boot_timeout
     attr_writer :quiet
 
     def gemfile
