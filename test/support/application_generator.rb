@@ -53,6 +53,9 @@ module Spring
         FileUtils.rm_rf(application.path("test/performance"))
 
         append_to_file(application.gemfile, "gem 'spring', '#{Spring::VERSION}'")
+        if RUBY_VERSION < "3.0"
+          append_to_file(application.gemfile, "gem 'nokogiri', '< 1.16'")
+        end
 
         append_to_file(application.path("config/boot.rb"), "raise 'BOOM' if ENV['CRASH_ON_BOOT']")
 
