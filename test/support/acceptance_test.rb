@@ -144,7 +144,12 @@ module Spring
         end
         File.write(config_path, config)
 
-        assert_failure "bin/rails runner 1", stderr: "Please, set config.cache_classes to false"
+        expected_error = Regexp.union(
+          "Please, set config.enable_reloading to true",
+          "Please, set config.cache_classes to false"
+        )
+
+        assert_failure "bin/rails runner 1", stderr: expected_error
       end
 
       test "test changes are picked up" do
