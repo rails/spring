@@ -691,7 +691,7 @@ module Spring
       test "server boot timeout" do
         app.env["SPRING_SERVER_COMMAND"] = "sleep 1"
         File.write("#{app.spring_client_config}", %(
-          Spring::Client::Run.const_set(:BOOT_TIMEOUT, 0.1)
+          Spring.boot_timeout = 0.1
         ))
 
         assert_failure "bin/rails runner ''", stderr: "timed out"
