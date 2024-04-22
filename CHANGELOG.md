@@ -1,5 +1,10 @@
 ## Next Release
 
+## 4.2.1
+
+* Added `Spring.connect_timeout` and `Spring.boot_timeout` to allow to increase timeout for larger apps.
+* `Spring.connect_timeout` now default to `5` seconds instead of `1`.
+
 ## 4.2.0
 
 * Added `Spring.reset_on_env` to define environment variables which should cause spring to reload when they change.
