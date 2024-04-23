@@ -102,9 +102,14 @@ module Spring
 
       Rails::Application.initializer :ensure_reloading_is_enabled, group: :all do
         if Rails.application.config.cache_classes
+          config_name, set_to = if Rails.application.config.respond_to?(:enable_reloading=)
+            ["enable_reloading", "true"]
+          else
+            ["cache_classes", "false"]
+          end
           raise <<-MSG.strip_heredoc
             Spring reloads, and therefore needs the application to have reloading enabled.
-            Please, set config.cache_classes to false in config/environments/#{Rails.env}.rb.
+            Please, set config.#{config_name} to #{set_to} in config/environments/#{Rails.env}.rb.
           MSG
         end
       end
