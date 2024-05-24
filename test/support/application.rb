@@ -168,7 +168,7 @@ module Spring
       end
 
       def read_stream(stream)
-        output = ""
+        output = +""
         while IO.select([stream], [], [], 0.5) && !stream.eof?
           output << stream.readpartial(10240)
         end
@@ -176,7 +176,7 @@ module Spring
       end
 
       def dump_streams(command, streams)
-        output = "$ #{command}\n"
+        output = +"$ #{command}\n"
 
         streams.each do |name, stream|
           unless stream.chomp.empty?

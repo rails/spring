@@ -12,9 +12,9 @@ module Spring
 
       def rails_version
         if ENV['RAILS_VERSION'] == "edge"
-          ">= 7.1.0.alpha"
+          ">= 8.0.0.alpha"
         else
-          "~> #{ENV['RAILS_VERSION'] || "6.1"}.0"
+          "~> #{ENV['RAILS_VERSION'] || "7.1"}.0"
         end
       end
 
