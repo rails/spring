@@ -364,7 +364,8 @@ private
             end
           end
           if rubydoesenc?
-            a[w] = '' << uchar
+            a[w] = '' 
+            a[w] += uchar
             w += 1
           else
             w += ucharenc(a, w, uchar)
