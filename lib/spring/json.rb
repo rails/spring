@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# frozen_string_literal: true
 
 # ### WHY SPRING VENDORS A JSON LIBRARY ###
 #
@@ -13,7 +13,6 @@
 module Spring
   module JSON
     def self.load(string)
-      string.force_encoding("utf-8")
       OkJson.decode(string)
     end
 
@@ -364,7 +363,7 @@ private
             end
           end
           if rubydoesenc?
-            a[w] = '' << uchar
+            a[w] = +'' << uchar
             w += 1
           else
             w += ucharenc(a, w, uchar)
