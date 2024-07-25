@@ -715,6 +715,31 @@ module Spring
       test "rails db:system:change" do
         assert_success "bin/rails db:system:change --to=sqlite3"
       end
+
+      test "watches embedded engine initializers" do
+        app.path("config/application.rb").write(<<~RUBY, mode: "a+")
+
+          $LOAD_PATH << Pathname.new(__dir__).join("../engine/lib").realpath.to_s
+          require "my_engine"
+        RUBY
+        engine_lib = app.path("engine/lib/my_engine.rb")
+        engine_lib.dirname.mkpath
+        engine_lib.write(<<~RUBY)
+          require "rails/engine"
+
+          class MyEngine < Rails::Engine
+          end
+        RUBY
+        engine_initializer = app.path("engine/config/initializers/one.rb")
+        engine_initializer.dirname.mkpath
+        engine_initializer.write("")
+
+        assert_success app.spring_test_command
+
+        engine_initializer.write("raise 'omg'")
+
+        assert_failure app.spring_test_command, stderr: "omg (RuntimeError)"
+      end
     end
   end
 end
