@@ -1,5 +1,7 @@
 ## Next Release
 
+* Fixed Server crash when the Client times out or otherwise disconnects
+
 ## 4.2.1
 
 * Added `Spring.connect_timeout` and `Spring.boot_timeout` to allow to increase timeout for larger apps.
