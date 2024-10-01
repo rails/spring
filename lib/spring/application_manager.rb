@@ -126,7 +126,8 @@ module Spring
         # as if it does we're no longer interested in the child
         loop do
           IO.select([child])
-          break if child.recv(1, Socket::MSG_PEEK).empty?
+          peek = child.recv(1, Socket::MSG_PEEK)
+          break if peek.nil? || peek.empty?
           sleep 0.01
         end
 
