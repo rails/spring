@@ -1,5 +1,7 @@
 ## Next Release
 
+* Fix reloading issue in Ruby 3.3.
+
 ## 4.2.1
 
 * Added `Spring.connect_timeout` and `Spring.boot_timeout` to allow to increase timeout for larger apps.
