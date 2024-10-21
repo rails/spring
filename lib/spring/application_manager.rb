@@ -42,7 +42,7 @@ module Spring
         if alive?
           begin
             yield
-          rescue Errno::ECONNRESET, Errno::EPIPE
+          rescue Errno::ECONNRESET, Errno::EPIPE, Errno::EINVAL
             # The child has died but has not been collected by the wait thread yet,
             # so start a new child and try again.
             log "child dead; starting"

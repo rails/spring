@@ -1,5 +1,7 @@
 ## Next Release
 
+* Fixed a bug that would crash the server if sending IO to the child failed
+
 ## 4.2.1
 
 * Added `Spring.connect_timeout` and `Spring.boot_timeout` to allow to increase timeout for larger apps.
