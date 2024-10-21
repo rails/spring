@@ -17,5 +17,6 @@ Gem::Specification.new do |gem|
 
   gem.metadata = {
     "rubygems_mfa_required" => "true",
+    "changelog_uri" => "https://github.com/rails/spring/blob/main/CHANGELOG.md"
   }
 end
