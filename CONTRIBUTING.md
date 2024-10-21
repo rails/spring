@@ -30,8 +30,12 @@ acceptance tests again, which will generate a new app.
 You can set the `RAILS_VERSION` environment variable:
 
 ```
-$ RAILS_VERSION="6.1" rake test:acceptance
+$ RAILS_VERSION="7.1" bundle install
+$ RAILS_VERSION="7.1" rake test:acceptance
 ```
+
+Note that only MAJOR.MINOR or `edge` are valid values for RAILS_VERSION as the
+Gemfile appends a `.0` to the version.
 
 The apps in `test/apps` will be named based on the rails version, and the
 Spring version.
