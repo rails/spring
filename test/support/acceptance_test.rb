@@ -189,7 +189,7 @@ module Spring
         app.insert_into_test "Foo.omg"
 
         app.await_reload
-        assert_failure app.spring_test_command, stdout: "RuntimeError: omg"
+        assert_failure app.spring_test_command, stdout: "RuntimeError: omg", log: /child \d+ shutdown/
       end
 
       test "app gets reloaded even with a ton of boot output" do
