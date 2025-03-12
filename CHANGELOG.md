@@ -1,6 +1,10 @@
 ## Next Release
 
+## 4.3.0
+
 * Fix reloading issue in Ruby 3.3.
+* Fixed compatibility with `--enable-frozen-string-literal`.
+* Add embeded engines to default reload matcher.
 
 ## 4.2.1
 
