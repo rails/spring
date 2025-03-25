@@ -321,11 +321,11 @@ private
   # Unquote will raise an error if q contains control characters.
   def unquote(q)
     q = q[1...-1]
-    a = q.dup # allocate a big enough string
-    # In ruby >= 1.9, a[w] is a codepoint, not a byte.
+    # In ruby >= 1.9, q[r], a[w] is a codepoint, not a byte.
     if rubydoesenc?
-      a.force_encoding('UTF-8')
+      q.force_encoding('UTF-8')
     end
+    a = q.dup # allocate a big enough string
     r, w = 0, 0
     while r < q.length
       c = q[r]

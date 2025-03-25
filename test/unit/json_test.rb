@@ -8,5 +8,11 @@ class JsonTest < ActiveSupport::TestCase
 
   test 'can encode' do
     assert_equal('{}', Spring::JSON.dump({}))
-  end 
+  end
+
+  test 'can encode and decode unicode characters' do
+    encoded = Spring::JSON.dump({"unicode_example"=>"©".b})
+    assert_equal('{"unicode_example":"©"}'.b, encoded)
+    assert_equal({"unicode_example"=>"©"}, Spring::JSON.load(encoded))
+  end
 end
