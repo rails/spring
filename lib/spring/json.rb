@@ -13,6 +13,7 @@
 module Spring
   module JSON
     def self.load(string)
+      string = string.dup.force_encoding("utf-8") unless string.encoding == Encoding::UTF_8
       OkJson.decode(string)
     end
 
