@@ -38,7 +38,7 @@ module Spring
       Spring.verify_environment
 
       write_pidfile
-      set_pgid unless foreground?
+      set_pgid if foreground?
       ignore_signals unless foreground?
       set_exit_hook
       set_process_title
