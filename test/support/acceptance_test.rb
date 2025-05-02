@@ -740,6 +740,18 @@ module Spring
 
         assert_failure app.spring_test_command, stderr: "omg (RuntimeError)"
       end
+
+      test "speeds up rake tasks with rails commands" do
+        File.write(app.path("lib/tasks/env.rake"), <<-RUBY.strip_heredoc)
+          namespace :foo do
+            task :bar => :environment
+          end
+        RUBY
+
+        assert_speedup do
+          2.times { app.run "bin/rails foo:bar" }
+        end
+      end
     end
   end
 end
