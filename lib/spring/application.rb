@@ -370,10 +370,10 @@ module Spring
       Spring.failsafe_thread {
         begin
           _, status = Process.wait2 pid
-          log "#{pid} exited with #{status.exitstatus}"
+          log "#{pid} exited with #{status.exitstatus || status.inspect}"
 
           streams.each(&:close)
-          client.puts(status.exitstatus)
+          client.puts(status.exitstatus || status.to_i)
           client.close
         ensure
           @mutex.synchronize { @waiting.delete pid }
