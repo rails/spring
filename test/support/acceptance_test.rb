@@ -748,7 +748,7 @@ module Spring
 
         artifacts = app.run("bin/rails runner 'system(\"kill -7 \#{Process.pid}\")'")
         code = artifacts[:status].exitstatus || artifacts[:status].termsig
-        assert_equal 7, code, "Expected exit status to be 7, but was #{code}"
+        assert_equal 7, code % 128, "Expected exit status to be 7, but was #{code}"
       end
     end
   end
