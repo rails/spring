@@ -2,31 +2,51 @@ require_relative "../helper"
 require "spring/commands"
 
 class CommandsTest < ActiveSupport::TestCase
-  test 'rails command sets rails environment from -e option' do
-    command = Spring::Commands::Rails.new
-    assert_equal 'test', command.env(['-e', 'test'])
-    assert_equal 'test', command.env(['-e=test'])
+  test 'console command sets rails environment from command-line option' do
+    command = Spring::Commands::RailsConsole.new
+    assert_equal 'test', command.env(['test'])
   end
 
-  test 'rails command sets rails environment from --environment option' do
-    command = Spring::Commands::Rails.new
-    assert_equal 'test', command.env(['--environment', 'test'])
+  test 'console command sets rails environment from -e option' do
+    command = Spring::Commands::RailsConsole.new
+    assert_equal 'test', command.env(['-e', 'test'])
+  end
+
+  test 'console command sets rails environment from --environment option' do
+    command = Spring::Commands::RailsConsole.new
     assert_equal 'test', command.env(['--environment=test'])
   end
 
-  test 'rails command ignores first argument if it is a flag except -e and --environment' do
-    command = Spring::Commands::Rails.new
+  test 'console command ignores first argument if it is a flag except -e and --environment' do
+    command = Spring::Commands::RailsConsole.new
     assert_nil command.env(['--sandbox'])
   end
 
-  test 'rails command uses last environment option' do
-    command = Spring::Commands::Rails.new
-    assert_equal 'development', command.env(['-e', 'test', '--environment=development'])
+  test 'Runner#env sets rails environment from command-line option' do
+    command = Spring::Commands::RailsRunner.new
+    assert_equal 'test', command.env(['-e', 'test', 'puts 1+1'])
   end
 
-  test 'rails command ignores additional arguments' do
-    command = Spring::Commands::Rails.new
-    assert_equal 'test', command.env(['-e', 'test', 'puts 1+1'])
+  test 'RailsRunner#env sets rails environment from long form of command-line option' do
+    command = Spring::Commands::RailsRunner.new
+    assert_equal 'test', command.env(['--environment=test', 'puts 1+1'])
+  end
+
+  test 'RailsRunner#env ignores insignificant arguments' do
+    command = Spring::Commands::RailsRunner.new
+    assert_nil command.env(['puts 1+1'])
+  end
+
+  test 'RailsRunner#extract_environment removes -e <env>' do
+    command = Spring::Commands::RailsRunner.new
+    args = ['-b', '-a', '-e', 'test', '-r']
+    assert_equal [['-b', '-a', '-r'], 'test'], command.extract_environment(args)
+  end
+
+  test 'RailsRunner#extract_environment removes --environment=<env>' do
+    command = Spring::Commands::RailsRunner.new
+    args = ['-b', '--environment=test', '-a', '-r']
+    assert_equal [['-b', '-a', '-r'], 'test'], command.extract_environment(args)
   end
 
   test "rake command has configurable environments" do
@@ -37,20 +57,18 @@ class CommandsTest < ActiveSupport::TestCase
     assert_nil command.env(["test_foo"])
   end
 
-  test 'RailsTest#env defaults to test rails environment' do
+  test 'RailsTest#command defaults to test rails environment' do
     command = Spring::Commands::RailsTest.new
     assert_equal 'test', command.env([])
   end
 
-  test 'RailsTest#env sets rails environment from --environment option' do
+  test 'RailsTest#command sets rails environment from --environment option' do
     command = Spring::Commands::RailsTest.new
-    assert_equal 'development', command.env(['--environment', 'development'])
-    assert_equal 'development', command.env(['--environment=development'])
+    assert_equal 'foo', command.env(['--environment=foo'])
   end
 
-  test 'RailsTest#env sets rails environment from -e option' do
+  test 'RailsTest#command sets rails environment from -e option' do
     command = Spring::Commands::RailsTest.new
-    assert_equal 'development', command.env(['-e', 'development'])
-    assert_equal 'development', command.env(['-e=development'])
+    assert_equal 'foo', command.env(['-e', 'foo'])
   end
 end

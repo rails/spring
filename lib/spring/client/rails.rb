@@ -1,12 +1,14 @@
 module Spring
   module Client
     class Rails < Command
-      SPECIAL_COMMANDS = %w(test)
-      EXCLUDED_COMMANDS = %w(server)
+      COMMANDS = %w(console runner generate destroy test)
 
       ALIASES = {
-        "t" => "test",
-        "s" => "server"
+        "c" => "console",
+        "r" => "runner",
+        "g" => "generate",
+        "d" => "destroy",
+        "t" => "test"
       }
 
       def self.description
@@ -16,15 +18,15 @@ module Spring
       def call
         command_name = ALIASES[args[1]] || args[1]
 
-        if SPECIAL_COMMANDS.include?(command_name)
-          Run.call(["rails_#{command_name}", *args.drop(1)])
-        elsif EXCLUDED_COMMANDS.include?(command_name)
+        if COMMANDS.include?(command_name)
+          Run.call(["rails_#{command_name}", *args.drop(2)])
+        elsif command_name&.start_with?("db:") && !command_name.start_with?("db:system")
+          Run.call(["rake", *args.drop(1)])
+        else
           require "spring/configuration"
           ARGV.shift
           load Dir.glob(Spring.application_root_path.join("{bin,script}/rails")).first
           exit
-        else
-          Run.call(["rails", *args.drop(1)])
         end
       end
     end
