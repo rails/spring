@@ -1,5 +1,7 @@
 ## Next Release
 
+* Fixed a bug that would crash the server if sending IO to the child failed
+
 ## 4.3.0
 
 * Fix reloading issue in Ruby 3.3.
