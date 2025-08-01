@@ -16,7 +16,7 @@ boot it every time you run a test, rake task or migration.
 
 ## Compatibility
 
-* Ruby versions: MRI 2.7+
+* Ruby versions: MRI 3.1+
 * Rails versions: 6.0+
 * Bundler v2.1+
 
