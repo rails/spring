@@ -320,6 +320,7 @@ module Spring
               if $!
                 lib = File.expand_path("..", __FILE__)
                 $!.backtrace.reject! { |line| line.start_with?(lib) } unless $!.backtrace.frozen?
+                $!.backtrace_locations.reject! { |line| line.path&.start_with?(lib) } unless $!.backtrace_locations.frozen?
               end
             end
           end
@@ -331,6 +332,7 @@ module Spring
               if $!
                 lib = File.expand_path("..", __FILE__)
                 $!.backtrace.reject! { |line| line.start_with?(lib) } unless $!.backtrace.frozen?
+                $!.backtrace_locations.reject! { |line| line.path&.start_with?(lib) } unless $!.backtrace_locations.frozen?
               end
             end
           end
