@@ -98,12 +98,14 @@ module Spring
       end
 
       test "crash on boot" do
-        app.run app.spring_test_command, env: {
-          "CRASH_ON_BOOT" => "1",
-          # If the command is small enough, it might fit in the socket buffer and writing the command won't block.
-          # So we send a big environment variable to better reproduce the problem.
-          "FOO" => "bar" * 4_000,
-      }
+        assert_nothing_raised do
+          app.run app.spring_test_command, env: {
+            "CRASH_ON_BOOT" => "1",
+            # If the command is small enough, it might fit in the socket buffer and writing the command won't block.
+            # So we send a big environment variable to better reproduce the problem.
+            "FOO" => "bar" * 4_000,
+          }
+        end
       end
 
       test "help message when called without arguments" do
@@ -288,7 +290,7 @@ module Spring
       test "binstub when spring binary is missing" do
         begin
           File.rename(app.path("bin/spring"), app.path("bin/spring.bak"))
-          assert_failure "bin/rake -T", stderr: "`load': cannot load such file"
+          assert_failure "bin/rake -T", stderr: "load': cannot load such file"
         ensure
           File.rename(app.path("bin/spring.bak"), app.path("bin/spring"))
         end
