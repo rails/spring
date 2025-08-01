@@ -184,11 +184,16 @@ module Spring
           suspend_resume_on_tstp_cont(pid)
 
           forward_signals(application)
-          status = application.read.to_i
+          status = application.read
+          log "got exit status #{status.inspect}"
 
-          log "got exit status #{status}"
+          # Status should always be an integer. If it is empty, something unexpected must have happened to the server.
+          if status.to_s.strip.empty?
+            log "unexpected empty exit status, app crashed?"
+            exit 1
+          end
 
-          exit status
+          exit status.to_i
         else
           log "got no pid"
           exit 1
