@@ -18,4 +18,6 @@ namespace :test do
   task all: [:unit, :acceptance]
 end
 
+task test: 'test:all'
+
 task default: 'test:all'
