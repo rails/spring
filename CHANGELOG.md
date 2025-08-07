@@ -1,6 +1,10 @@
 ## Next Release
 
-* Fixed a bug that would crash the server if sending IO to the child failed
+* Revert the removal of UTF-8 force encoding in JSON loading.
+* Shush the `backtrace_locations` too.
+* Recommend setting `enable_reloading` on newer Rails version.
+* Drop support to end-of-life Ruby versions.
+* Fixed a bug that would crash the server if sending IO to the child failed.
 
 ## 4.3.0
 
