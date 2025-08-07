@@ -1,4 +1,4 @@
-## Next Release
+## 4.4.0
 
 * Revert the removal of UTF-8 force encoding in JSON loading.
 * Shush the `backtrace_locations` too.
