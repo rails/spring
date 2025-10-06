@@ -129,8 +129,9 @@ module Spring
 
       if defined?(Rails) && Rails.application
         watcher.add Rails.application.paths["config/initializers"]
-        Rails::Engine.descendants.each do |engine|
-          if engine.root.to_s.start_with?(Rails.root.to_s)
+        rails_root = Rails.root.to_s
+        Rails::Engine.subclasses.each do |engine|
+          if engine.root.to_s.start_with?(rails_root)
             watcher.add engine.paths["config/initializers"].expanded
           end
         end
