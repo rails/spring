@@ -17,7 +17,7 @@ boot it every time you run a test, rake task or migration.
 ## Compatibility
 
 * Ruby versions: MRI 3.1+
-* Rails versions: 6.0+
+* Rails versions: 7.1+
 * Bundler v2.1+
 
 Spring makes extensive use of `Process.fork`, so won't be able to
