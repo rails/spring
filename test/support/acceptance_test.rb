@@ -65,6 +65,7 @@ module Spring
       def assert_speedup(ratio = DEFAULT_SPEEDUP)
         if ENV['CI']
           yield
+          assert true
         else
           app.with_timing do
             yield
@@ -673,7 +674,8 @@ module Spring
 
         FileUtils.cp_r "#{app.gem_home}/", bundle_path.to_s
 
-        app.run! "bundle install --path .bundle --local"
+        app.run! "bundle config set path '.bundle'"
+        app.run! "bundle install --local"
 
         assert_speedup do
           2.times { assert_success "bundle exec rails runner ''" }
