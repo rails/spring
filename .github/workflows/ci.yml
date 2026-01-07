@@ -44,3 +44,15 @@ jobs:
         run: bundle exec rake test:acceptance RUBYOPT="${{ matrix.rubyopt }}"
         timeout-minutes: 10
         if: ${{ matrix.rails != 'edge' && matrix.ruby != 'head' }} # Acceptance tests use `gem install rails && rails new`
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: tests
+    if: always()
+    steps:
+      - name: Check test matrix results
+        run: |
+          if [ "${{ needs.tests.result }}" != "success" ]; then
+            echo "Tests failed or were cancelled"
+            exit 1
+          fi
