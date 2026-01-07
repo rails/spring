@@ -13,3 +13,5 @@ elsif ENV["RAILS_VERSION"]
 else
   gem "activesupport"
 end
+
+gem "minitest", "< 6"
