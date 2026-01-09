@@ -747,6 +747,12 @@ module Spring
 
         assert_failure app.spring_test_command, stderr: "omg (RuntimeError)"
       end
+
+      test "passes exit code from exit and signal" do
+        artifacts = app.run("bin/rails runner 'Process.exit(7)'")
+        code = artifacts[:status].exitstatus || artifacts[:status].termsig
+        assert_equal 7, code, "Expected exit status to be 7, but was #{code}"
+      end
     end
   end
 end
