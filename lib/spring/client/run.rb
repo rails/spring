@@ -254,7 +254,9 @@ module Spring
       end
 
       def spawn_env
-        ENV.slice(*Spring.spawn_on_env)
+        Spring.spawn_on_env.to_h do |key|
+          [key, ENV[key]]
+        end
       end
     end
   end

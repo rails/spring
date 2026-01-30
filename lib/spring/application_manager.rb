@@ -102,7 +102,7 @@ module Spring
             "RACK_ENV"            => app_env,
             "SPRING_ORIGINAL_ENV" => JSON.dump(Spring::ORIGINAL_ENV),
             "SPRING_PRELOAD"      => preload ? "1" : "0",
-            "SPRING_SPAWN_ENV"    => JSON.dump(spawn_env),
+            "SPRING_SPAWN_ENV"    => JSON.dump(spawn_env.compact),
             **spawn_env,
           },
           "ruby",
