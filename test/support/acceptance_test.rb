@@ -663,6 +663,18 @@ module Spring
         assert_success %(bin/rails runner 'p ENV.key?("FOO")'), stdout: "false"
       end
 
+      test "spawn_on_env variables are cleared when unset" do
+        File.write(app.spring_client_config, "Spring.spawn_on_env << 'VAR_FROM_BOOT'")
+        File.write(app.application_config, "#{app.application_config.read}\nRails.configuration.x.var_from_boot = ENV['VAR_FROM_BOOT']")
+
+        app.env["VAR_FROM_BOOT"] = "before"
+        assert_success %(bin/rails runner 'p Rails.configuration.x.var_from_boot.inspect'), stdout: "before"
+
+        app.env.delete "VAR_FROM_BOOT"
+
+        assert_success %(bin/rails runner 'p Rails.configuration.x.var_from_boot.inspect'), stdout: "nil"
+      end
+
       test "Kernel.raise remains private" do
         expr = "p Kernel.private_instance_methods.include?(:raise)"
         assert_success %(bin/rails runner '#{expr}'), stdout: "true"
