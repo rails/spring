@@ -14,6 +14,11 @@ module Spring
       if /\s1.9.[0-9]/ ===  Bundler.ruby_scope.gsub(/[\/\s]+/,'')
         Pathname.new(ENV["BUNDLE_GEMFILE"] || "Gemfile").expand_path
       else
+        # default_gemfile autoloads SharedHelpers, but this causes deadlocks because it occurs in a separate thread.
+        # application/boot.rb loads the application in the main thread which calls bundler/setup and requires
+        # shared_helpers instead of autoloading. Due to a ruby bug, autoloading and requiring the same file in separate
+        # threads can cause deadlocks. Requiring shared_helpers here prevents it from being autoloaded.
+        require "bundler/shared_helpers"
         Bundler.default_gemfile
       end
     end
