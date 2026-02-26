@@ -334,7 +334,8 @@ server process is started, it can be used to add new top-level commands.
 Spring must know how to find your Rails application. If you have a
 normal app everything works out of the box. If you are working on a
 project with a special setup (an engine for example), you must tell
-Spring where your app is located:
+Spring where your app is located by specifying the below code in a
+`config/spring.rb` file relative to your engines root directory :
 
 ```ruby
 Spring.application_root = './test/dummy'
