@@ -26,7 +26,7 @@ module Spring
         if !defined?(Spring) && [nil, "development", "test"].include?(ENV["RAILS_ENV"])
           require "bundler"
 
-          Bundler.locked_gems.specs.find { |spec| spec.name == "spring" }&.tap do |spring|
+          Bundler.definition.requested_specs.find { |spec| spec.name == "spring" }&.tap do |spring|
             Gem.use_paths Gem.dir, Bundler.bundle_path.to_s, *Gem.path
             gem "spring", spring.version
             require "spring/binstub"

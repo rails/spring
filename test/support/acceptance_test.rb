@@ -76,9 +76,12 @@ module Spring
 
       def without_gem(name)
         gem_home = app.gem_home.join('gems')
+        spec_home = app.gem_home.join('specifications')
         FileUtils.mv(gem_home.join(name), app.root)
+        FileUtils.mv(spec_home.join("#{name}.gemspec"), app.root)
         yield
       ensure
+        FileUtils.mv(app.root.join("#{name}.gemspec"), spec_home)
         FileUtils.mv(app.root.join(name), gem_home)
       end
 
@@ -288,6 +291,15 @@ module Spring
       test "binstub when spring gem is missing" do
         without_gem "spring-#{Spring::VERSION}" do
           File.write(app.gemfile, app.gemfile.read.gsub(/gem 'spring.*/, ""))
+          app.run! "bundle install", timeout: 300
+          assert_success "bin/rake -T", stdout: "rake db:migrate"
+        end
+      end
+
+      test "binstub when spring gem is in uninstalled group" do
+        without_gem "spring-#{Spring::VERSION}" do
+          File.write(app.gemfile, app.gemfile.read.gsub(/(gem 'spring.*)/, '\1, group: :debug'))
+          app.run! "bundle config set without debug"
           app.run! "bundle install", timeout: 300
           assert_success "bin/rake -T", stdout: "rake db:migrate"
         end
