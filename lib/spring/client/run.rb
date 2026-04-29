@@ -168,7 +168,7 @@ module Spring
         exit 1 if preload_status == "1"
 
         log "sending command"
-        send_json application, "args" => args, "env" => ENV.to_hash
+        send_json application, "args" => args, "env" => filtered_env
 
         pid = server.gets
         pid = pid.chomp if pid
@@ -251,6 +251,26 @@ module Spring
 
       def default_rails_env
         ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+      end
+
+      # Filter the process env to exclude huge Nix/build vars that are
+      # already present in the Spring server (set by the same shadowenv).
+      # This reduces the JSON payload from ~175KB to ~12KB, saving ~70ms
+      # of socket IO + JSON encoding in run_command.
+      FILTERED_ENV_EXCLUDE_PREFIXES = %w[
+        NIX_ NIXPKGS_ CMAKE_ BINDGEN_ __shadowenv PKG_CONFIG_PATH_FOR_
+      ].freeze
+      FILTERED_ENV_EXCLUDE_KEYS = %w[
+        __shadowenv_data nativeBuildInputs HOST_PATH
+        DYLD_LIBRARY_PATH XDG_DATA_DIRS
+      ].freeze
+      private_constant :FILTERED_ENV_EXCLUDE_PREFIXES, :FILTERED_ENV_EXCLUDE_KEYS
+
+      def filtered_env
+        ENV.to_hash.reject do |k, _v|
+          FILTERED_ENV_EXCLUDE_KEYS.include?(k) ||
+            FILTERED_ENV_EXCLUDE_PREFIXES.any? { |p| k.start_with?(p) }
+        end
       end
 
       def spawn_env
