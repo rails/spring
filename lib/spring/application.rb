@@ -211,15 +211,20 @@ module Spring
         end
       end
 
+      _ar_trace_mark("SERVE_AFTER_PRELOAD_CHECK")
       args, env = JSON.load(client.read(client.gets.to_i)).values_at("args", "env")
       command   = Spring.command(args.shift)
+      _ar_trace_mark("SERVE_AFTER_ARGS_PARSED")
 
       connect_database
+      _ar_trace_mark("SERVE_AFTER_CONNECT_DB")
       setup command
+      _ar_trace_mark("SERVE_AFTER_SETUP_CMD")
 
       if Rails.application.reloaders.any?(&:updated?)
         Rails.application.reloader.reload!
       end
+      _ar_trace_mark("SERVE_AFTER_RELOADER_CHECK")
 
       _ar_trace_mark("SPRING_BEFORE_FORK")
       pid = fork {
