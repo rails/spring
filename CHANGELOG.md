@@ -1,6 +1,15 @@
-## Next Release
+## Unreleased
 
 * Fixed crashes when a client disconnects mid-handshake (e.g. on connect timeout). Previously, `Errno::EPIPE` raised in `Spring::Server#serve` or `Spring::Application#serve` would propagate up through the accept loop and kill the process, leaving a stale socket that broke every subsequent client. Both crash sites are now rescued, including writes that happen inside the `rescue Exception` handler in `Application#serve` while reporting an earlier failure to the gone client.
+
+* Eagerly autoload framework base classes (`ActionMailer::Base`,
+  `ActionController::Base`, `ActionController::API`) at the end of preload
+  so their `ActiveSupport.on_load` hooks fire in the parent process.
+  Without this, the reloader probe in `#serve` materializes Rails
+  internals (notably ActionView's `CacheExpiry::ViewReloader`) in a
+  half-initialized state and triggers an expensive `FileUpdateChecker`
+  rebuild on every `prepend_view_path` inside each fork. See
+  rails/rails#51308 for the lazy-init contract this aligns with.
 
 ## 4.4.0
 
