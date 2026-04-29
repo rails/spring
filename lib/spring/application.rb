@@ -116,6 +116,17 @@ module Spring
 
       require Spring.application_root_path.join("config", "environment")
 
+      # Run user-supplied post-environment-load callbacks (e.g. preloading the
+      # test runtime so forked children skip 2+s of require chains).
+      Spring.after_environment_load_callbacks.each do |callback|
+        begin
+          callback.call
+        rescue Exception => err
+          log "after_environment_load callback raised: #{err.class}: #{err.message}"
+          raise
+        end
+      end
+
       disconnect_database
 
       @preloaded = :success
