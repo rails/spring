@@ -185,7 +185,7 @@ module Spring
           client.puts(0) # preload success
         rescue Exception
           log "preload failed"
-          client.puts(1) # preload failure
+          ignore_client_disconnect { client.puts(1) } # preload failure
           raise
         end
       end
@@ -246,15 +246,19 @@ module Spring
 
       wait pid, streams, client
     rescue Exception => e
-      log "exception: #{e}"
+      if e.is_a?(Errno::EPIPE)
+        log "client disconnected (#{e.message}), ignoring command"
+      else
+        log "exception: #{e}"
+      end
       manager.puts unless pid
 
       if streams && !e.is_a?(SystemExit)
-        print_exception(stderr, e)
-        streams.each(&:close)
+        ignore_client_disconnect { print_exception(stderr, e) }
+        streams.each { |stream| ignore_client_disconnect { stream.close } }
       end
 
-      client.puts(1) if pid
+      ignore_client_disconnect { client.puts(1) if pid }
       client.close
     ensure
       # Redirect STDOUT and STDERR to prevent from keeping the original FDs
@@ -410,6 +414,15 @@ module Spring
     end
 
     private
+
+    # Tolerate Errno::EPIPE on writes to the client socket. Once the client
+    # disconnects, every subsequent write to it raises — that's expected
+    # during `serve`'s status reporting; we'd be talking to a process
+    # that's gone.
+    def ignore_client_disconnect
+      yield
+    rescue Errno::EPIPE
+    end
 
     def active_record_configured?
       defined?(ActiveRecord::Base) && ActiveRecord::Base.configurations.any?

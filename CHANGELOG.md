@@ -1,3 +1,7 @@
+## Next Release
+
+* Fixed crashes when a client disconnects mid-handshake (e.g. on connect timeout). Previously, `Errno::EPIPE` raised in `Spring::Server#serve` or `Spring::Application#serve` would propagate up through the accept loop and kill the process, leaving a stale socket that broke every subsequent client. Both crash sites are now rescued, including writes that happen inside the `rescue Exception` handler in `Application#serve` while reporting an earlier failure to the gone client.
+
 ## 4.4.0
 
 * Revert the removal of UTF-8 force encoding in JSON loading.
