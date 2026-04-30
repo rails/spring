@@ -23,16 +23,6 @@ module Spring
       @state = val
     end
 
-    # Lightweight tracepoint emitter for autoresearch profiling. No-op unless
-    # AR_TRACE=1 in the env. Goes to stderr like other AR_TRACE marks.
-    def _ar_trace_mark(phase)
-      return unless ENV["AR_TRACE"] == "1"
-      ms = (Process.clock_gettime(Process::CLOCK_REALTIME) * 1000).to_i
-      $stderr.puts "AR_TRACE\t#{phase}\t#{ms}"
-      $stderr.flush
-    rescue StandardError
-      # never crash on tracing
-    end
 
     def state!(val)
       state val
@@ -189,7 +179,6 @@ module Spring
     end
 
     def serve(client)
-      _ar_trace_mark("SPRING_SERVE_GOT_CLIENT")
       log "got client"
       manager.puts
 
@@ -211,24 +200,17 @@ module Spring
         end
       end
 
-      _ar_trace_mark("SERVE_AFTER_PRELOAD_CHECK")
       args, env = JSON.load(client.read(client.gets.to_i)).values_at("args", "env")
       command   = Spring.command(args.shift)
-      _ar_trace_mark("SERVE_AFTER_ARGS_PARSED")
 
       connect_database
-      _ar_trace_mark("SERVE_AFTER_CONNECT_DB")
       setup command
-      _ar_trace_mark("SERVE_AFTER_SETUP_CMD")
 
       if Rails.application.reloaders.any?(&:updated?)
         Rails.application.reloader.reload!
       end
-      _ar_trace_mark("SERVE_AFTER_RELOADER_CHECK")
 
-      _ar_trace_mark("SPRING_BEFORE_FORK")
       pid = fork {
-        _ar_trace_mark("SPRING_IN_CHILD_AFTER_FORK")
         # Make sure to close other clients otherwise their graceful termination
         # will be impossible due to reference from this fork.
         @clients.each_key { |c| c.close if c != client }
@@ -263,8 +245,7 @@ module Spring
 
         invoke_after_fork_callbacks
         shush_backtraces
-        _ar_trace_mark("SPRING_BEFORE_COMMAND_CALL")
-
+  
         command.call
       }
 
