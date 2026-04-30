@@ -263,6 +263,7 @@ module Spring
       FILTERED_ENV_EXCLUDE_KEYS = %w[
         __shadowenv_data nativeBuildInputs HOST_PATH
         DYLD_LIBRARY_PATH XDG_DATA_DIRS
+        PATH GEM_PATH ACLOCAL_PATH buildInputs
       ].freeze
       private_constant :FILTERED_ENV_EXCLUDE_PREFIXES, :FILTERED_ENV_EXCLUDE_KEYS
 
