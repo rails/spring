@@ -116,6 +116,8 @@ module Spring
 
       require Spring.application_root_path.join("config", "environment")
 
+      invoke_after_environment_load_callbacks
+
       disconnect_database
 
       @preloaded = :success
@@ -296,6 +298,12 @@ module Spring
 
     def invoke_after_fork_callbacks
       Spring.after_fork_callbacks.each do |callback|
+        callback.call
+      end
+    end
+
+    def invoke_after_environment_load_callbacks
+      Spring.after_environment_load_callbacks.each do |callback|
         callback.call
       end
     end

@@ -218,6 +218,22 @@ module Spring
         assert_success app.spring_test_command
       end
 
+      test "app gets reloaded when after_environment_load preloads test_helper" do
+        File.write(app.spring_config, <<-RUBY.strip_heredoc)
+          Spring.after_environment_load do
+            require File.expand_path("../test/test_helper", __dir__)
+          end
+        RUBY
+
+        assert_success app.spring_test_command
+
+        test_helper = app.path("test/test_helper.rb")
+        File.write(test_helper, test_helper.read + "\nraise 'omg'\n")
+
+        app.await_reload
+        assert_failure app.spring_test_command, stderr: /omg \(RuntimeError\)/, log: /child \d+ shutdown/
+      end
+
       test "app recovers when a boot-level error is introduced" do
         config = app.application_config.read
 
@@ -529,6 +545,13 @@ module Spring
       test "after fork callback" do
         File.write(app.spring_config, "Spring.after_fork { puts '!callback!' }")
         assert_success "bin/rails runner 'puts 2'", stdout: "!callback!\n2"
+      end
+
+      test "after environment load callback" do
+        File.write(app.spring_config, "Spring.after_environment_load { puts '!callback!' }")
+
+        assert_success app.spring_test_command, stdout: "!callback!"
+        refute_output_includes app.spring_test_command, stdout: "!callback!"
       end
 
       test "global config file evaluated" do

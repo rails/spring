@@ -35,6 +35,14 @@ module Spring
       after_fork_callbacks << block
     end
 
+    def after_environment_load_callbacks
+      @after_environment_load_callbacks ||= []
+    end
+
+    def after_environment_load(&block)
+      after_environment_load_callbacks << block
+    end
+
     def spawn_on_env
       @spawn_on_env ||= []
     end
