@@ -35,10 +35,6 @@ module Spring
       after_fork_callbacks << block
     end
 
-    # Callbacks invoked once on the spring server, after config/environment
-    # has finished loading and Rails autoloads are wired up. Use this to
-    # preload heavy test/dev support files that depend on Rails being ready,
-    # so the forked child doesn't pay the cost on every command.
     def after_environment_load_callbacks
       @after_environment_load_callbacks ||= []
     end
