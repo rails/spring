@@ -1,5 +1,7 @@
 ## Unreleased
 
+* Skip spring without error if spring is not in installed bundler groups.
+
 * Adds a Spring.after_environment_load hook that runs immediately after the Rails application environment is
 loaded in the Spring server process, but before GC.compact/Process.warmup and before the server enters its
 wait loop. This hook enables applications to preload expensive test infrastructure (e.g. test helpers, fixture
@@ -54,8 +56,6 @@ with.
 ## 4.1.1
 
 * Fix a small compatibility issue with Ruby 3.2 causing `Kernel#raise` to not accept a `cause`.
-
-* Skip spring without error if spring is not in installed bundler groups.
 
 ## 4.1.0
 
