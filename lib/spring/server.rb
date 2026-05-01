@@ -74,6 +74,8 @@ module Spring
       end
     rescue SocketError => e
       raise e unless client.eof?
+    rescue Errno::EPIPE => e
+      log "client disconnected with error #{e.message}, ignoring command"
     ensure
       redirect_output
     end
