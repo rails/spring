@@ -1,4 +1,4 @@
-## Unreleased
+## 4.5.0
 
 * Skip spring without error if spring is not in installed bundler groups.
 
