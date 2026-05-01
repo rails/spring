@@ -117,6 +117,7 @@ module Spring
       require Spring.application_root_path.join("config", "environment")
 
       invoke_after_environment_load_callbacks
+      preload_framework_base_classes
 
       disconnect_database
 
@@ -141,6 +142,19 @@ module Spring
         if secrets_path = Rails.application.paths["config/secrets"]
           watcher.add secrets_path
         end
+      end
+    end
+
+    # Eagerly autoload framework base classes
+    FRAMEWORK_BASE_CLASSES = %w[
+      ActionMailer::Base
+      ActionController::Base
+      ActionController::API
+    ].freeze
+
+    def preload_framework_base_classes
+      FRAMEWORK_BASE_CLASSES.each do |const|
+        Object.const_get(const) if Object.const_defined?(const)
       end
     end
 
