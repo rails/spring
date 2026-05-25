@@ -158,6 +158,20 @@ module Spring
         assert_failure "bin/rails runner 1", stderr: expected_error
       end
 
+      test "Spring.dangerously_allow_disabling_reloading bypasses the reloading-enabled check" do
+        config_path = app.path("config/environments/development.rb")
+        config = File.read(config_path)
+        if config.include?("config.cache_classes")
+          config.sub!(/config\.cache_classes\s*=\s*false/, "config.cache_classes = true")
+        else
+          config.sub!(/config.enable_reloading = true/, "config.enable_reloading = true\nconfig.cache_classes = true")
+        end
+        File.write(config_path, config)
+        File.write(app.path("config/spring.rb"), "Spring.dangerously_allow_disabling_reloading = true\n")
+
+        assert_success "bin/rails runner 1"
+      end
+
       test "test changes are picked up" do
         assert_speedup do
           assert_success app.spring_test_command, stdout: "0 failures"

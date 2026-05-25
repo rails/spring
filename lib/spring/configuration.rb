@@ -3,10 +3,16 @@ require "spring/errors"
 module Spring
   @connect_timeout = 5
   @boot_timeout = 20
+  @dangerously_allow_disabling_reloading = false
 
   class << self
     attr_accessor :application_root, :connect_timeout, :boot_timeout
     attr_writer :quiet
+
+    # Opt-in: skip the `:ensure_reloading_is_enabled` initializer so Spring
+    # boots with `config.enable_reloading = false`. Default `false`. See
+    # README "Running Spring with reloading disabled" for what this gives up.
+    attr_accessor :dangerously_allow_disabling_reloading
 
     def gemfile
       require "bundler"

@@ -79,6 +79,31 @@ Spring manages. That setting is typically configured in
 Note: in versions of Rails before 7.1, the setting is called `cache_classes`,
 and it needs to be `false` for Spring to work.
 
+#### Running Spring with reloading disabled (advanced, risky)
+
+If you know what you are doing, and if every reloadable resource is configured
+to materialize *lazily in the forked child*, not in the Spring server process,
+then you can decide to run Spring without Rail's in-process reloaders.
+
+To opt into this, set in `config/spring.rb`:
+
+```ruby
+Spring.dangerously_allow_disabling_reloading = true
+```
+
+If you set this, you should make sure that you are NOT pre-loading reloadable
+resource in the Spring server. One approach is to add boot-time assertions at
+the end of `Spring.after_environment_load`, e.g.:
+
+```ruby
+Spring.after_environment_load do
+  raise "routes were drawn at boot" if Rails.application.routes_reloader.loaded
+  raise "i18n locales where loaded at boot" unless I18n.backend.instance_variable_get(:@translations).nil?
+end
+```
+
+When unsure, leave this disabled.
+
 ### Usage
 
 For this walkthrough I've generated a new Rails application, and run
