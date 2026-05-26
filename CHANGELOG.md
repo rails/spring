@@ -1,3 +1,10 @@
+## Unreleased
+
+* Add `Spring.dangerously_allow_disabling_reloading` opt-in to skip the `:ensure_reloading_is_enabled` initializer check, so projects that want to run with `config.cache_classes = true` / `config.enable_reloading = false` can.
+The default behavior (refuse to boot) is unchanged, as using this option requires a Rails application that uses
+lazy-loader for everything (most importantly, routes & i18n translations).
+
+
 ## 4.5.0
 
 * Skip spring without error if spring is not in installed bundler groups.
