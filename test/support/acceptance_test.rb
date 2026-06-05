@@ -1,4 +1,5 @@
 require "io/wait"
+require "shellwords"
 require "timeout"
 require "spring/client"
 require "active_support/core_ext/string/strip"
@@ -714,6 +715,97 @@ module Spring
         ))
 
         assert_failure "bin/rails runner ''", stderr: "timed out"
+      end
+
+      test "waits for a server that is still booting the application" do
+        boot_wait_path = app.path("tmp/boot-wait-observed")
+        first_client_status_path = app.path("tmp/first-client-status")
+        app.path("tmp").mkpath
+
+        File.write(app.spring_client_config, <<-RUBY.strip_heredoc)
+          Spring.connect_timeout = 0.5
+          Spring.boot_timeout = 5
+
+          module BootWaitProbe
+            def read_server_line(timeout = Spring.connect_timeout)
+              if timeout == Spring.boot_timeout && ENV["EXPECT_BOOT_WAIT_PROBE"] == "1"
+                File.write("#{boot_wait_path}", "1")
+              end
+              super
+            end
+          end
+
+          Spring::Client::Run.prepend(BootWaitProbe)
+        RUBY
+        File.write(app.application_config, app.application_config.read.sub("class Application < Rails::Application", <<-RUBY.strip_heredoc))
+          class Application < Rails::Application
+            config.before_initialize { sleep 2 }
+        RUBY
+
+        first_client_group = nil
+        first_client_command = "(bin/rails runner ''; printf $? > #{first_client_status_path.to_s.shellescape}) &"
+        Bundler.with_unbundled_env do
+          first_client_group = Process.spawn(
+            app.env,
+            "sh",
+            "-c",
+            first_client_command,
+            out: app.log_file,
+            err: app.log_file,
+            in: :close,
+            chdir: app.root.to_s,
+            pgroup: true,
+          )
+        end
+        Process.wait(first_client_group)
+
+        Timeout.timeout(5) do
+          sleep 0.05 until File.read(app.log_file.path).include?("[application:development] preloading app")
+        end
+
+        assert !boot_wait_path.exist?, "first client unexpectedly retried with Spring.boot_timeout"
+        assert_success ["bin/rails runner ''", env: { "EXPECT_BOOT_WAIT_PROBE" => "1" }]
+        assert boot_wait_path.exist?, "expected second client to retry with Spring.boot_timeout"
+
+        Timeout.timeout(5) { sleep 0.05 until first_client_status_path.exist? }
+        assert_equal "0", first_client_status_path.read.strip, "expected first client to succeed"
+      ensure
+        if first_client_group
+          begin
+            Process.kill("KILL", -first_client_group)
+          rescue Errno::ESRCH
+          end
+        end
+      end
+
+      test "warns and reboots when the running server reports a different version than the client" do
+        version_patch = <<-RUBY.strip_heredoc
+          Spring.send(:remove_const, :VERSION)
+          Spring::VERSION = "0.0.0-fake"
+        RUBY
+        File.write("#{app.user_home}/.spring.rb", version_patch)
+        File.write(app.spring_client_config, version_patch)
+
+        assert_success "bin/rails runner ''"
+        assert spring_env.server_running?
+
+        File.delete("#{app.user_home}/.spring.rb")
+        File.delete(app.spring_client_config)
+
+        # Warm client connects, reads "0.0.0-fake" from the running server,
+        # must detect the mismatch, restart, and succeed.
+        assert_success "bin/rails runner ''", stderr: "There is a version mismatch"
+      end
+
+      test "boots a new server when a stale pidfile and socket are left on disk" do
+        spring_env.pidfile_path.write("999999\n")
+        UNIXServer.open(spring_env.socket_path).close
+
+        assert !spring_env.server_running?
+
+        assert_success "bin/rails runner ''"
+        assert spring_env.server_running?
+        refute_equal 999999, spring_env.pid, "expected a new server to have been started"
       end
 
       test "no warnings are shown for unsprung commands" do

@@ -6,6 +6,7 @@ module Spring
   module Client
     class Run < Command
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
+      ServerReadTimeout = Class.new(StandardError)
 
       attr_reader :server
 
@@ -120,13 +121,27 @@ module Spring
       end
 
       def verify_server_version
-        unless IO.select([server], [], [], Spring.connect_timeout)
-          raise "Error connecting to Spring server"
+        begin
+          line = read_server_line
+        rescue ServerReadTimeout
+          if waiting_for_server_boot?
+            begin
+              # Try again, but with same timeout as booting, as server might still be booting
+              #   from another client starting it.
+              line = read_server_line(Spring.boot_timeout)
+            rescue ServerReadTimeout
+              reboot_or_raise_connection_error
+              return
+            end
+          else
+            reboot_or_raise_connection_error
+            return
+          end
         end
 
-        line = server.gets
-        unless line
-          raise "Error connecting to Spring server"
+        if line.nil?
+          reboot_or_raise_connection_error
+          return
         end
 
         server_version = line.chomp
@@ -142,6 +157,25 @@ module Spring
             stop_server
             cold_run
           end
+        end
+      end
+
+      def read_server_line(timeout = Spring.connect_timeout)
+        raise ServerReadTimeout if IO.select([server], [], [], timeout).nil?
+
+        server.gets
+      end
+
+      def waiting_for_server_boot?
+        !server_booted? && env.server_running?
+      end
+
+      def reboot_or_raise_connection_error
+        if server_booted?
+          raise "Error connecting to Spring server"
+        else
+          stop_server
+          cold_run
         end
       end
 
