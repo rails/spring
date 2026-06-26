@@ -1,3 +1,7 @@
+## 4.7.0
+
+* Make client smarter about Spring server state: wait a little longer for the live booting server, or restart when the old server is gone.
+
 ## 4.6.0
 
 * Add `Spring.dangerously_allow_disabling_reloading` opt-in to skip the `:ensure_reloading_is_enabled` initializer check, so projects that want to run with `config.cache_classes = true` / `config.enable_reloading = false` can.
