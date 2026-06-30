@@ -251,6 +251,7 @@ module Spring
         connect_database
         srand
 
+        reset_reline_io_gate
         invoke_after_fork_callbacks
         shush_backtraces
 
@@ -321,6 +322,27 @@ module Spring
     def invoke_after_fork_callbacks
       Spring.after_fork_callbacks.each do |callback|
         callback.call
+      end
+    end
+
+    def reset_reline_io_gate
+      return unless defined?(Reline)
+      return unless $stdin.tty? && $stdout.tty? && ENV["TERM"] != "dumb"
+
+      begin
+        if defined?(Reline::IO) && Reline::IO.respond_to?(:decide_io_gate)
+          reline_gate = Reline::IO.decide_io_gate
+        else
+          require "reline/ansi"
+          reline_gate = Reline::ANSI
+        end
+
+        verbose_was = $VERBOSE
+        $VERBOSE = nil
+        Reline.send(:const_set, :IOGate, reline_gate)
+      rescue LoadError
+      ensure
+        $VERBOSE = verbose_was
       end
     end
 

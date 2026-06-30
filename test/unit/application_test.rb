@@ -107,4 +107,141 @@ class ApplicationTest < ActiveSupport::TestCase
           "— ApplicationManager#run will block on child.gets.to_i and deadlock " \
           "the server's accept loop"
   end
+
+  test "#reset_reline_io_gate re-decides Reline::IOGate when streams are TTYs" do
+    new_gate = Object.new
+
+    with_fake_reline(decided_gate: new_gate) do
+      with_tty_streams do
+        with_env("TERM" => "xterm-256color") do
+          @app.reset_reline_io_gate
+        end
+      end
+
+      assert_equal new_gate, ::Reline::IOGate
+    end
+  end
+
+  test "#reset_reline_io_gate is a no-op when Reline is not defined" do
+    without_reline do
+      refute defined?(::Reline)
+
+      assert_nil @app.reset_reline_io_gate
+    end
+  end
+
+  test "#reset_reline_io_gate is a no-op when STDOUT is not a TTY (piped)" do
+    original_gate = Object.new
+
+    with_fake_reline(decided_gate: Object.new, current_gate: original_gate) do
+      with_env("TERM" => "xterm-256color") do
+        # $stdout in the test runner is not a TTY; the method must bail out
+        # without calling decide_io_gate or touching the gate.
+        @app.reset_reline_io_gate
+      end
+
+      assert_equal original_gate, ::Reline::IOGate
+    end
+  end
+
+  test "#reset_reline_io_gate is a no-op when TERM is dumb" do
+    original_gate = Object.new
+
+    with_fake_reline(decided_gate: Object.new, current_gate: original_gate) do
+      with_tty_streams do
+        with_env("TERM" => "dumb") do
+          @app.reset_reline_io_gate
+        end
+      end
+
+      assert_equal original_gate, ::Reline::IOGate
+    end
+  end
+
+  # Build a minimal `Reline` module mimicking the shape Spring's
+  # `reset_reline_io_gate` inspects: `Reline::IO.decide_io_gate` (modern
+  # Reline) plus the `Reline::IOGate` constant. `decided_gate` is what
+  # `decide_io_gate` returns; `current_gate` is the pre-existing (stale)
+  # value of `Reline::IOGate`. Any pre-existing `::Reline` constant is
+  # restored afterwards so the global state doesn't leak to other tests.
+  def with_fake_reline(decided_gate:, current_gate: :stale_gate_from_preload)
+    original_reline = ::Reline if defined?(::Reline)
+    Object.send(:remove_const, :Reline) if defined?(::Reline)
+
+    reline = Module.new
+    reline.const_set(:IOGate, current_gate)
+    io = Module.new
+    io.define_singleton_method(:decide_io_gate) { decided_gate }
+    reline.const_set(:IO, io)
+
+    Object.const_set(:Reline, reline)
+    yield
+  ensure
+    Object.send(:remove_const, :Reline) if defined?(::Reline)
+    if original_reline
+      verbose_was = $VERBOSE
+      $VERBOSE = nil
+      begin
+        Object.const_set(:Reline, original_reline)
+      ensure
+        $VERBOSE = verbose_was
+      end
+    end
+  end
+
+  # Run the block as if `Reline` were not loaded, restoring any pre-existing
+  # `::Reline` constant afterwards so the global state doesn't leak.
+  def without_reline
+    original_reline = ::Reline if defined?(::Reline)
+    Object.send(:remove_const, :Reline) if defined?(::Reline)
+    yield
+  ensure
+    if original_reline
+      verbose_was = $VERBOSE
+      $VERBOSE = nil
+      begin
+        Object.const_set(:Reline, original_reline)
+      ensure
+        $VERBOSE = verbose_was
+      end
+    end
+  end
+
+  # Run the block with $stdin/$stdout/$stderr reporting as TTYs, restoring
+  # them afterwards. A stub is used instead of a real PTY so the test doesn't
+  # depend on /dev/ptmx being available in the CI environment.
+  def with_tty_streams
+    orig_in  = $stdin
+    orig_out = $stdout
+    orig_err = $stderr
+    $stdin  = TTYStub.new(orig_in)
+    $stdout = TTYStub.new(orig_out)
+    $stderr = TTYStub.new(orig_err)
+    yield
+  ensure
+    $stdin  = orig_in
+    $stdout = orig_out
+    $stderr = orig_err
+  end
+
+  def with_env(changes)
+    saved = changes.transform_values { |k| ENV[k] }
+    changes.each { |k, v| ENV[k] = v }
+    yield
+  ensure
+    saved.each do |k, v|
+      if v.nil?
+        ENV.delete(k)
+      else
+        ENV[k] = v
+      end
+    end
+  end
+
+  # Minimal IO wrapper that answers `tty?`/`isatty` truthily and forwards
+  # everything else to the wrapped IO.
+  class TTYStub < SimpleDelegator
+    def tty?; true; end
+    alias isatty tty?
+  end
 end
