@@ -906,6 +906,52 @@ module Spring
         code = artifacts[:status].exitstatus || artifacts[:status].termsig
         assert_equal 7, code, "Expected exit status to be 7, but was #{code}"
       end
+
+      test "terminating the client with TERM terminates its command" do
+        assert_command_ends_with_client "TERM"
+      end
+
+      test "terminating the client with HUP terminates its command" do
+        assert_command_ends_with_client "HUP"
+      end
+
+      test "killing the client with KILL terminates its command" do
+        assert_command_ends_with_client "KILL"
+      end
+
+      def assert_command_ends_with_client(signal)
+        assert_success "bin/rails runner ''"
+
+        pid_path = app.path("tmp/command.pid")
+        client = Bundler.with_unbundled_env do
+          Process.spawn(
+            app.env,
+            "bin/rails runner 'File.write(#{pid_path.to_s.inspect}, Process.pid); sleep 60'",
+            out: File::NULL,
+            err: File::NULL,
+            in: :close,
+            chdir: app.root.to_s,
+          )
+        end
+        Timeout.timeout(10) { sleep 0.05 until pid_path.exist? && !pid_path.read.empty? }
+        command_pid = pid_path.read.to_i
+
+        Process.kill(signal, client)
+        Process.wait(client)
+
+        Timeout.timeout(5) { sleep 0.05 while process_alive?(command_pid) }
+      rescue Timeout::Error
+        flunk "command #{command_pid} kept running after its client was sent #{signal}\n\n#{File.read(app.log_file.path)}"
+      ensure
+        Process.kill("KILL", command_pid) if command_pid && process_alive?(command_pid)
+      end
+
+      def process_alive?(pid)
+        Process.kill(0, pid)
+        true
+      rescue Errno::ESRCH
+        false
+      end
     end
   end
 end

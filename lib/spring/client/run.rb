@@ -6,6 +6,8 @@ module Spring
   module Client
     class Run < Command
       FORWARDED_SIGNALS = %w(INT QUIT USR1 USR2 INFO WINCH) & Signal.list.keys
+      # Not queued like the signals above, so they still end a client that is waiting for the preload.
+      TERMINATION_SIGNALS = %w(TERM HUP) & Signal.list.keys
       ServerReadTimeout = Class.new(StandardError)
 
       attr_reader :server
@@ -257,7 +259,7 @@ module Spring
       def forward_signals(application)
         @signal_queue.each { |sig| kill sig, application }
 
-        FORWARDED_SIGNALS.each do |sig|
+        (FORWARDED_SIGNALS + TERMINATION_SIGNALS).each do |sig|
           trap(sig) { forward_signal sig, application }
         end
       end

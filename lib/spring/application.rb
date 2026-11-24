@@ -403,11 +403,13 @@ module Spring
 
     def wait(pid, streams, client)
       @mutex.synchronize { @waiting[pid] = true }
+      exited = false
 
       # Wait in a separate thread so we can run multiple commands at once
       Spring.failsafe_thread {
         begin
           _, status = Process.wait2 pid
+          exited = true
           log "#{pid} exited with #{status.exitstatus || status.inspect}"
 
           streams.each(&:close)
@@ -420,18 +422,29 @@ module Spring
       }
 
       Spring.failsafe_thread {
-        while signal = client.gets.chomp
+        while (line = client.gets)
           begin
-            Process.kill(signal, -Process.getpgid(pid))
+            Process.kill(line.chomp, -Process.getpgid(pid))
             client.puts(0)
           rescue Errno::ESRCH
             client.puts(1)
           end
         end
+
+        # EOF while the command still runs means its client died (e.g. SIGKILL), so nothing else would stop it.
+        unless exited
+          log "client of #{pid} disconnected, terminating it"
+          terminate_command(pid)
+        end
       }
     end
 
     private
+
+    def terminate_command(pid)
+      Process.kill("TERM", -pid)
+    rescue Errno::ESRCH
+    end
 
     # Tolerate Errno::EPIPE on writes to the client socket. Once the client
     # disconnects, every subsequent write to it raises — that's expected
