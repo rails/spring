@@ -422,13 +422,17 @@ module Spring
       }
 
       Spring.failsafe_thread {
-        while (line = client.gets)
-          begin
-            Process.kill(line.chomp, -Process.getpgid(pid))
-            client.puts(0)
-          rescue Errno::ESRCH
-            client.puts(1)
+        begin
+          while (line = client.gets)
+            begin
+              Process.kill(line.chomp, -Process.getpgid(pid))
+              client.puts(0)
+            rescue Errno::ESRCH
+              client.puts(1)
+            end
           end
+        rescue Errno::ECONNRESET, Errno::EPIPE
+          # Same as EOF: the client is gone.
         end
 
         # EOF while the command still runs means its client died (e.g. SIGKILL), so nothing else would stop it.
@@ -441,8 +445,13 @@ module Spring
 
     private
 
+    # Before the command's setsid, its process group is this application's, which must not be signalled.
     def terminate_command(pid)
-      Process.kill("TERM", -pid)
+      50.times do
+        return Process.kill("TERM", -pid) if Process.getpgid(pid) == pid
+        sleep 0.01
+      end
+      Process.kill("TERM", pid)
     rescue Errno::ESRCH
     end
 

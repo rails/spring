@@ -240,7 +240,7 @@ module Spring
 
       def queue_signals
         FORWARDED_SIGNALS.each do |sig|
-          trap(sig) { @signal_queue << sig }
+          trap_unless_ignored(sig) { @signal_queue << sig }
         end
       end
 
@@ -260,8 +260,14 @@ module Spring
         @signal_queue.each { |sig| kill sig, application }
 
         (FORWARDED_SIGNALS + TERMINATION_SIGNALS).each do |sig|
-          trap(sig) { forward_signal sig, application }
+          trap_unless_ignored(sig) { forward_signal sig, application }
         end
+      end
+
+      # A signal the client was started with ignored (e.g. HUP under nohup) must stay ignored, not be forwarded.
+      def trap_unless_ignored(sig, &handler)
+        previous = trap(sig, &handler)
+        trap(sig, "IGNORE") if previous == "IGNORE"
       end
 
       def forward_signal(sig, application)

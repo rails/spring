@@ -907,26 +907,64 @@ module Spring
         assert_equal 7, code, "Expected exit status to be 7, but was #{code}"
       end
 
-      test "terminating the client with TERM terminates its command" do
-        assert_command_ends_with_client "TERM"
+      test "TERM sent to the client is forwarded to its command" do
+        assert_signal_forwarded_to_command "TERM"
       end
 
-      test "terminating the client with HUP terminates its command" do
-        assert_command_ends_with_client "HUP"
+      test "HUP sent to the client is forwarded to its command" do
+        assert_signal_forwarded_to_command "HUP"
       end
 
       test "killing the client with KILL terminates its command" do
-        assert_command_ends_with_client "KILL"
+        client, command_pid = spawn_sleeping_command
+        Process.kill("KILL", client)
+        Process.wait(client)
+
+        Timeout.timeout(5) { sleep 0.05 while process_alive?(command_pid) }
+      rescue Timeout::Error
+        flunk "command #{command_pid} kept running after its client was killed\n\n#{File.read(app.log_file.path)}"
+      ensure
+        Process.kill("KILL", command_pid) if command_pid && process_alive?(command_pid)
       end
 
-      def assert_command_ends_with_client(signal)
+      test "HUP is not forwarded when the client runs under nohup" do
+        client, command_pid = spawn_sleeping_command(prefix: "nohup ")
+        Process.kill("HUP", client)
+        sleep 1
+
+        assert process_alive?(client), "client exited on HUP despite nohup"
+        assert process_alive?(command_pid), "command exited on HUP despite nohup"
+      ensure
+        Process.kill("KILL", command_pid) if command_pid && process_alive?(command_pid)
+        if client
+          Process.kill("KILL", client) if process_alive?(client)
+          Process.wait(client)
+        end
+      end
+
+      # The client reports 42 only if it forwarded the signal; the disconnect fallback would leave it killed by the signal.
+      def assert_signal_forwarded_to_command(signal)
+        client, command_pid = spawn_sleeping_command(trap_signal: signal)
+        Process.kill(signal, client)
+        _, status = Timeout.timeout(10) { Process.wait2(client) }
+
+        assert_equal 42, status.exitstatus, "client did not report the command's exit status: #{status.inspect}\n\n#{File.read(app.log_file.path)}"
+      ensure
+        Process.kill("KILL", command_pid) if command_pid && process_alive?(command_pid)
+      end
+
+      def spawn_sleeping_command(trap_signal: nil, prefix: "")
         assert_success "bin/rails runner ''"
 
         pid_path = app.path("tmp/command.pid")
+        pid_path.delete if pid_path.exist?
+        script = "File.write(#{pid_path.to_s.inspect}, Process.pid); sleep 60"
+        script = "trap(#{trap_signal.inspect}) { exit 42 }; #{script}" if trap_signal
+
         client = Bundler.with_unbundled_env do
           Process.spawn(
             app.env,
-            "bin/rails runner 'File.write(#{pid_path.to_s.inspect}, Process.pid); sleep 60'",
+            "#{prefix}bin/rails runner '#{script}'",
             out: File::NULL,
             err: File::NULL,
             in: :close,
@@ -934,16 +972,7 @@ module Spring
           )
         end
         Timeout.timeout(10) { sleep 0.05 until pid_path.exist? && !pid_path.read.empty? }
-        command_pid = pid_path.read.to_i
-
-        Process.kill(signal, client)
-        Process.wait(client)
-
-        Timeout.timeout(5) { sleep 0.05 while process_alive?(command_pid) }
-      rescue Timeout::Error
-        flunk "command #{command_pid} kept running after its client was sent #{signal}\n\n#{File.read(app.log_file.path)}"
-      ensure
-        Process.kill("KILL", command_pid) if command_pid && process_alive?(command_pid)
+        [client, pid_path.read.to_i]
       end
 
       def process_alive?(pid)
